@@ -1,0 +1,99 @@
+body {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 18px;
+  padding-top: 100px;
+  height: 100%;
+}
+
+b {
+  font-family: 'Montserrat-bold', sans-serif;
+}
+
+h1 {
+}
+
+h5 {
+  font-family: 'Montserrat-light', sans-serif;
+}
+
+.container {
+    padding-right: 35px;
+    padding-left: 35px;
+}
+
+/* standard button */
+.btn-primary {
+  color: white;
+  background-color: #41948E; /*emerald green*/
+  border-color: #41948E; /*emerald green*/
+}
+
+.btn-primary:hover {
+  color: white;
+  background-color: #1f635f; /*dark green*/
+  border-color: #1f635f; /*dark green*/
+}
+
+
+.terms li {
+  padding-bottom: 25px;
+}
+
+/* container for the navbar*/
+.container-fluid {
+  margin: 20px;
+}
+
+
+/* navbar background */
+.navbar-default {
+    background-color: white;
+    border-color: white;
+}
+
+.navbar-default .navbar-brand {
+    color: black;
+    font-family: 'Montserrat-bold', sans-serif;
+}
+
+.navbar-default .navbar-brand:hover {
+    color: #41948E; /*emerald green*/
+}
+
+/* active — the page you're currently on */
+.navbar-default .navbar-nav>.active>a {
+  color: #41948E; /*emerald green*/
+  font-family: 'Montserrat-bold', sans-serif;
+  background: none;
+}
+
+.navbar-default .navbar-nav>.active>a:hover {
+  color: #41948E; /*emerald green*/
+  background: none;
+}
+
+
+/* not active */
+.navbar-default .navbar-nav>li>a {
+  color: #A1A1A1; /*light gray*/
+  font-family: 'Montserrat-semibold', sans-serif;
+  }
+
+.navbar-default .navbar-nav>li>a:hover {
+    color: #41948E; /*emerald green*/
+  }
+
+/* navigation bar drop shadow */
+body > #header{position:fixed;}
+
+  #header {
+      width: 100%;
+      position: fixed;
+      z-index:9000;
+      overflow: auto;
+      transition: all 0.15s linear;
+  }
+
+  #header.active {
+       box-shadow: 0 0 10px rgba(0,0,0,0.2);
+  }

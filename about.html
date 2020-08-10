@@ -23,45 +23,35 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#">Name of Site</a>
+          <a class="navbar-brand" href="index.html">Name of Site</a>
         </div>
 
         <!-- Links to home, interactive graphs, terminology, and about -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
           <ul class="nav navbar-nav navbar-right">
-            <li class="active"><a href="#">Home</a></li>
+            <li><a href="index.html">Home</a></li>
             <li><a href="prebolus.html">Interactive Graphs</a></li>
             <li><a href="terminology.html">Terminology</a></li>
-            <li><a href="about.html">About</a></li>
+            <li class="active"><a href="#">About</a></li>
           </ul>
         </div><!-- /.navbar-collapse -->
       </div><!-- /.container-fluid -->
     </nav>
 
     <div class="container">
-      <div class="row">
-        <div class="col-sm-6">
-          <h1 style="padding-bottom: 20px;"><b>Insulin</b> management is achievable</h1>
-          <h4>Understanding how insulin works is important to diabetes management.</p>
-          <h4>Can we visualize how insulin affects glucose levels?</p><br>
-          <button type="button" class="btn btn-primary" style="margin-bottom: 50px">See How It Works »</button>
-        </div>
-        <div class="col-sm-6">
-          <img src="img/glucose.gif" width=100%>
-        </div>
-      </div>
+      <h1><b>About</b></h1>
     </div>
   </body>
   <script>
-    // function to add shadow to the navbar
-    $(window).scroll(function() {
-    var scroll = $(window).scrollTop();
-    if (scroll > 0) {
-      $("#header").addClass("active");
-    }
-    else {
-      $("#header").removeClass("active");
-    }
-    });
-  </script>
+  // function to add shadow to the navbar
+  $(window).scroll(function() {
+  var scroll = $(window).scrollTop();
+  if (scroll > 0) {
+    $("#header").addClass("active");
+  }
+  else {
+    $("#header").removeClass("active");
+  }
+  });
+</script>
 </html>
