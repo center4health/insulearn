@@ -42,10 +42,10 @@
 
     <div class="container">
       <center>
+        <p id="timeinrange" style="margin: 0">Time In Range: 100%</p>
         <svg width="750" height="525"></svg> <!-- changed the size of the graph -->
         <input type="range" name="bolus_time" id=bolus_time min="-150" max="100" value="0" style="width: 700px"></input>
         <p id="selectedTime">Time of Bolus: 5:00 PM</p>
-        <br>
         <input type="range" name="insulin_amt" id=insulin_amt min="0" max="20" value="4" style="width: 700px">Amount of Insulin</input>
       </center>
     </div>
@@ -326,6 +326,28 @@
             )
     }
 
+    function time_in_range(bg_data){
+      var inrange = 0;
+      for (i = 0; i < bg_data.length; i++){
+          if (bg_data[i][1]>69 && bg_data[i][1]<181){
+              inrange++;
+          }
+      }
+      var timeinrange = Math.round(inrange / bg_data.length * 100);
+      var tir = "Time In Range: " + timeinrange + "%";
+      document.getElementById("timeinrange").innerHTML = tir;
+    }
+
+
+    function selected_time(bolus_time){
+      var hours = bolus_time.getHours(); // gives the value in 24 hours format
+      var AmOrPm = hours >= 12 ? 'PM' : 'AM';
+      hours = (hours % 12) || 12;
+      var minutes = bolus_time.getMinutes() > 9 ? bolus_time.getMinutes() : '0' + bolus_time.getMinutes();
+      var finalTime = "Time of Bolus: " + hours + ":" + minutes + " " + AmOrPm;
+      document.getElementById("selectedTime").innerHTML = finalTime;
+    }
+
     var b_t = default_bolus_time;
 
     d3.select("#bolus_time").on("input", function (d) {
@@ -333,14 +355,7 @@
 
         var bolus_time=d3.timeMinute.offset(default_bolus_time, selectedValue);
 
-
-        // Updating the selected time
-        var hours = bolus_time.getHours(); // gives the value in 24 hours format
-        var AmOrPm = hours >= 12 ? 'PM' : 'AM';
-        hours = (hours % 12) || 12;
-        var minutes = bolus_time.getMinutes() > 9 ? bolus_time.getMinutes() : '0' + bolus_time.getMinutes();
-        var finalTime = "Time of Bolus: " + hours + ":" + minutes + " " + AmOrPm;
-        document.getElementById("selectedTime").innerHTML = finalTime;
+        selected_time(bolus_time) // update selected time in the html
 
 
         b_t = bolus_time;
@@ -348,6 +363,8 @@
         update_insulin(insulin);
         var bg_data=apply_insulin(insulin);
         update_bg(bg_data);
+
+        time_in_range(bg_data); // update time in range
     });
 
     d3.select("#insulin_amt").on("input", function (d) {
@@ -356,9 +373,20 @@
         update_insulin(insulin);
         var bg_data=apply_insulin(insulin)
         update_bg(bg_data);
+
+        time_in_range(bg_data); // update time in range
     });
 
-
+    // function to add shadow to the navbar
+    $(window).scroll(function() {
+    var scroll = $(window).scrollTop();
+    if (scroll > 0) {
+      $("#header").addClass("active");
+    }
+    else {
+      $("#header").removeClass("active");
+    }
+    });
 
 
 </script>
