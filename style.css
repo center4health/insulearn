@@ -26,6 +26,11 @@ h5 {
     padding-left: 35px;
 }
 
+.range {
+  font-weight: 700;
+  font-size: 14px;
+}
+
 /* standard button */
 .btn-primary {
   color: white;
@@ -136,7 +141,7 @@ body > #header{position:fixed;}
     margin-top: -5.5px;
   }
   input[type=range]:focus::-webkit-slider-runnable-track {
-    background: #41948E;
+    background: #c4c4c4;
   }
   input[type=range]::-moz-range-track {
     width: 100%;

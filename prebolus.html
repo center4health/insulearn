@@ -191,6 +191,14 @@
         .attr('height', height)
         .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
 
+    // shade time in range section
+    svg.append('rect')
+        .style("fill", "#EFF6FE")
+        .attr("x", 50)
+        .attr("y", 280)
+        .attr("width", 680)
+        .attr("height", 130);
+
     //rough estimate of upper threshold
     svg.append('line')
         .style("stroke", "#FFB800") // color of upper threshold line
