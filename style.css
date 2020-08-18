@@ -1,6 +1,6 @@
 body {
   font-family: 'Montserrat', sans-serif;
-  font-size: 18px;
+  font-size: 16px;
   padding-top: 100px;
   height: 100%;
 }
@@ -8,7 +8,6 @@ body {
 b {
   font-weight: 700;
 }
-
 
 h1 {
 }
@@ -22,8 +21,8 @@ h5 {
 }
 
 .container {
-    padding-right: 35px;
-    padding-left: 35px;
+    padding-right: 50px;
+    padding-left: 50px;
 }
 
 .range {
@@ -46,7 +45,7 @@ h5 {
 
 
 .terms li {
-  padding-bottom: 25px;
+  padding-bottom: 5px;
 }
 
 /* container for the navbar*/
@@ -99,7 +98,7 @@ body > #header{position:fixed;}
   #header {
       width: 100%;
       position: fixed;
-      z-index:9000;
+      z-index:100;
       overflow: auto;
       transition: all 0.15s linear;
   }
