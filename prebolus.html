@@ -24,12 +24,18 @@
       border: white 0px;
     }
 
-    #below70, #rangeModal {
+    #rangeModal {
       position: absolute; /* hard-coded where the hovers go */
       top: 250px;
       left: 450px;
       z-index: 9000;
   }
+
+    #below70, #above180 {
+        position: absolute; /* hard-coded where the hovers go */
+        top: 250px;
+        z-index: 9000;
+    }
 
     #targetModal {
       position: absolute; /* hard-coded where the hovers go */
@@ -108,21 +114,37 @@
       </center>
     </div>
 
-    <!-- Modal: Pop Up for time in range below 70 -->
-    <!-- <div class="modal fade" id="below70" tabindex="-1" role="dialog" aria-labelledby="movingdown" aria-hidden="true">
+    <!-- Modal: Pop Up for going low -->
+    <div class="modal fade" id="below70" tabindex="-1" role="dialog" aria-labelledby="movingdown" aria-hidden="true">
       <div class="modal-dialog modal-sm" role="document">
         <div class="modal-content">
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
-            <center><b>Reminder</b></center><br>
-            <p>This bolus adjustment dropped the time in range below 70%. Try
-               moving the sliders to stay above 70%. </p>
+            <center><b>Going Low!</b></center><br>
+            <p>The glucose levels dropped below 70 mg/dL.
+               Going low can lead to... Try adjusting the sliders to stay above 70 mg/dL. </p>
           </div>
         </div>
       </div>
-    </div> -->
+    </div>
+
+    <!-- Modal: Pop Up for going high -->
+    <div class="modal fade" id="above180" tabindex="-1" role="dialog" aria-labelledby="movingdown" aria-hidden="true">
+      <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+            <center><b>Going High!</b></center><br>
+            <p>The glucose levels rose above 180 mg/dL.
+               Going high can lead to... Try adjusting the sliders to stay below 180 mg/dL. </p>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- Modal: Time in range hover -->
     <div class="modal fade" id="rangeModal" tabindex="-1" role="dialog" aria-labelledby="movingdown" aria-hidden="true">
@@ -181,6 +203,8 @@
     //let's get our data ready
     let show = 0;
     let selectVal = 0;
+    let low = 0;
+    let high = 0;
     let bg_raw = [["12:02:52", 104.0], ["12:07:52", 104.0], ["12:12:51", 103.0],
                 ["12:17:52", 103.0], ["12:22:51", 103.0], ["12:27:51", 103.0],
                 ["12:32:51", 101.0], ["12:37:52", 100.0], ["12:42:51", 101.0],
@@ -518,7 +542,30 @@
       //   }
       // }
       // else if (timeinrange >= 70){ show = 0; }
+    }
 
+    function goingLow(bg_data){
+      for (i = 0; i < bg_data.length-1; i++){
+        if (bg_data[i][1]<70 && bg_data[i+1][1]<70){
+          // you're going low
+          if(low == 0){$('#below70').modal('show')}
+          low++;
+          return
+        }
+      }
+      low=0;
+    }
+
+    function goingHigh(bg_data){
+      for (i = 0; i < bg_data.length-1; i++){
+        if (bg_data[i][1]>180 && bg_data[i+1][1]>180){
+          // you're going high
+          if(high == 0){$('#above180').modal('show')}
+          high++;
+          return
+        }
+      }
+      high=0;
     }
 
 
@@ -574,6 +621,8 @@
         update_bg(bg_data);
 
         time_in_range(bg_data); // update time in range
+        goingLow(bg_data);
+        goingHigh(bg_data);
 
         // bolus point
         d3.select("circle")
@@ -609,6 +658,8 @@
         update_bg(bg_data);
 
         time_in_range(bg_data); // update time in range
+        goingLow(bg_data);
+        goingHigh(bg_data);
 
         // bolus point
         d3.select("circle")
