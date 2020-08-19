@@ -30,6 +30,11 @@ h5 {
   font-size: 14px;
 }
 
+#targetrange{
+  font-weight: 400;
+  font-size: 12px;
+}
+
 /* standard button */
 .btn-primary {
   color: white;
