@@ -39,13 +39,13 @@
 
     #below70, #above180 {
         position: absolute;
-        top: 135px;
+        top: 300px;
         z-index: 9000;
     }
 
     #targetModal {
       position: absolute;
-      top: 410px;
+      top: 560px;
       left: 400px;
       z-index: 9000;
     }
@@ -114,11 +114,11 @@
       <center>
         <div style="width: 750px">
           <h3 style="text-align: left"><b>Insulin Timing & Dosing</b></h3>
-          <!-- <p style="text-align: left">Choose a starting graph</p>
+          <p style="text-align: left">Choose a starting graph</p>
           <div style="text-align: left">
-            <img src="https://complianz.io/wp-content/uploads/2019/03/placeholder-300x202.jpg" width="100">
-            <img src="https://complianz.io/wp-content/uploads/2019/03/placeholder-300x202.jpg" width="100">
-          </div> -->
+            <img src="img/forgot_bolus_current.png" width="100">
+            <!-- <img src="https://complianz.io/wp-content/uploads/2019/03/placeholder-300x202.jpg" width="100"> -->
+          </div>
           <p id="timeinrange" style="width:200px; margin-left: 570px" data-toggle="tooltip" data-placement="bottom" data-html="true" title="<p>The <b>time in range</b> is the percentage of time that your
             blood sugar levels are within a target range over a period of time.</p>">Time In Range: 100%</p>
           <svg width="750" height="525"></svg>
@@ -142,7 +142,7 @@
               <p style="padding-top: 10px">Dose (U)</p>
             </div>
             <div class="col-sm-10">
-              <input type="range" name="insulin_amt" id=insulin_amt min="0" max="20" value="4" style="width: 600px"></input>
+              <input type="range" name="insulin_amt" id=insulin_amt min="0" max="20" value="0" style="width: 600px"></input>
             </div>
           </div>
         </div>
@@ -328,7 +328,7 @@
 
     default_bolus_time = timeParse("17:00:00");
     offset = 0;
-    var dose = 1;
+    var dose = 0;
 
     function calculate_insulin_curve(bolus = default_bolus_time) {
         var curve = [];

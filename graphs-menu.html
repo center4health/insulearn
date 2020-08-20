@@ -43,15 +43,15 @@
       <h4 style="padding-bottom: 50px;">Interact with the graphs and learn how insulin affects glucose levels</h4>
       <div class="row">
         <div class="col-sm-4">
-          <img src="img/bolus_early.png" width="100%" style="border: 5px solid #c4c4c4; border-radius: 10px">
+          <img src="img/early-bolus.png" width="100%" style="border: 5px solid #c4c4c4; border-radius: 10px">
           <center><button type="button" class="btn btn-primary" style="margin-top: 10px; width: 100%" id="timing">Insulin Timing</button></center>
         </div>
         <div class="col-sm-4">
-          <img src="https://complianz.io/wp-content/uploads/2019/03/placeholder-300x202.jpg" width="100%" style="border: 5px solid #c4c4c4; border-radius: 10px">
-          <center><button type="button" class="btn btn-primary" style="margin-top: 10px; width: 100%">Insulin Dosing</button></center>
+          <img src="img/little-bolus.png" width="100%" style="border: 5px solid #c4c4c4; border-radius: 10px">
+          <center><button type="button" class="btn btn-primary" style="margin-top: 10px; width: 100%" id="dosing">Insulin Dosing</button></center>
         </div>
         <div class="col-sm-4">
-          <img src="img/forgot_bolus.png" width="100%" style="border: 5px solid #c4c4c4; border-radius: 10px">
+          <img src="img/forgot-bolus.png" width="100%" style="border: 5px solid #c4c4c4; border-radius: 10px">
           <center><button type="button" class="btn btn-primary" style="margin-top: 10px; width: 100%" id="timing_dosing">Insulin Timing & Dosing</button></center>
         </div>
       </div>
@@ -72,5 +72,6 @@
 
     $('#timing').on('click', function() { window.location = 'bolus_too_early.html'; });
     $('#timing_dosing').on('click', function() { window.location = 'prebolus.html'; });
+    $('#dosing').on('click', function() { window.location = 'bolus_too_little.html'; });
   </script>
 </html>
