@@ -48,6 +48,18 @@ h5 {
   border-color: #1f635f; /*dark green*/
 }
 
+.back {
+  color: #747474; /* dark gray */
+  background-color: #F0F0F0; /*light gray*/
+  border-color: #F0F0F0; /*light gray*/
+}
+
+.back:hover {
+  color: #747474; /* dark gray */
+  background-color: #d9d9d9; /*light gray*/
+  border-color: #d9d9d9; /*light gray*/
+}
+
 
 .terms li {
   padding-bottom: 5px;

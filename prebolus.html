@@ -13,10 +13,16 @@
   <!-- https://stackoverflow.com/questions/42720488/d3-v4-drag-line-chart-with-x-and-y-axes -->
   <!-- Thanks to Mark - https://stackoverflow.com/users/16363/mark -->
   <style>
+
+    .example-open .modal-backdrop {
+       background-color: black; /* adds overlay to beginning pop-up */
+    }
+
     .modal-backdrop {
        background-color: transparent; /* removes overlay from popup */
     }
-    .modal-content{
+
+    .modal-content{ /* shadow for the modal */
       -webkit-box-shadow: 2px 2px 10px 0px rgba(209,209,209,1);
       -moz-box-shadow: 2px 2px 10px 0px rgba(209,209,209,1);
       -o-box-shadow: 2px 2px 10px 0px rgba(209,209,209,1);
@@ -24,31 +30,55 @@
       border: white 0px;
     }
 
-    #rangeModal {
-      position: absolute; /* hard-coded where the hovers go */
+    /* #rangeModal {
+      position: absolute;
       top: 250px;
       left: 450px;
       z-index: 9000;
-  }
+  } */
 
     #below70, #above180 {
-        position: absolute; /* hard-coded where the hovers go */
-        top: 250px;
+        position: absolute;
+        top: 135px;
         z-index: 9000;
     }
 
     #targetModal {
-      position: absolute; /* hard-coded where the hovers go */
-      top: 510px;
+      position: absolute;
+      top: 410px;
       left: 400px;
       z-index: 9000;
     }
 
-    #bolusModal {
-      position: absolute; /* hard-coded where the hovers go */
+    /* #bolusModal {
+      position: absolute;
       top: 515px;
       left: -635px;
       z-index: 9000;
+    } */
+
+    #intro, #scenario {
+      position: absolute;
+      top: 25%
+    }
+
+    .tooltip-inner {
+      background-color: white;
+      font-family: 'Montserrat', sans-serif;
+      color: black;
+      font-size: 16px;
+      padding: 20px;
+      -webkit-box-shadow: 2px 2px 10px 0px rgba(209,209,209,1);
+      -moz-box-shadow: 2px 2px 10px 0px rgba(209,209,209,1);
+      -o-box-shadow: 2px 2px 10px 0px rgba(209,209,209,1);
+      box-shadow: 2px 2px 10px 0px rgba(209,209,209,1);
+      border: white 0px;
+      max-width: 300px;
+      text-align: left;
+    }
+
+    .tooltip.in {
+        opacity: 1; /* solid background for tooltip */
     }
   </style>
   <body>
@@ -80,18 +110,23 @@
     </nav>
 
     <div class="container">
+      <a href="graphs-menu.html" style="color: #9B9B9B"><img src="img/back_arrow.png" style= "width: 25px"> Back to Interactive Graphs Menu</a>
       <center>
         <div style="width: 750px">
           <h3 style="text-align: left"><b>Insulin Timing & Dosing</b></h3>
-          <p style="text-align: left">Choose a starting graph</p>
+          <!-- <p style="text-align: left">Choose a starting graph</p>
           <div style="text-align: left">
             <img src="https://complianz.io/wp-content/uploads/2019/03/placeholder-300x202.jpg" width="100">
             <img src="https://complianz.io/wp-content/uploads/2019/03/placeholder-300x202.jpg" width="100">
-          </div>
-          <p id="timeinrange" style="width:200px; margin-left: 570px">Time In Range: 100%</p>
+          </div> -->
+          <p id="timeinrange" style="width:200px; margin-left: 570px" data-toggle="tooltip" data-placement="bottom" data-html="true" title="<p>The <b>time in range</b> is the percentage of time that your
+            blood sugar levels are within a target range over a period of time.</p>">Time In Range: 100%</p>
           <svg width="750" height="525"></svg>
           <div class="row">
-            <div class="col-sm-2"><p style="text-align: center"><b id="bolus">Bolus</b></p></div>
+            <div class="col-sm-2"><p style="text-align: center"><b id="bolus" data-toggle="tooltip" data-placement="top" data-container="body" data-html="true" title="<p>A <b>bolus</b> is insulin you take when you eat to keep blood sugar
+               levels controlled after meals. <br><br><b>Pre-bolusing</b> is when you take your
+               insulin dose before you eat, usually 5-15 minutes before depending
+               on the circumstances. </p>">Bolus</b></p></div>
             <div class="col-sm-10"></div>
           </div>
           <div class="row"> <!-- TIME SLIDER-->
@@ -123,8 +158,7 @@
               <span aria-hidden="true">&times;</span>
             </button>
             <center><b>Going Low!</b></center><br>
-            <p>The glucose levels dropped below 70 mg/dL.
-               Going low can lead to... Try adjusting the sliders to stay above 70 mg/dL. </p>
+            <p>The glucose levels have <b>dropped</b> below 70mg/dL.<br><br>Try adjusting the sliders to stay between the target range of 180mg/dL and 70mg/dL.</p>
           </div>
         </div>
       </div>
@@ -139,16 +173,15 @@
               <span aria-hidden="true">&times;</span>
             </button>
             <center><b>Going High!</b></center><br>
-            <p>The glucose levels rose above 180 mg/dL.
-               Going high can lead to... Try adjusting the sliders to stay below 180 mg/dL. </p>
+            <p>The glucose levels have <b>rose</b> above 180mg/dL.<br><br>Try adjusting the sliders to stay between the target range of 180mg/dL and 70mg/dL.</p>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Modal: Time in range hover -->
-    <div class="modal fade" id="rangeModal" tabindex="-1" role="dialog" aria-labelledby="movingdown" aria-hidden="true">
-      <div class="modal-dialog modal-sm" role="document">
+    <!-- <div class="modal fade" id="rangeModal" tabindex="-1" role="dialog" aria-labelledby="movingdown" aria-hidden="true">
+      <div class="modal-dialog modal-sm" role="document" style="pointer-events: none;">
         <div class="modal-content">
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -160,11 +193,11 @@
           </div>
         </div>
       </div>
-    </div>
+    </div> -->
 
     <!-- Modal: Target range hover -->
     <div class="modal fade" id="targetModal" tabindex="-1" role="dialog" aria-labelledby="movingdown" aria-hidden="true">
-      <div class="modal-dialog modal-sm" role="document">
+      <div class="modal-dialog modal-sm" role="document" style="pointer-events: none;">
         <div class="modal-content">
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -179,7 +212,7 @@
     </div>
 
     <!-- Modal: Bolus hover -->
-    <div class="modal fade" id="bolusModal" tabindex="-1" role="dialog" aria-labelledby="movingdown" aria-hidden="true">
+    <!-- <div class="modal fade" id="bolusModal" tabindex="-1" role="dialog" aria-labelledby="movingdown" aria-hidden="true">
       <div class="modal-dialog modal-sm" role="document">
         <div class="modal-content">
           <div class="modal-header">
@@ -194,8 +227,39 @@
           </div>
         </div>
       </div>
+    </div> -->
+
+
+    <!-- Modal: Intro -->
+    <div class="modal fade" id="intro" tabindex="-1" role="dialog" aria-labelledby="movingdown" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header" style="padding: 25px">
+            <p style="font-size: 20px">Adjust both the <b>Timing & Doses of Bolus Insulin</b> to increase
+               the % Time in Range. Click next to see the starting example scenario.</p><br>
+            <center>
+              <button type="button" id="back" class="btn back" style="margin-top: 10px">Back</button>
+              <button type="button" id="next" class="btn btn-primary" style="margin-top: 10px">Next</button>
+            </center>
+          </div>
+        </div>
+      </div>
     </div>
 
+    <!-- Modal: Scenario -->
+    <div class="modal fade" id="scenario" tabindex="-1" role="dialog" aria-labelledby="movingdown" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header" style="padding: 25px">
+            <center><p style="font-size: 20px">Imagine that...</p></center>
+            <p style="font-size: 20px">you were busy at work, had a quick lunch and forgot to bolus before your next meeting. </p><br>
+            <center>
+              <button type="button" class="btn btn-primary" data-dismiss="modal" aria-label="Close">Adjust Bolus</button>
+            </center>
+          </div>
+        </div>
+      </div>
+    </div>
   </body>
 
 <script src="https://d3js.org/d3.v5.min.js"></script>
@@ -533,15 +597,6 @@
       var timeinrange = Math.round(inrange / bg_data.length * 100);
       var tir = "Time In Range: " + timeinrange + "%";
       document.getElementById("timeinrange").innerHTML = tir;
-
-      // time in range is moving below 70
-      // if (timeinrange < 70){
-      //   if(show == 0){
-      //     $('#below70').modal('show')
-      //     show++;
-      //   }
-      // }
-      // else if (timeinrange >= 70){ show = 0; }
     }
 
     function goingLow(bg_data){
@@ -694,14 +749,31 @@
     }
     });
 
-    // Triggers time in range hover
-    $('#timeinrange').hover(function() {$('#rangeModal').modal('show')});
+    // tooltips
+    $(function () {$('[data-toggle="tooltip"]').tooltip()})
 
-    // Triggers target range hover
-    $('#targetrange').hover(function() {$('#targetModal').modal('show')});
+    $("#targetrange").hover(function(){$('#targetModal').modal('show')});
 
-    // Triggers bolus hover
-    $('#bolus').hover(function() { $('#bolusModal').modal('show')});
+    // open beginning modal
+    $(document).ready(function () {
+      $('#intro').modal('show');
+    });
 
+    $('#intro').on('show.bs.modal', function (e) {
+        $('body').addClass("example-open");
+    }).on('hide.bs.modal', function (e) {
+        $('body').removeClass("example-open");
+    })
+
+    $('#scenario').on('show.bs.modal', function (e) {
+        $('body').addClass("example-open");
+    }).on('hide.bs.modal', function (e) {
+        $('body').removeClass("example-open");
+    })
+
+    $('#back').on('click', function() { window.location = 'graphs-menu.html'; });
+    $('#next').on('click', function() {
+      $('#intro').modal('hide');
+      $('#scenario').modal('show'); });
 </script>
 </html>
