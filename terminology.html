@@ -186,16 +186,9 @@
                when you should bolus. A doctor might recommend that someone take their
                insulin during or just after a meal if hypoglycemia needs to be prevented.</p><br>
             <p><b style="color: red">Disclaimer</b>: There are many other factors that also affect glucose levels, such as exercising, food intake, illness, stress and  medication. However, the focus for this tool is insulin.</p><br>
-            <div class="row">
-              <div class="col-sm-6">
-                <img src="https://complianz.io/wp-content/uploads/2019/03/placeholder-300x202.jpg" width="100%">
-                <center><button type="button" class="btn btn-primary" style="margin-top: 10px">Interact with Graph »</button></center>
-              </div>
-              <div class="col-sm-6">
-                <img src="https://complianz.io/wp-content/uploads/2019/03/placeholder-300x202.jpg" width="100%">
-                <center><button type="button" class="btn btn-primary" style="margin-top: 10px">Interact with Graph »</button></center>
-              </div>
-           </div><br>
+            <center><img src="img/glucose.gif" max-width="700px">
+            <button type="button" class="btn btn-primary" style="margin-top: 10px" id="too_early">Interact with Graph »</button></center>
+            <br>
 
            <a class="anchor" id="dosing"></a>
            <h2><b>Bolus Dosing</b></h2>
@@ -209,16 +202,9 @@
            <p><b style="color: red">Disclaimer</b>: Depending on insulin sensitivity,
               you might need more or less insulin. The numbers in this tool are for
               example only; please ask your healthcare provider for more information.</p><br>
-           <div class="row">
-             <div class="col-sm-6">
-               <img src="https://complianz.io/wp-content/uploads/2019/03/placeholder-300x202.jpg" width="100%">
-               <center><button type="button" class="btn btn-primary" style="margin-top: 10px">Interact with Graph »</button></center>
-             </div>
-             <div class="col-sm-6">
-               <img src="https://complianz.io/wp-content/uploads/2019/03/placeholder-300x202.jpg" width="100%">
-               <center><button type="button" class="btn btn-primary" style="margin-top: 10px">Interact with Graph »</button></center>
-             </div>
-          </div><br>
+              <center><img src="img/amount.gif" max-width="700px">
+              <button type="button" class="btn btn-primary" style="margin-top: 10px" id="too_little">Interact with Graph »</button></center>
+          <br>
 
            <a class="anchor" id="time-in-range"></a>
            <h2><b>Time In Range</b></h2>
@@ -317,5 +303,8 @@
           $("#section8").removeClass("current-menu-item");
       }
     });
+
+    $('#too_early').on('click', function() { window.location = 'bolus_too_early.html'; });
+    $('#too_little').on('click', function() { window.location = 'bolus_too_little.html'; });
   </script>
 </html>
