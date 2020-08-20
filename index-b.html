@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Diabetes Educational Tool</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  </head>
+  <style>
+  @media (min-width: 1200px) {
+    .affix-bottom {
+      width: 263px;
+    }
+  }
+  .current-menu-item {
+      color: #41948E; /*emerald green*/
+      font-weight: 700;
+  }
+
+  a {
+    color: #A1A1A1; /*light gray*/
+    font-weight: 600;
+  }
+
+  a:hover {
+    color: #41948E; /*emerald green*/
+  }
+
+  .nav>li>a:hover {
+    background-color: white;
+  }
+
+  a.anchor {
+    display: block;
+    position: relative;
+    top: -100px;
+    visibility: hidden;
+}
+  </style>
+  <body>
+
+    <!--Fixed Navigation Bar-->
+    <nav class="navbar navbar-default navbar-fixed-top" id="header">
+      <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#"><b>Name of Site</b></a>
+        </div>
+
+        <!-- Links to home, interactive graphs, terminology, and about -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav navbar-right">
+            <li class="active"><a href="#">Home</a></li>
+            <li><a href="graphs-menu.html">Interactive Graphs</a></li>
+            <li><a href="terminology.html">Terminology</a></li>
+            <li><a href="about.html">About</a></li>
+          </ul>
+        </div><!-- /.navbar-collapse -->
+      </div><!-- /.container-fluid -->
+    </nav>
+
+
+    <div class="container">
+      <!-- Side Navigation -->
+      <div class="col-md-3 scrollspy" id="sidenav" style="display: none">
+        <div style="padding-top: 20px;"></div>
+        <ul id="nav" class="nav hidden-xs hidden-sm" data-spy="affix">
+          <li><a href="#diabetes" class="current-menu-item" id="section1">What is Diabetes?</a></li>
+          <li><a href="#insulin" id="section2">Why Insulin?</a></li>
+          <li><a href="#insulin-types" id="section3">Types of Insulin</a></li>
+          <li><a href="#activity-curve" id="section4">Insulin Activity Curve</a></li>
+          <li><a href="#timing" id="section5">Bolus Timing</a></li>
+          <li><a href="#dosing" id="section6">Bolus Dosing</a></li>
+          <li><a href="#time-in-range" id="section7">Time In Range</a></li>
+        </ul>
+      </div>
+      <div class="row" style="padding-top: 50px; padding-bottom: 100px">
+        <div class="col-sm-6">
+          <h1 style="padding-bottom: 20px;"><b>Diabetes</b> is manageable</h1>
+          <h4>Understanding how insulin works is important to diabetes management.</p>
+          <h4>Can we visualize how insulin affects glucose levels?</p><br>
+          <button type="button" class="btn btn-primary" style="margin-bottom: 50px" id="seeworks">See How It Works »</button>
+        </div>
+        <div class="col-sm-6">
+          <img src="img/glucose.gif" width=100%>
+        </div>
+      </div>
+    </div>
+    <div style="background-color: #41948E; margin-bottom: 50px" width="100%">
+      <div class="container" style="padding-top: 75px; padding-bottom: 75px">
+        <p style="color: white; font-size: 14px"><b>Note</b>: The information on this site is not intended or implied to be a
+           substitute for professional medical advice, diagnosis or treatment.
+           All content, including text, graphics, images and information,
+           contained on or available through this website is for general
+           information purposes only. <br><br>Please consult your physician for
+           personalized medical advice. Always seek the advice of a physician or
+           other qualified healthcare provider with any questions regarding a
+           medical condition.</p>
+      </div>
+    </div>
+
+    <div class="container">
+
+      <div class="col-md-3">
+        <!-- <div style="padding-top: 20px;"></div>
+        <ul id="nav" class="nav hidden-xs hidden-sm" data-spy="affix">
+          <li><a href="#diabetes" class="current-menu-item" id="section1">What is Diabetes?</a></li>
+          <li><a href="#insulin" id="section2">Why Insulin?</a></li>
+          <li><a href="#insulin-types" id="section3">Types of Insulin</a></li>
+          <li><a href="#activity-curve" id="section4">Insulin Activity Curve</a></li>
+          <li><a href="#timing" id="section5">Bolus Timing</a></li>
+          <li><a href="#dosing" id="section6">Bolus Dosing</a></li>
+          <li><a href="#time-in-range" id="section7">Time In Range</a></li>
+        </ul> -->
+      </div>
+      <!-- Content -->
+      <div class="col-md-9">
+          <a class="anchor" id="diabetes"></a>
+          <h2><b>What is diabetes?</b></h2>
+          <p>“<b>Diabetes</b> is a condition that occurs when your blood sugar (blood glucose)
+             is too high”. The units for glucose are mg/dL or mmol/L.</p><br>
+          <p>There are two main types of Diabetes:</p>
+          <ul class="terms">
+             <li><b>Type 1 Diabetes:</b> Not producing enough insulin to keep blood sugar
+                 in a normal range</li>
+             <li><b>Type 2 Diabetes:</b> Producing Insulin, but not responding to it well</li>
+           </ul>
+          <br>
+
+          <a class="anchor" id="insulin"></a>
+          <h2><b>What is Insulin?</b></h2>
+          <p><b>Insulin</b> is a hormone made by your body in order to use sugar (glucose)
+             from the food that you eat to create energy, or to store glucose for
+             future use.</p><br>
+
+          <!-- <h3><b><center>Understanding the relationship between insulin and blood glucose levels is important to diabetes management</center><b></h3> <br> -->
+
+         <a class="anchor" id="insulin-why"></a>
+         <h2><b>Why Insulin?</b></h2>
+          <p>Insulin helps keep your blood sugar level from getting too high
+             (hyperglycemia) or too low (hypoglycemia). If you are prescribed insulin,
+             it may be because your body doesn't produce enough of it (type 1 diabetes)
+             or your body doesn't use it effectively (type 2 diabetes).</p>
+          <br>
+
+          <a class="anchor" id="insulin-types"></a>
+          <h2><b>Types of Insulin</b></h2>
+          <div class="row">
+            <div class="col-sm-6"><br>
+              <p>There are different types of insulin you can use. The four main
+                 types are:
+              <ul class="terms">
+                 <li>rapid-acting</li>
+                 <li>short-acting</li>
+                 <li>intermediate-acting</li>
+                 <li>long-acting</li>
+               </ul>
+              <p>Each type has a different:</p>
+              <ul class="terms">
+                <li>onset: how quickly they start working after injection</li>
+                <li>peak: when they're most effective, and</li>
+                <li>duration: how long they're working in your body</li>
+              </ul>
+            </div>
+            <div class="col-sm-6">
+              <img src="img/insulin-types.png" width="100%">
+            </div>
+          </div>
+          <br>
+          <p>Basal insulin (Intermediate-Acting and Long-Acting/ Background Insulin)
+             regulates blood sugar levels and is slowly absorbed throughout the day
+             to keep levels constant while fasting. It is taken once or twice a day
+             and is taken as a shot. </p>
+          <p><b>Our goal is to show how insulin dosing and timing for meals is important</b>,
+             so we're focusing on rapid-acting insulin, which is usually taken at
+             meal times.</p>
+          <br>
+
+          <a class="anchor" id="activity-curve"></a>
+          <h2><b>Insulin Activity Curve</b></h2>
+          <p>The insulin activity curve shows how effective the insulin is over time.
+             It's important for understanding when to take insulin to best manage
+             your blood sugar.</p>
+           <div class="row">
+             <div class="col-sm-6">
+               <img src="img/rapid-acting.png" width="100%">
+             </div>
+             <div class="col-sm-6"><br>
+               <p><b>Rapid-acting insulin</b> typically begins working 5 - 15 minutes after
+                 you take it, peaks within 30 - 90 minutes, and is active in the
+                 bloodstream for 2-5 hours.</p><br>
+               <p>Rapid-acting insulin has a smaller window and can cause bigger
+                 fluctuations to your blood sugar.</p><br>
+             </div>
+           </div><br>
+           <p><b style="color: red">Disclaimer</b>: Rapid-acting insulin works
+              differently for everyone, so your activity curve may vary. Please
+              refer to your healthcare provider for more information.</p>
+           <br>
+
+           <a class="anchor" id="timing"></a>
+           <h2><b>Bolus Timing</b></h2>
+           <p>A <b>bolus</b> is insulin you take when you eat to keep blood sugar levels
+              controlled after meals. Your bolus needs to act quickly to balance out
+              the carbohydrates raising your blood sugar, so rapid-acting or
+              short-acting insulin is typically used.</p><br>
+           <p><b>Pre-bolusing</b> is when you take your insulin dose before you eat, usually
+              5-15 minutes before depending on the circumstances. Remember that
+              rapid-acting insulin usually beings working 5-15 minutes after you take
+              it, so pre-bolusing gives your insulin time to absorb in your body so
+              that when you start eating, it’s ready to lower your blood sugar.</p><br>
+
+            <p>Your doctor will be able to advise you if you have any questions about
+               when you should bolus. A doctor might recommend that someone take their
+               insulin during or just after a meal if hypoglycemia needs to be prevented.</p><br>
+            <p><b style="color: red">Disclaimer</b>: There are many other factors that also affect glucose levels, such as exercising, food intake, illness, stress and  medication. However, the focus for this tool is insulin.</p><br>
+            <div class="row">
+              <div class="col-sm-6">
+                <img src="https://complianz.io/wp-content/uploads/2019/03/placeholder-300x202.jpg" width="100%">
+                <center><button type="button" class="btn btn-primary" style="margin-top: 10px">Interact with Graph »</button></center>
+              </div>
+              <div class="col-sm-6">
+                <img src="https://complianz.io/wp-content/uploads/2019/03/placeholder-300x202.jpg" width="100%">
+                <center><button type="button" class="btn btn-primary" style="margin-top: 10px">Interact with Graph »</button></center>
+              </div>
+           </div><br>
+
+           <a class="anchor" id="dosing"></a>
+           <h2><b>Bolus Dosing</b></h2>
+           <p>Different foods will affect your blood sugar differently, so your <b>bolus
+              dose</b> needs to reflect what you're eating. Learning how to count
+              carbohydrates (which raise your blood sugar) will help you figure out
+              how much insulin to take to keep your blood sugar steady.</p><br>
+           <p>For this tool, we use a typical American meal as a standard, which
+              usually has 45-75 grams of carbs. Different bodies will require different
+              amounts of carbs, so these numbers are for this tool only.</p><br>
+           <p><b style="color: red">Disclaimer</b>: Depending on insulin sensitivity,
+              you might need more or less insulin. The numbers in this tool are for
+              example only; please ask your healthcare provider for more information.</p><br>
+           <div class="row">
+             <div class="col-sm-6">
+               <img src="https://complianz.io/wp-content/uploads/2019/03/placeholder-300x202.jpg" width="100%">
+               <center><button type="button" class="btn btn-primary" style="margin-top: 10px">Interact with Graph »</button></center>
+             </div>
+             <div class="col-sm-6">
+               <img src="https://complianz.io/wp-content/uploads/2019/03/placeholder-300x202.jpg" width="100%">
+               <center><button type="button" class="btn btn-primary" style="margin-top: 10px">Interact with Graph »</button></center>
+             </div>
+          </div><br>
+
+           <a class="anchor" id="time-in-range"></a>
+           <h2><b>Time In Range</b></h2>
+           <p><b>Time-in-Range</b> is the percentage of time your blood sugar levels are
+              within a target range. Our tool features a target range of 70 to 180 mg/dL. </p><br>
+           <p>The goal is to increase your time spent in-range, while reducing the
+              time spent below or above target range. Your time-in-range goals can
+              be entirely specific to you. Time-in-range is a useful way to track
+              your progress and to provide insights into what behaviors and choices
+              affect your glucose values.</p><br>
+          <p><b style="color: red">Disclaimer</b>: Your blood sugar targets may be
+             different depending on your age, any additional health problems you have,
+             and other factors. Be sure to talk to your health care team about which
+             targets are best for you.</p><br>
+             <div class="row">
+               <div class="col-sm-6">
+                 <img src="https://complianz.io/wp-content/uploads/2019/03/placeholder-300x202.jpg" width="100%">
+               </div>
+               <div class="col-sm-6">
+                 <img src="https://complianz.io/wp-content/uploads/2019/03/placeholder-300x202.jpg" width="100%">
+               </div>
+            </div><br>
+            <div style="padding-bottom: 125px">
+      </div>
+  </body>
+  <script>
+    // function to add shadow to the navbar
+    $(window).scroll(function() {
+    var scroll = $(window).scrollTop();
+    if (scroll > 0) {
+      $("#header").addClass("active");
+    }
+    else {
+      $("#header").removeClass("active");
+    }
+    });
+
+    $('#seeworks').on('click', function() { window.location = 'graphs-menu.html'; });
+
+    // function to show active section on sidebar
+    $(window).scroll(function() {
+      var Scroll = $(window).scrollTop() + 1,
+          SectionOneOffset = $('#diabetes').offset().top,
+          SectionTwoOffset = $('#insulin').offset().top,
+          SectionThreeOffset = $('#insulin-types').offset().top,
+          SectionFourOffset = $('#activity-curve').offset().top,
+          SectionFiveOffset = $('#timing').offset().top,
+          SectionSixOffset = $('#dosing').offset().top,
+          SectionSevenOffset = $('#time-in-range').offset().top;
+          console.log("hello")
+
+      if (Scroll >= SectionOneOffset) {
+        document.getElementById("sidenav").style.display = "block";
+      } else {
+        document.getElementById("sidenav").style.display = "none";
+      }
+
+      if (Scroll >= SectionOneOffset) {
+          $("#section1").addClass("current-menu-item");
+      } else {
+          $("#section1").removeClass("current-menu-item");
+      }
+      if (Scroll >= SectionTwoOffset) {
+          $("#section2").addClass("current-menu-item");
+          $("#section1").removeClass("current-menu-item");
+      } else {
+          $("#section2").removeClass("current-menu-item");
+      }
+      if (Scroll >= SectionThreeOffset) {
+          $("#section3").addClass("current-menu-item");
+          $("#section2").removeClass("current-menu-item");
+      } else {
+          $("#section3").removeClass("current-menu-item");
+      }
+      if (Scroll >= SectionFourOffset) {
+          $("#section4").addClass("current-menu-item");
+          $("#section3").removeClass("current-menu-item");
+      } else {
+          $("#section4").removeClass("current-menu-item");
+      }
+      if (Scroll >= SectionFiveOffset) {
+          $("#section5").addClass("current-menu-item");
+          $("#section4").removeClass("current-menu-item");
+      } else {
+          $("#section5").removeClass("current-menu-item");
+      }
+      if (Scroll >= SectionSixOffset) {
+          $("#section6").addClass("current-menu-item");
+          $("#section5").removeClass("current-menu-item");
+      } else {
+          $("#section6").removeClass("current-menu-item");
+      }
+      if (Scroll >= SectionSevenOffset) {
+          $("#section7").addClass("current-menu-item");
+          $("#section6").removeClass("current-menu-item");
+      } else {
+          $("#section7").removeClass("current-menu-item");
+      }
+    });
+  </script>
+</html>
