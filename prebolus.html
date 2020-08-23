@@ -159,11 +159,13 @@
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header" style="padding: 25px">
-            <p style="font-size: 20px">Adjust both the <b>Timing & Doses of Bolus Insulin</b> to increase
-               the % Time in Range. Click next to see the starting example scenario.</p><br>
+            <center><p style="font-size: 20px">Imagine that...</p></center>
+            <p style="font-size: 20px">You were busy at work, had a quick lunch and forgot to bolus before your next meeting. </p><br>
+            <p style="font-size: 20px">Use the sliders to adjust the <b>bolus time & dose</b> to increase
+               the time in range.<br>
             <center>
               <button type="button" id="back" class="btn back" style="margin-top: 10px">Back</button>
-              <button type="button" id="next" class="btn btn-primary" style="margin-top: 10px">Next</button>
+              <button type="button" id="next" class="btn btn-primary" style="margin-top: 10px">Start</button>
             </center>
           </div>
         </div>
@@ -171,19 +173,19 @@
     </div>
 
     <!-- Modal: Scenario -->
-    <div class="modal fade" id="scenario" tabindex="-1" role="dialog" aria-labelledby="movingdown" aria-hidden="true">
+    <!-- <div class="modal fade" id="scenario" tabindex="-1" role="dialog" aria-labelledby="movingdown" aria-hidden="true">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header" style="padding: 25px">
             <center><p style="font-size: 20px">Imagine that...</p></center>
-            <p style="font-size: 20px">you were busy at work, had a quick lunch and forgot to bolus before your next meeting. </p><br>
+            <p style="font-size: 20px">You were busy at work, had a quick lunch and forgot to bolus before your next meeting. </p><br>
             <center>
               <button type="button" class="btn btn-primary" data-dismiss="modal" aria-label="Close">Adjust Bolus</button>
             </center>
           </div>
         </div>
       </div>
-    </div>
+    </div> -->
 
     <!-- Popup: Going Low -->
     <div class="popup" id="below70">
@@ -726,17 +728,8 @@
         $('body').removeClass("example-open");
     })
 
-    $('#scenario').on('show.bs.modal', function (e) {
-        $('body').addClass("example-open");
-    }).on('hide.bs.modal', function (e) {
-        $('body').removeClass("example-open");
-    })
-
     $('#back').on('click', function() { window.location = 'graphs-menu.html'; });
     $('#reset').on('click', function() { window.location = 'prebolus.html'; });
-    $('#next').on('click', function() {
-      $('#intro').modal('hide');
-      $('#scenario').modal({backdrop: 'static', keyboard: false})
-      $('#scenario').modal('show'); });
+    $('#next').on('click', function() { $('#intro').modal('hide'); });
 </script>
 </html>

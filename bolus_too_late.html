@@ -150,9 +150,12 @@
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header" style="padding: 25px">
-          <p style="font-size: 20px">Adjust the <b>Bolus Insulin Time</b> to
-             increase the % Time in Range. For educational purposes, the dose of
-             bolus insulin intake is set to X. <br><br>Click next to see the starting example scenario. <br>
+          <center><p style="font-size: 20px">Imagine that...</p></center>
+          <p style="font-size: 20px">You set a reminder to pre-bolus, but the
+            alarm did not go off on time. You bolused later after the meal.</p><br>
+          <p style="font-size: 20px">Adjust the <b>bolus time</b> to
+             increase the time in range. For educational purposes, the bolus dose
+             (amount of insulin) is set to X. <br>
           <center>
             <button type="button" id="back" class="btn back" style="margin-top: 10px">Back</button>
             <button type="button" id="next" class="btn btn-primary" style="margin-top: 10px">Next</button>
@@ -163,12 +166,12 @@
   </div>
 
   <!-- Modal: Scenario -->
-  <div class="modal fade" id="scenario" tabindex="-1" role="dialog" aria-labelledby="movingdown" aria-hidden="true">
+  <!-- <div class="modal fade" id="scenario" tabindex="-1" role="dialog" aria-labelledby="movingdown" aria-hidden="true">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header" style="padding: 25px">
           <center><p style="font-size: 20px">Imagine that...</p></center>
-          <p style="font-size: 20px">you set a reminder to pre-bolus, but the
+          <p style="font-size: 20px">You set a reminder to pre-bolus, but the
             alarm did not go off on time. You bolused later after the meal.</p><br>
           <center>
             <button type="button" class="btn btn-primary" data-dismiss="modal" aria-label="Close">Adjust Bolus</button>
@@ -176,7 +179,7 @@
         </div>
       </div>
     </div>
-  </div>
+  </div> -->
 
   <!-- Popup: Going Low -->
   <div class="popup" id="below70">
@@ -691,9 +694,7 @@
 
     $('#back').on('click', function() { window.location = 'graphs-menu.html'; });
     $('#reset').on('click', function() { window.location = 'bolus_too_late.html'; });
-    $('#next').on('click', function() {
-      $('#intro').modal('hide');
-      $('#scenario').modal({backdrop: 'static', keyboard: false})
-      $('#scenario').modal('show'); });
+    $('#next').on('click', function() { $('#intro').modal('hide'); });
+
 </script>
 </html>
