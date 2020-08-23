@@ -12,6 +12,23 @@
 </head>
 <style>
 
+  .popup {
+    display: none;
+    background-color: white;
+    position: absolute;
+    top: 320px;
+    z-index: 0.5;
+    width: 25%;
+    left: 37%;
+    -webkit-box-shadow: 2px 2px 10px 0px rgba(209,209,209,1);
+    -moz-box-shadow: 2px 2px 10px 0px rgba(209,209,209,1);
+    -o-box-shadow: 2px 2px 10px 0px rgba(209,209,209,1);
+    box-shadow: 2px 2px 10px 0px rgba(209,209,209,1);
+    border: white 0px;
+    border-radius: 5px;
+    padding: 20px;
+  }
+
   .example-open .modal-backdrop {
      background-color: black; /* adds overlay to beginning pop-up */
   }
@@ -28,22 +45,23 @@
     border: white 0px;
   }
 
-  #below70, #above180 {
-      position: absolute;
-      top: 300px;
-      z-index: 9000;
-  }
-
-  #targetModal {
+  #target {
     position: absolute;
-    top: 560px;
-    left: 400px;
-    z-index: 9000;
+    width: 300px;
+    top: 615px;
+    left: 765px;
+    z-index: 10;
   }
 
   #intro, #scenario {
     position: absolute;
     top: 25%
+  }
+
+  #reset {
+    position: absolute;
+    top: 250px;
+    right: 350px;
   }
 
   .tooltip-inner {
@@ -104,8 +122,9 @@
           <img src="img/bolus_late_current.png" width="100" data-toggle="tooltip" data-placement="bottom" data-container="body" data-html="true" title="<b>Scenario</b>: You set a reminder to pre-bolus, but the
             alarm did not go off on time. You bolused later after the meal.">
         </div>
+        <button type="button" class="btn btn-primary" id="reset">Reset</button>
         <p id="timeinrange" style="width:200px; margin-left: 570px" data-toggle="tooltip" data-placement="bottom" data-html="true" title="<p>The <b>time in range</b> is the percentage of time that your
-          blood sugar levels are within a target range over a period of time.</p>">Time In Range: 100%</p>
+          blood sugar levels are within a target range over a period of time.</p>">Time In Range: 79%</p>
         <svg width="750" height="525"></svg>
         <div class="row">
           <div class="col-sm-2"><p style="text-align: center"><b id="bolus" data-toggle="tooltip" data-placement="top" data-container="body" data-html="true" title="<p>A <b>bolus</b> is insulin you take when you eat to keep blood sugar
@@ -126,52 +145,6 @@
     </center>
   </div>
 
-  <!-- Modal: Pop Up for going low -->
-  <div class="modal fade" id="below70" tabindex="-1" role="dialog" aria-labelledby="movingdown" aria-hidden="true">
-    <div class="modal-dialog modal-sm" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-          <center><b>Going Low!</b></center><br>
-          <p>The glucose levels have <b>dropped</b> below 70mg/dL.<br><br>Try adjusting the sliders to stay between the target range of 180mg/dL and 70mg/dL.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal: Pop Up for going high -->
-  <div class="modal fade" id="above180" tabindex="-1" role="dialog" aria-labelledby="movingdown" aria-hidden="true">
-    <div class="modal-dialog modal-sm" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-          <center><b>Going High!</b></center><br>
-          <p>The glucose levels have <b>rose</b> above 180mg/dL.<br><br>Try adjusting the sliders to stay between the target range of 180mg/dL and 70mg/dL.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal: Target range hover -->
-  <div class="modal fade" id="targetModal" tabindex="-1" role="dialog" aria-labelledby="movingdown" aria-hidden="true">
-    <div class="modal-dialog modal-sm" role="document" style="pointer-events: none;">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-          <center><b>Target Range</b></center><br>
-          <p>This <b>target range</b> (target blood sugar levels) is between 70 and
-             180 mg/dl. This specific range is for example only.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- Modal: Intro -->
   <div class="modal fade" id="intro" tabindex="-1" role="dialog" aria-labelledby="movingdown" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -185,10 +158,6 @@
             <button type="button" id="next" class="btn btn-primary" style="margin-top: 10px">Next</button>
           </center>
         </div>
-
-
-
-
       </div>
     </div>
   </div>
@@ -208,6 +177,33 @@
       </div>
     </div>
   </div>
+
+  <!-- Popup: Going Low -->
+  <div class="popup" id="below70">
+    <p style="font-size: 14px">The glucose levels are <b>below 70 mg/dL</b>.<br><br>Try
+       adjusting the sliders to stay between the target range of 180 mg/dL and
+       70mg/dL.</p>
+  </div>
+
+  <!-- Popup: Going High -->
+  <div class="popup" id="above180" style="display: block">
+    <p style="font-size: 14px">The glucose levels are <b>above 180 mg/dL</b>.<br><br>Try
+       adjusting the sliders to stay between the target range of 180 mg/dL and
+       70 mg/dL.</p>
+  </div>
+
+  <!-- Popup: Going Low & High -->
+  <div class="popup" id="above_below">
+    <p style="font-size: 14px">The glucose levels are <b>below 70 mg/dL</b> and <b>above 180 mg/dL</b>.<br><br>Try
+       adjusting the sliders to stay between the target range of 180mg/dL and
+       70mg/dL.</p>
+  </div>
+
+  <!-- Popup: Target Range -->
+  <div class="popup" id="target">
+    <p>This <b>target range</b> (target blood sugar levels) is between 70 and
+       180 mg/dl. This specific range is for example only.</p>
+  </div>
 </body>
 
 <script src="https://d3js.org/d3.v5.min.js"></script>
@@ -215,8 +211,6 @@
     //let's get our data ready
     let show = 0;
     let selectVal = 0;
-    let low = 0;
-    let high = 0;
     let bg_raw = [["12:02:52", 95.0], ["12:07:52", 95.0], ["12:12:51", 95.0],
         ["12:17:52", 96.0], ["12:22:51", 96.0], ["12:27:51", 97.0],
         ["12:32:51", 98.0], ["12:37:52", 104.0], ["12:42:51", 106.0],
@@ -544,28 +538,38 @@
       document.getElementById("timeinrange").innerHTML = tir;
     }
 
-    function goingLow(bg_data){
-      for (i = 0; i < bg_data.length-1; i++){
+    function goingLow_Or_High(bg_data){
+      low = 0
+      high = 0
+      for (i=0; i < bg_data.length-1; i++){
         if (bg_data[i][1]<70 && bg_data[i+1][1]<70){
-          // you're going low
-          if(low == 0){$('#below70').modal('show')}
           low++;
-          return
         }
-      }
-      low=0;
-    }
-
-    function goingHigh(bg_data){
-      for (i = 0; i < bg_data.length-1; i++){
         if (bg_data[i][1]>180 && bg_data[i+1][1]>180){
-          // you're going high
-          if(high == 0){$('#above180').modal('show')}
           high++;
-          return
         }
       }
-      high=0;
+      if (low > 0 && high > 0){
+          $("#above_below").show();
+          $("#above180").hide();
+          $("#below70").hide();
+          return;
+      }
+      if (low > 0) {
+        $("#below70").show();
+        $("#above180").hide();
+        $("#above_below").hide();
+        return;
+      }
+      if (high > 0) {
+        $("#above180").show();
+        $("#above_below").hide();
+        $("#below70").hide();
+        return;
+      }
+      $("#above180").hide();
+      $("#below70").hide();
+      $("#above_below").hide();
     }
 
 
@@ -621,8 +625,7 @@
         update_bg(bg_data);
 
         time_in_range(bg_data); // update time in range
-        goingLow(bg_data);
-        goingHigh(bg_data);
+        goingLow_Or_High(bg_data);
 
         // bolus point
         d3.select("circle")
@@ -665,10 +668,12 @@
     // tooltips
     $(function () {$('[data-toggle="tooltip"]').tooltip()})
 
-    $("#targetrange").hover(function(){$('#targetModal').modal('show')});
+    $("#targetrange").hover(function(){$("#target").show();});
+    $("#targetrange").mouseleave(function(){$("#target").hide();});
 
     // open beginning modal
     $(document).ready(function () {
+      $('#intro').modal({backdrop: 'static', keyboard: false})
       $('#intro').modal('show');
     });
 
@@ -685,8 +690,10 @@
     })
 
     $('#back').on('click', function() { window.location = 'graphs-menu.html'; });
+    $('#reset').on('click', function() { window.location = 'bolus_too_late.html'; });
     $('#next').on('click', function() {
       $('#intro').modal('hide');
+      $('#scenario').modal({backdrop: 'static', keyboard: false})
       $('#scenario').modal('show'); });
 </script>
 </html>
