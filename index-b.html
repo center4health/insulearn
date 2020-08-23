@@ -16,6 +16,10 @@
       width: 263px;
     }
   }
+
+  .affix {
+    top: 115px;
+  }
   .current-menu-item {
       color: #41948E; /*emerald green*/
       font-weight: 700;
@@ -72,7 +76,7 @@
 
     <div class="container">
       <!-- Side Navigation -->
-      <div class="col-md-3 scrollspy" id="sidenav" style="display: none">
+      <!-- <div class="col-md-3 scrollspy" id="sidenav">
         <div style="padding-top: 20px;"></div>
         <ul id="nav" class="nav hidden-xs hidden-sm" data-spy="affix">
           <li><a href="#diabetes" class="current-menu-item" id="section1">What is Diabetes?</a></li>
@@ -83,7 +87,7 @@
           <li><a href="#dosing" id="section6">Bolus Dosing</a></li>
           <li><a href="#time-in-range" id="section7">Time In Range</a></li>
         </ul>
-      </div>
+      </div> -->
       <div class="row" style="padding-top: 50px; padding-bottom: 100px">
         <div class="col-sm-6">
           <h1 style="padding-bottom: 20px;"><b>Diabetes</b> is manageable</h1>
@@ -112,8 +116,8 @@
     <div class="container">
 
       <div class="col-md-3">
-        <!-- <div style="padding-top: 20px;"></div>
-        <ul id="nav" class="nav hidden-xs hidden-sm" data-spy="affix">
+        <div style="padding-top: 20px;"></div>
+        <ul id="nav" class="nav hidden-xs hidden-sm" data-spy="affix" data-offset-top="860">
           <li><a href="#diabetes" class="current-menu-item" id="section1">What is Diabetes?</a></li>
           <li><a href="#insulin" id="section2">Why Insulin?</a></li>
           <li><a href="#insulin-types" id="section3">Types of Insulin</a></li>
@@ -121,7 +125,7 @@
           <li><a href="#timing" id="section5">Bolus Timing</a></li>
           <li><a href="#dosing" id="section6">Bolus Dosing</a></li>
           <li><a href="#time-in-range" id="section7">Time In Range</a></li>
-        </ul> -->
+        </ul>
       </div>
       <!-- Content -->
       <div class="col-md-9">
@@ -292,11 +296,11 @@
           SectionSevenOffset = $('#time-in-range').offset().top;
           console.log("hello")
 
-      if (Scroll >= SectionOneOffset) {
-        document.getElementById("sidenav").style.display = "block";
-      } else {
-        document.getElementById("sidenav").style.display = "none";
-      }
+      // if (Scroll >= SectionOneOffset) {
+      //   document.getElementById("sidenav").style.display = "block";
+      // } else {
+      //   document.getElementById("sidenav").style.display = "none";
+      // }
 
       if (Scroll >= SectionOneOffset) {
           $("#section1").addClass("current-menu-item");
