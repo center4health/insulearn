@@ -89,6 +89,11 @@
     .tooltip.in {
         opacity: 1; /* solid background for tooltip */
     }
+
+    #timeNum {
+      font-size: 24px;
+      color: #41948E;
+    }
   </style>
   <body>
 
@@ -130,7 +135,7 @@
             <button type="button" class="btn btn-primary" id="reset" style="margin-top: -50px; margin-left: 680px">Reset</button>
           </div>
           <p id="timeinrange" style="width:200px; margin-left: 570px" data-toggle="tooltip" data-placement="bottom" data-html="true" title="<p>The <b>time in range</b> is the percentage of time that your
-            blood sugar levels are within a target range over a period of time.</p>">Time In Range: 53%</p>
+            blood sugar levels are within a target range over a period of time.</p>">Time In Range: <b id="timeNum">53%</b></p>
           <svg width="750" height="525"></svg>
           <div class="row">
             <div class="col-sm-2"><p style="text-align: center"><b id="bolus" data-toggle="tooltip" data-placement="top" data-container="body" data-html="true" title="<p>A <b>bolus</b> is insulin you take when you eat to keep blood sugar
@@ -553,8 +558,7 @@
           }
       }
       var timeinrange = Math.round(inrange / bg_data.length * 100);
-      var tir = "Time In Range: " + timeinrange + "%";
-      document.getElementById("timeinrange").innerHTML = tir;
+      document.getElementById("timeNum").innerHTML = timeinrange + "%";
     }
 
     function goingLow_Or_High(bg_data){
