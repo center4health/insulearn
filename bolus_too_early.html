@@ -20,11 +20,15 @@
     z-index: 0.5;
     width: 25%;
     left: 37%;
+    border-style: solid;
+    border-width: 10px;
+    border-top: hidden;
+    border-right: hidden;
+    border-left: hidden;
     -webkit-box-shadow: 2px 2px 10px 0px rgba(209,209,209,1);
     -moz-box-shadow: 2px 2px 10px 0px rgba(209,209,209,1);
     -o-box-shadow: 2px 2px 10px 0px rgba(209,209,209,1);
     box-shadow: 2px 2px 10px 0px rgba(209,209,209,1);
-    border: white 0px;
     border-radius: 5px;
     padding: 20px;
   }
@@ -51,6 +55,7 @@
     top: 615px;
     left: 765px;
     z-index: 10;
+    border-bottom: hidden;
   }
 
   #intro, #scenario {
@@ -58,11 +63,11 @@
     top: 25%
   }
 
-  #reset {
+  /* #reset {
     position: absolute;
     top: 250px;
     right: 350px;
-  }
+  } */
 
   .tooltip-inner {
     background-color: white;
@@ -123,10 +128,10 @@
             an important call before you started eating. You ended up eating an hour after you pre-bolused.">
           <a href="bolus_too_late.html"><img src="img/bolus_late.png" width="100" data-toggle="tooltip" data-placement="bottom" data-container="body" data-html="true" title="<b>Scenario</b>: You set a reminder to pre-bolus, but the
             alarm did not go off on time. You bolused later after the meal."></a>
+          <button type="button" class="btn btn-primary" id="reset" style="margin-top: -50px; margin-left: 680px">Reset</button>
         </div>
-        <button type="button" class="btn btn-primary" id="reset">Reset</button>
         <p id="timeinrange" style="width:200px; margin-left: 570px" data-toggle="tooltip" data-placement="bottom" data-html="true" title="<p>The <b>time in range</b> is the percentage of time that your
-          blood sugar levels are within a target range over a period of time.</p>">Time In Range: 82%</p>
+          blood sugar levels are within a target range over a period of time.</p>">Time In Range: 95%</p>
         <svg width="750" height="525"></svg>
         <div class="row">
           <div class="col-sm-2"><p style="text-align: center"><b id="bolus" data-toggle="tooltip" data-placement="top" data-container="body" data-html="true" title="<p>A <b>bolus</b> is insulin you take when you eat to keep blood sugar
@@ -157,8 +162,7 @@
             an important call before you started eating. You ended up eating an
             hour after you pre-bolused.</p><br>
           <p style="font-size: 20px">Adjust the <b>bolus time</b> to
-             increase the time in range. For educational purposes, the bolus dose
-             (amount of insulin) is set to X. <br>
+             increase the time in range.<br>
           <center>
             <button type="button" id="back" class="btn back" style="margin-top: 10px">Back</button>
             <button type="button" id="next" class="btn btn-primary" style="margin-top: 10px">Next</button>
@@ -186,21 +190,21 @@
   </div> -->
 
   <!-- Popup: Going Low -->
-  <div class="popup" id="below70" style="display: block">
+  <div class="popup" id="below70" style="display: block; border-color: #EB8690">
     <p style="font-size: 14px">The glucose levels are <b>below 70 mg/dL</b>.<br><br>Try
        adjusting the sliders to stay between the target range of 180 mg/dL and
        70mg/dL.</p>
   </div>
 
   <!-- Popup: Going High -->
-  <div class="popup" id="above180">
+  <div class="popup" id="above180" style="border-color: #FFB800">
     <p style="font-size: 14px">The glucose levels are <b>above 180 mg/dL</b>.<br><br>Try
        adjusting the sliders to stay between the target range of 180 mg/dL and
        70 mg/dL.</p>
   </div>
 
   <!-- Popup: Going Low & High -->
-  <div class="popup" id="above_below">
+  <div class="popup" id="above_below" style="border-color: #FFA17A">
     <p style="font-size: 14px">The glucose levels are <b>below 70 mg/dL</b> and <b>above 180 mg/dL</b>.<br><br>Try
        adjusting the sliders to stay between the target range of 180mg/dL and
        70mg/dL.</p>
@@ -228,44 +232,44 @@
         ["13:47:50", 118.0], ["13:52:50", 119.0], ["13:57:52", 120.0],
         ["14:02:51", 120.0], ["14:07:51", 121.0], ["14:12:51", 123.0],
         ["14:17:51", 123.0], ["14:22:52", 123.0], ["14:27:51", 125.0],
-        ["14:32:52", 124.0], ["14:37:51", 124.0], ["14:42:51", 124.0],
-        ["14:47:51", 124.0], ["14:52:51", 124.0], ["14:57:52", 124.0],
-        ["15:02:51", 124.0], ["15:07:50", 124.0], ["15:12:50", 124.0],
-        ["15:17:50", 124.0], ["15:22:50", 124.0], ["15:27:50", 124.0],
-        ["15:32:51", 124.0], ["15:37:51", 124.0], ["15:42:50", 124.0],
-        ["15:47:50", 120.0], ["15:52:50", 115.0], ["15:57:50", 110.0],
-        ["16:02:50", 105.0], ["16:07:51", 100.0], ["16:12:49", 95.0],
-        ["16:17:50", 90.0], ["16:22:50", 82.0], ["16:27:50", 81.0],
-        ["16:32:49", 80.0], ["16:37:50", 78.0], ["16:42:51", 76.0],
-        ["16:47:51", 73.0], ["16:52:50", 71.0], ["16:57:51", 69.0],
-        ["17:02:50", 65.0], ["17:07:50", 65.0], ["17:12:50", 65.0],
-        ["17:17:50", 67.0], ["17:22:51", 70.0], ["17:27:50", 74.0],
-        ["17:32:50", 77.0], ["17:37:50", 81.0], ["17:42:50", 86.0],
-        ["17:47:50", 89.0], ["17:52:51", 93.0], ["17:57:51", 99.0],
-        ["18:02:50", 100.0], ["18:07:50", 120.0], ["18:12:50", 130.0],
-        ["18:17:51", 145.0], ["18:22:51", 147.0], ["18:27:51", 155.0],
-        ["18:32:51", 160.0], ["18:37:51", 160.0], ["18:42:51", 165.0],
-        ["18:47:50", 170.0], ["18:52:50", 180.0], ["18:57:51", 190.0],
-        ["19:02:50", 200.0], ["19:07:51", 200.0], ["19:12:50", 200.0],
-        ["19:17:51", 210.0], ["19:22:51", 210.0], ["19:27:51", 210.0],
-        ["19:32:51", 220.0], ["19:37:50", 220.0], ["19:42:49", 225.0],
-        ["19:47:50", 230.0], ["19:52:50", 244.0], ["19:57:50", 250.0],
-        ["20:02:49", 248.0], ["20:07:50", 250.0], ["20:12:50", 255.0],
-        ["20:17:49", 257.0], ["20:22:50", 260.0], ["20:27:50", 262.0],
-        ["20:32:49", 264.0], ["20:37:49", 266.0], ["20:42:50", 268.0],
-        ["20:47:50", 270.0], ["20:52:49", 272.0], ["20:57:50", 274.0],
-        ["21:02:50", 277.0], ["21:07:50", 279.0], ["21:12:50", 280.0],
-        ["21:17:50", 282.0], ["21:22:50", 284.0], ["21:27:50", 283.0],
-        ["21:32:50", 284.0], ["21:37:50", 283.0], ["21:42:50", 283.0],
-        ["21:47:50", 283.0], ["21:52:49", 283.0], ["21:57:50", 283.0],
-        ["22:02:50", 283.0], ["22:07:50", 283.0], ["22:12:50", 283.0],
-        ["22:17:49", 283.0], ["22:22:50", 283.0], ["22:27:50", 283.0],
-        ["22:32:50", 283.0], ["22:37:50", 283.0], ["22:42:50", 283.0],
-        ["22:47:50", 283.0], ["22:52:49", 283.0], ["22:57:50", 283.0],
-        ["23:02:50", 283.0], ["23:07:50", 283.0], ["23:12:50", 283.0],
-        ["23:17:50", 283.0], ["23:22:50", 283.0], ["23:27:50", 283.0],
-        ["23:32:50", 283.0], ["23:37:50", 283.0], ["23:42:50", 283.0],
-        ["23:47:50", 283.0], ["23:52:50", 283.0], ["23:57:50", 283.0]];
+        ["14:32:52", 124.0], ["14:37:51", 125.0], ["14:42:51", 124.0],
+        ["14:47:51", 125.0], ["14:52:51", 123.0], ["14:57:52", 125.0],
+        ["15:02:51", 126.0], ["15:07:50", 127.0], ["15:12:50", 125.0],
+        ["15:17:50", 126.0], ["15:22:50", 128.0], ["15:27:50", 129.0],
+        ["15:32:51", 130.0], ["15:37:51", 130.0], ["15:42:50", 130.0],
+        ["15:47:50", 131.0], ["15:52:50", 130.0], ["15:57:50", 131.0],
+        ["16:02:50", 131.0], ["16:07:51", 132.0], ["16:12:49", 131.0],
+        ["16:17:50", 133.0], ["16:22:50", 132.0], ["16:27:50", 133.0],
+        ["16:32:49", 133.0], ["16:37:50", 134.0], ["16:42:51", 133.0],
+        ["16:47:51", 134.0], ["16:52:50", 135.0], ["16:57:51", 136.0],
+        ["17:02:50", 140.0], ["17:07:50", 144.0], ["17:12:50", 148.0],
+        ["17:17:50", 154.0], ["17:22:51", 161.0], ["17:27:50", 163.0],
+        ["17:32:50", 165.0], ["17:37:50", 168.0], ["17:42:50", 170.0],
+        ["17:47:50", 171.0], ["17:52:51", 177.0], ["17:57:51", 182.0],
+        ["18:02:50", 183.0], ["18:07:50", 184.0], ["18:12:50", 189.0],
+        ["18:17:51", 193.0], ["18:22:51", 196.0], ["18:27:51", 200.0],
+        ["18:32:51", 208.0], ["18:37:51", 214.0], ["18:42:51", 223.0],
+        ["18:47:50", 233.0], ["18:52:50", 240.0], ["18:57:51", 250.0],
+        ["19:02:50", 260.0], ["19:07:51", 267.0], ["19:12:50", 270.0],
+        ["19:17:51", 277.0], ["19:22:51", 285.0], ["19:27:51", 290.0],
+        ["19:32:51", 295.0], ["19:37:50", 300.0], ["19:42:49", 305.0],
+        ["19:47:50", 310.0], ["19:52:50", 315.0], ["19:57:50", 321.0],
+        ["20:02:49", 325.0], ["20:07:50", 328.0], ["20:12:50", 329.0],
+        ["20:17:49", 330.0], ["20:22:50", 331.0], ["20:27:50", 333.0],
+        ["20:32:49", 335.0], ["20:37:49", 337.0], ["20:42:50", 338.0],
+        ["20:47:50", 338.0], ["20:52:49", 338.0], ["20:57:50", 338.0],
+        ["21:02:50", 338.0], ["21:07:50", 338.0], ["21:12:50", 338.0],
+        ["21:17:50", 338.0], ["21:22:50", 338.0], ["21:27:50", 338.0],
+        ["21:32:50", 338.0], ["21:37:50", 338.0], ["21:42:50", 338.0],
+        ["21:47:50", 338.0], ["21:52:49", 338.0], ["21:57:50", 338.0],
+        ["22:02:50", 338.0], ["22:07:50", 338.0], ["22:12:50", 338.0],
+        ["22:17:49", 338.0], ["22:22:50", 338.0], ["22:27:50", 338.0],
+        ["22:32:50", 338.0], ["22:37:50", 338.0], ["22:42:50", 338.0],
+        ["22:47:50", 338.0], ["22:52:49", 338.0], ["22:57:50", 338.0],
+        ["23:02:50", 338.0], ["23:07:50", 338.0], ["23:12:50", 338.0],
+        ["23:17:50", 338.0], ["23:22:50", 338.0], ["23:27:50", 338.0],
+        ["23:32:50", 338.0], ["23:37:50", 338.0], ["23:42:50", 338.0],
+        ["23:47:50", 338.0], ["23:52:50", 338.0], ["23:57:50", 338.0]];
     let insulin = [[0, 0], [30, 30], [60, 80], [90, 95], [120, 100], [150, 90], [180, 50], [210, 35], [240, 20], [270, 15], [300, 10], [330, 5], [360, 0]]
 
 
@@ -277,7 +281,7 @@
 
     default_bolus_time = timeParse("16:00:00");
     offset = 0;
-    var dose = 1;
+    var dose = 1.5;
 
     function calculate_insulin_curve(bolus = default_bolus_time) {
         var curve = [];
@@ -455,21 +459,21 @@
         .style("stroke", "#C4c4c4") // color of meal line
         .style("stroke-dasharray", ("3, 5"))
         .style("stroke-width", 2)
-        .attr("x1", 345)
+        .attr("x1", 333)
         .attr("y1", 20)
-        .attr("x2", 345)
+        .attr("x2", 333)
         .attr("y2", 500);
 
     // Meal point
     svg.append("circle")
-        .attr("cx", 345)
+        .attr("cx", 333)
         .attr("cy", 495)
         .attr("r", 5)
         .style("fill", "black");
 
     // Meal text
     svg.append("text")
-        .attr("transform", "translate(330,480)")
+        .attr("transform", "translate(317,480)")
         .attr("class", "range") // use to style in stylesheet
         .text("Meal");
 
