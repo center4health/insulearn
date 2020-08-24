@@ -149,7 +149,7 @@
             <p style="padding-top: 10px">Dose (U)</p>
           </div>
           <div class="col-sm-10">
-            <input type="range" name="insulin_amt" id=insulin_amt min="0" max="20" value="1.5" style="width: 600px"></input>
+            <input type="range" name="insulin_amt" id=insulin_amt min="0" max="20" value="3" style="width: 600px"></input>
           </div>
         </div>
       </div>
@@ -272,7 +272,7 @@
         ["23:17:50", 301.0], ["23:22:50", 302.0], ["23:27:50", 299.0],
         ["23:32:50", 301.0], ["23:37:50", 299.0], ["23:42:50", 297.0],
         ["23:47:50", 298.0], ["23:52:50", 297.0], ["23:57:50", 295.0]];
-    let insulin = [[0, 0], [30, 30], [60, 80], [90, 95], [120, 100], [150, 90], [180, 50], [210, 35], [240, 20], [270, 15], [300, 10], [330, 5], [360, 0]]
+      let insulin = [[0, 0], [23, 30], [46, 80], [69, 95], [92, 100], [115, 90], [138, 50], [161, 35], [184, 20], [207, 15], [230, 10], [253, 5], [300, 0]]
 
 
     var timeParse = d3.timeParse("%H:%M:%S")
@@ -317,7 +317,7 @@
 
                 bg[i][1]=bg[i-1][1]+old_change
 
-                if (Math.floor(k/6)<insulin.length){
+                if (Math.floor(k/5)<insulin.length){
                     bg[i][1]-=insulin[Math.floor(k/6)][1]/20;
                 }
                 k+=1
