@@ -10,6 +10,30 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
   </head>
+  <style>
+    #learn {
+      color: black;
+      background-color: white;
+      border-color: #c4c4c4;
+    }
+    #learn:hover {
+      color: black;
+      background-color: #ededed; /*dark green*/
+      border-color: #ededed; /*dark green*/
+    }
+
+    .footer {
+       position: fixed;
+       padding-top: 25px;
+       padding-bottom: 25px;
+       left: 0;
+       bottom: 0;
+       width: 100%;
+       background-color: #41948E; /*emerald green*/
+       color: white;
+       text-align: center;
+    }
+  </style>
   <body>
 
     <!--Fixed Navigation Bar-->
@@ -42,15 +66,38 @@
       <div class="row" style="padding-top: 50px">
         <div class="col-sm-6">
           <h1 style="padding-bottom: 20px;"><b>Diabetes</b> is manageable</h1>
-          <h4>Understanding how insulin works is important to diabetes management.</p>
-          <h4>Can we picture how insulin affects glucose levels?</p><br>
-          <button type="button" class="btn btn-primary" style="margin-bottom: 50px" id="seeworks">Try It Yourself! »</button>
+          <h4 style="padding-bottom: 15px;">Understanding how insulin affects blood glucose
+              levels is important to diabetes management.</h4>
+          <h4>Our goal is to show that learning when and how much to dose for meals
+              can lead to better control
+              through a series of interactive graphs.</h4><br>
+          <button type="button" class="btn btn-primary" style="margin-bottom: 50px; margin-right: 20px" id="learn">Learn More »</button>
+          <button type="button" class="btn btn-primary" style="margin-bottom: 50px" id="seeworks">Try It Yourself »</button>
         </div>
         <div class="col-sm-6">
           <img src="img/glucose.gif" width=100%>
         </div>
       </div>
+      <div style="padding-bottom: 250px">
+      </div>
     </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="row">
+        <div class="col-sm-6" style="padding-top: 5px; margin-bottom: 10px">
+          <a href="http://ddi.ucsd.edu" target="_blank"><img src="img/ddi-logo.png" style="max-width: 150px; margin-right: 50px"></a>
+          <a href="https://designlab.ucsd.edu" target="_blank"><img src="img/dlab-logo.png" style="max-width: 150px"></a>
+        </div>
+        <div class="col-sm-6" style="font-size: 12px; color: black; margin-top: 5px;padding-right: 100px; text-align: left; padding-left: 100px">
+          <b>Note</b>: The information on this site is not intended or implied to be a
+             substitute for professional medical advice, diagnosis or treatment.
+             All content, including text, graphics, images and information,
+             contained on or available through this website is for general
+             information purposes only.</p>
+        </div>
+      </div>
+    </footer>
   </body>
   <script>
     // function to add shadow to the navbar
@@ -64,6 +111,7 @@
     }
     });
 
+    $('#learn').on('click', function() { window.location = 'terminology.html'; });
     $('#seeworks').on('click', function() { window.location = 'graphs-menu.html'; });
   </script>
 </html>
