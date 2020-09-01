@@ -620,12 +620,28 @@
       var mt_min = 16*60+45;
       var difference = bt_min - mt_min;
       if (difference > 0){
-        document.getElementById("bolus_meal_time").innerHTML = difference + " min after meal";
+        if (difference > 60){
+          var hour = Math.floor(difference / 60)
+          var min = difference % 60
+          if (min == 0){document.getElementById("bolus_meal_time").innerHTML = (hour) + " hr after meal";}
+          else {document.getElementById("bolus_meal_time").innerHTML = hour + "hr " + min + " min after meal";}
+        }
+        else {
+          document.getElementById("bolus_meal_time").innerHTML = difference + " min after meal";
+        }
       }
       else if (difference <= 0){
-        document.getElementById("bolus_meal_time").innerHTML = Math.abs(difference) + " min before meal";
+        if (difference < -60){
+          var hour = Math.abs(Math.floor(difference / -60))
+          var min = Math.abs(difference % 60)
+          if (min == 0){document.getElementById("bolus_meal_time").innerHTML = (hour) + " hr before meal";}
+          else {document.getElementById("bolus_meal_time").innerHTML = hour + "hr " + min + " min before meal";}
+        }
+        else {
+          document.getElementById("bolus_meal_time").innerHTML = Math.abs(difference) + " min before meal";
+        }
       }
-      pos = (difference*4.5) + 60;
+      pos = (difference*4.5) + 50;
       if(pos >= 0){
         document.getElementById("bolus_meal_time").style.paddingLeft = pos + "px";
       }
