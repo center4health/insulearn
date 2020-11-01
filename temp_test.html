@@ -8,6 +8,7 @@
     <div id="my_chart"></div>
     <script>
       // Margin Handling - https://www.d3-graph-gallery.com/graph/line_basic.html
+      // margins are basically the spacing between stuff. Kinda too lazy/complicated to figure it out myself.
       var margin = {top: 20, right: 40, bottom: 30, left: 60},
         width = 1000 - margin.left - margin.right,
         height = 500 - margin.top - margin.bottom;
@@ -19,12 +20,13 @@
           .attr("height", height + margin.top + margin.bottom) // define heigth attribute of svg
         .append("g") // g is within the svg tag
           .attr("transform", `translate(${margin.left}, ${margin.top})`); // want to shift it a bit to the right, and down
+          // `${}` acts like a f-string in python
       
       // function to convert string to time
       let parseTime = d3.timeParse("%Y-%m-%d %H:%M:%S")
 
-
-      d3.csv("testdata/cgm.csv").then((data) => { // csv: reads in the csv -> then: after comp finishes reading then do defined function
+      d3.csv("testdata/cgm.csv").then((data) => { // csv: reads in the csv -> then: after compiler finishes reading then do defined function.
+        // () => {} is shorthand for function definition (parameters) => {code}
         // get the correct format and type for the data
         let formatted_data = data.map((d) => {
           return {
@@ -44,18 +46,19 @@
 
         svg.append("g") 
           .attr("transform", `translate(0,${height})`) // Need to push this down to the to the bottom of the graph
-          .call(d3.axisBottom(x))// This appends on the last call of the svg attribute assignment (the "g" in line 15). 
-          // TODO: Figure out what call function does
+          .call(d3.axisBottom(x))// This appends on the last call of the svg attribute assignment (the "g" in line 20). 
+          // call: Invokes the specified function exactly once
+          // d3.axisBottom() returns a function. Its done this way such that it could be associated with the "g" tag
 
         let max_y = Math.max.apply(Math, formatted_data.map((d) => { return d.sugar_glucose_value; })); 
         let min_y = Math.min.apply(Math, formatted_data.map((d) => { return d.sugar_glucose_value; }));
 
         var y = d3.scaleLinear()
-          .domain([0, max_y * 1.1]) // the input values
-          .range([height, 0]); // what pixel value you want to output: its big to small because we want the inverse. Javascript coordinates go from top to bottom, not bottom to right
+          .domain([0, max_y * 1.1]) // the input values. Don't want it to be cut off at max value, so we have that multiplication
+          .range([height, 0]); // Javascript coordinates go from top to bottom, not bottom to right, so doing [big_value, smaller_value] should fix ordering problems
 
         svg.append("g") 
-          .call(d3.axisLeft(y))// This appends on the last call of the svg attribute assignment (the "g" in line 15)
+          .call(d3.axisLeft(y))// This appends on the last call of the svg attribute assignment (the "g" in line 20)
         
         // Line Stuff
         svg.append("path")
