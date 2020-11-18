@@ -9,11 +9,10 @@
 
 
 
-base_bg={}
+let base_bg={}
 
 //List of factors influencing bg implemented as functions  
-factors=[]
-
+let factors=[]
 
 
 /*
@@ -34,27 +33,22 @@ function deep_copy_array(bg_orig){
 }
 
 /*
-* Returns the bg
+* Returns the current bg curve
 */
-export function get_bg(start, end){
+function get_bg(start, end){
     bg=deep_copy_array(base_bg)
     fLen = factors.length;
     for (i = 0; i < fLen; i++) {
-        bg=apply_factor(factors[i], bg)
         //apply factor to bg
+        bg=apply_factor(factors[i], bg)   
     }
     return bg
 }
 
 
+const INSULIN_RAPID={PEAK:80, DURATION:300, ONSET:10}
 
 
-const INSULIN_TYPES={name: "RAPID", peak:90, end:300}
-
-class settings={
-    isf=2.5, //insulin sensitivity
-    cr=10 // carb ratio  0.1= 1:10
-}
 
 
 let data={
@@ -74,16 +68,34 @@ function add_meal(time, carbs, protein, fat){
 /*
 Code copied from https://github.com/openaps/oref0/blob/master/lib/iob/calculate.js inspired by https://github.com/LoopKit/Loop/issues/388#issuecomment-317938473
 */
-function insulin_activity(){
+function insulin_activity(dose, minsAgo){
+    end=INSULIN_RAPID.DURATION-INSULIN_RAPID.ONSET;
+    peak=INSULIN_RAPID.PEAK-INSULIN_RAPID.ONSET;
+
+    if (minsAgo<INSULIN_RAPID.ONSET){
+        return 1;
+    }
+    insulin=dose*50;
     var tau = peak * (1 - peak / end) / (1 - 2 * peak / end);  // time constant of exponential decay
     var a = 2 * tau / end;                                     // rise time factor
     var S = 1 / (1 - a + (1 + a) * Math.exp(-end / tau));      // auxiliary scale factor
         
-    activityContrib = treatment.insulin * (S / Math.pow(tau, 2)) * minsAgo * (1 - minsAgo / end) * Math.exp(-minsAgo / tau);
-    iobContrib = treatment.insulin * (1 - S * (1 - a) * ((Math.pow(minsAgo, 2) / (tau * end * (1 - a)) - minsAgo / tau - 1) * Math.exp(-minsAgo / tau) + 1));
+    activityContrib = insulin * (S / Math.pow(tau, 2)) * minsAgo * (1 - minsAgo / end) //* Math.exp(-minsAgo / tau);
+   // iobContrib = insulin * (1 - S * (1 - a) * ((Math.pow(minsAgo, 2) / (tau * end * (1 - a)) - minsAgo / tau - 1) * Math.exp(-minsAgo / tau) + 1));
+    return activityContrib
+}
+
+function calculate_curve(dose, start){
 
 }
 
-function calculate_curve(){
 
-}
+function time_in_range(bg_data) {
+    var inrange = 0;
+    for (i = 0; i < bg_data.length; i++) {
+      if (bg_data[i][1] > 69 && bg_data[i][1] < 181) {
+        inrange++;
+      }
+    }
+    return Math.round(inrange / bg_data.length * 100);
+  }
