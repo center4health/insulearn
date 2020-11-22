@@ -45,10 +45,11 @@ class Glucose {
         for (let i=0;i<result.length;i++){
             if(i>0){
                 last_change=this.base[i][1] - this.base[i - 1][1];
+                result[i][1]=result[i-1][1]+last_change;
             }
             
 
-            result[i][1]=result[i][1]+last_change;
+            
 
             this.factors.forEach(factor=> {
                 result[i][1] = factor.apply(result[i][1], result[i][0]);
@@ -112,11 +113,146 @@ class Insulin {
         if (minutes<0){
             return bg
         }else{
-            return bg-this.getActivity(minutes)
+            return bg-this.getActivity(minutes)/20
             
         }
-        
+    }
 
+    /** 
+    * Return active insulin at a point in time
+    *
+    * @param {Number} time - Minutes since bolus
+    * Code adapted from https://github.com/openaps/oref0/blob/master/lib/iob/calculate.js inspired by 
+    * https://github.com/LoopKit/Loop/issues/388#issuecomment-317938473
+    **/
+    getActivity(time) {
+        let end = this.type.DURATION - this.type.ONSET;
+        let peak = this.type.PEAK - this.type.ONSET;
+
+        if (time < this.type.ONSET) {
+            return 0; //ugly can we find a function with a nice slow start?
+        }
+        if (time> this.end){
+            return 0;
+        }
+        let minsAgo = time - this.type.ONSET;
+        let insulin = this.dose * 1000;
+
+        let tau = peak * (1 - peak / end) / (1 - 2 * peak / end);  // time constant of exponential decay
+        let a = 2 * tau / end;                                     // rise time factor
+        let S = 1 / (1 - a + (1 + a) * Math.exp(-end / tau));      // auxiliary scale factor
+
+        var activityContrib = insulin * (S / Math.pow(tau, 2)) * minsAgo * (1 - minsAgo / end) * Math.exp(-minsAgo / tau);
+        return activityContrib
+    }
+    /**
+    * returns insulin on board at a point in time
+    * @param {Number} time - Minutes since bolus
+    * @return {Number}
+    * Code adapted from https://github.com/openaps/oref0/blob/master/lib/iob/calculate.js inspired by https://github.com/LoopKit/Loop/issues/388#issuecomment-317938473
+    **/
+    getIob(time) {
+        let end = this.type.DURATION - this.type.ONSET;
+        let peak = this.type.PEAK - this.type.ONSET;
+
+        if (time < this.INSULIN_RAPID.ONSET) {
+            return 0;
+        }
+        let minsAgo = time - this.INSULIN_RAPID.ONSET
+        let insulin = dose * 1000;
+
+        let tau = peak * (1 - peak / end) / (1 - 2 * peak / end);  // time constant of exponential decay
+        let a = 2 * tau / end;                                     // rise time factor
+        let S = 1 / (1 - a + (1 + a) * Math.exp(-end / tau));      // auxiliary scale factor
+        return insulin * (1 - S * (1 - a) * ((Math.pow(minsAgo, 2) / (tau * end * (1 - a)) - minsAgo / tau - 1) * Math.exp(-minsAgo / tau) + 1));
+    }
+
+    /**
+    * returns insulin activity curve at a point in time
+    * @param {Number} sampling - Sampling interval for the curve in minutes
+    * @return {Array} - 2-dimensional array with timestamps and insulin values
+    **/
+    getShape(sampling = 5) {
+        let curve = [];
+        for (let min = 0; min < this.type.DURATION; min += sampling) {
+            curve.push([d3.timeMinute.offset(this.bolus_time, min), this.getActivity(min)]);
+        }
+        return curve;
+    }
+
+    /**
+    * set/change the time of the bolus
+    * @param {Object} bolus_time - Time of the bolus d3 date object
+    * @return {Insulin} - the current object to allow chaining of methods
+    **/
+    setTime(time) {
+        this.bolus_time = time;
+        return this;
+    }
+
+    /**
+    * gete the time of the bolus
+    * @return {Object} - Time of the bolus d3 date object
+    **/
+    getTime(time) {
+        return bolus_time;
+    }
+
+    /**
+    * set/change the amount of insulin
+    * @param {Number} dose - The new dose of this insulin bolus
+    * @return {Insulin} - the current object to allow chaining of methods
+    **/
+    setDose(dose) {
+        this.dose = dose;
+        return this;
+    }
+
+    /**
+    * get the amount of insulin
+    * @return {Number} dose - The dose of this insulin bolus
+    **/
+    getDose(dose) {
+        this.dose = dose;
+        return this;
+    }
+
+}
+
+
+
+/**
+ * Meal class. Represents one meal:
+ *
+ * @constructor
+ * @param {Number} dose         - The amount of Insulin in Units
+ * @param {Number} bolus_time   - The time of the bolus in minutes
+ * @param {INSULIN_TYPE} type      - The type of insulin
+ */
+class Meal {
+
+    constructor(dose, bolus_time, type) {
+        this.dose = dose;
+        this.bolus_time = bolus_time;
+        this.type = type;
+    }
+
+
+    /** 
+    * Return insulin effect at a point in time
+    *
+    * @param {Object} time - Minutes since bolus
+    * Code adapted from https://github.com/openaps/oref0/blob/master/lib/iob/calculate.js inspired by 
+    * https://github.com/LoopKit/Loop/issues/388#issuecomment-317938473
+    **/
+    apply(bg, time){
+        let minutes =(time-this.bolus_time)/(60*1000);
+        if (minutes<0){
+            return bg
+        }else{
+            return bg-this.getActivity(minutes)/100*isf
+            
+        }
     }
 
     /** 
