@@ -40,21 +40,22 @@ class Glucose {
     * Returns the current bg curve
     */
     getShape() {
-        let result = deep_copy(this.base)
-        for (factor of this.factors) {
-            result.forEach(d => {
-                d[1] = d[1] - factor.apply(d[0])
-            })
-        }
+        let result = deep_copy(this.base);
+        let last_change=0
+        for (let i=0;i<result.length;i++){
+            if(i>0){
+                last_change=this.base[i][1] - this.base[i - 1][1];
+            }
+            
 
-        return this.base;
-        // bg = deep_copy_array(base_bg)
-        // fLen = factors.length;
-        // for (i = 0; i < fLen; i++) {
-        //     //apply factor to bg
-        //     bg = apply_factor(factors[i], bg)
-        // }
-        // return bg
+            result[i][1]=result[i][1]+last_change;
+
+            this.factors.forEach(factor=> {
+                result[i][1] = factor.apply(result[i][1], result[i][0]);
+            });
+
+        }
+        return result;
     }
 
     timeInRange() {
@@ -91,6 +92,7 @@ const INSULIN_TYPE = {
  * @param {INSULIN_TYPE} type      - The type of insulin
  */
 class Insulin {
+
     constructor(dose, bolus_time, type) {
         this.dose = dose;
         this.bolus_time = bolus_time;
@@ -98,6 +100,24 @@ class Insulin {
     }
 
 
+    /** 
+    * Return insulin effect at a point in time
+    *
+    * @param {Object} time - Minutes since bolus
+    * Code adapted from https://github.com/openaps/oref0/blob/master/lib/iob/calculate.js inspired by 
+    * https://github.com/LoopKit/Loop/issues/388#issuecomment-317938473
+    **/
+    apply(bg, time){
+        let minutes =(time-this.bolus_time)/(60*1000);
+        if (minutes<0){
+            return bg
+        }else{
+            return bg-this.getActivity(minutes)
+            
+        }
+        
+
+    }
 
     /** 
     * Return active insulin at a point in time
@@ -112,6 +132,9 @@ class Insulin {
 
         if (time < this.type.ONSET) {
             return 0; //ugly can we find a function with a nice slow start?
+        }
+        if (time> this.end){
+            return 0;
         }
         let minsAgo = time - this.type.ONSET;
         let insulin = this.dose * 1000;
