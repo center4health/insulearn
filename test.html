@@ -240,6 +240,10 @@
   ["23:32:50", 285.0], ["23:37:50", 283.0], ["23:42:50", 288.0],
   ["23:47:50", 284.0], ["23:52:50", 280.0], ["23:57:50", 289.0]];
   
+  cgm=new Glucose()
+  cgm.loadJSON(bg_raw)
+
+  console.log(cgm.getShape())
 
   var timeParse = d3.timeParse("%H:%M:%S")
   bg_raw.forEach(d => {
@@ -247,24 +251,15 @@
   })
 
 
-  default_bolus_time = timeParse("17:00:00");
-  offset = 0;
-  var dose = 10;
+  
 
 
-  function calculate_insulin_curve(bolus = default_bolus_time) {
-    curve=[];
-    end=INSULIN_RAPID.DURATION;
-    step=5;
-    for (min=0; min<=end;min+=step){
-      curve.push([d3.timeMinute.offset(bolus, min), insulin_activity(dose*step, min)])
-    }
-    return curve
-  }
+  let default_bolus_time = timeParse("17:00:00");
 
-  insulin_curve = calculate_insulin_curve();
 
-  //console.log(insulin_curve)
+  insulin_bolus=new Insulin(10, default_bolus_time, INSULIN_TYPE.RAPID)
+  insulin_curve = insulin_bolus.getShape();
+
 
   var svg = d3.select("svg"),
     margin = { top: 20, right: 20, bottom: 30, left: 50 },
@@ -596,12 +591,10 @@
     time_from_meal(bolus_time)
 
     b_t = bolus_time;
-    var insulin = calculate_insulin_curve(bolus_time);
+    var insulin = insulin_bolus.setTime(bolus_time).getShape()
     update_insulin(insulin);
     var bg_data = apply_insulin(insulin);
     update_bg(bg_data);
-
-    time_in_range(bg_data); // update time in range
 
     // bolus point
     d3.select("circle")
@@ -630,13 +623,13 @@
   });
 
   d3.select("#insulin_amt").on("input", function (d) {
-    dose = parseInt(this.value, 10) / 4
-    var insulin = calculate_insulin_curve(b_t);
+    let dose = parseInt(this.value, 10) / 4
+    var insulin=insulin_bolus.setDose(dose).getShape()
     update_insulin(insulin);
     var bg_data = apply_insulin(insulin)
     update_bg(bg_data);
 
-    time_in_range(bg_data); // update time in range
+    cgm.time_in_range(); // update time in range
 
     // bolus point
     d3.select("circle")
