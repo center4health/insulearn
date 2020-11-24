@@ -258,6 +258,13 @@
   let insulin_bolus=new Insulin(10, timeParse("17:00:00"), INSULIN_TYPE.RAPID);
 
   cgm.addFactor(insulin_bolus);
+
+
+
+  let meal=new Meal(10, timeParse("16:55:00"))
+  cgm.addFactor(meal);
+
+
   let bg = cgm.getShape();
 
   let svg = d3.select("svg"),
@@ -295,11 +302,13 @@
   var focus = svg.append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-  var insulin_g = svg.append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+  
 
   x.domain(d3.extent(bg, function (d) { return d[0]; }));
   y.domain([0, 400]);
+
+  var insulin_g = svg.append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
   insulin_g.append("path")
     .datum(insulin_bolus.getShape())
@@ -311,6 +320,22 @@
       .x(function (d) { return x(d[0]) })
       .y(function (d) { return y(d[1]) })
     )
+
+  var meal_g = svg.append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+  meal_g.append("path")
+    .datum(meal.getShape())
+    .attr("fill", "#41948E")
+    .attr("fill-opacity", "0.5")
+    .attr("stroke", "#41948E") // insulin curve color
+    .attr("stroke-width", 5) // size(stroke) of the insulin curve
+    .attr("d", d3.line()
+      .x(function (d) { return x(d[0]) })
+      .y(function (d) { return y(d[1]) })
+    )
+
+
 
 
   // meal vertical line
@@ -469,6 +494,13 @@
     .attr("x2", 329)
     .attr("y2", 500);
 
+  d3.select("#meal_time").on("input", function (d) {
+    let selectedValue = parseInt(this.value, 10);
+    let selectVal = selectedValue // use for bolus pin
+    meal_bolus.changeTimeByMinute(selectedValue)
+    let insulin = insulin_bolus.getShape()
+    let bolus_time = insulin_bolus.getTime()
+  });
 
   d3.select("#bolus_time").on("input", function (d) {
     let selectedValue = parseInt(this.value, 10);

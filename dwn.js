@@ -84,7 +84,7 @@ const INSULIN_TYPE = {
 
 
 const MEAL_COMPONENTS = {
-    "SIMPLE_CARB": { PEAK: 20, DURATION: 60, ONSET: 0 },  // e.g. humalog
+    "SIMPLE_CARB": { PEAK: 20, DURATION: 100, ONSET: 0 },  // e.g. humalog
 }
 
 
@@ -239,15 +239,15 @@ class Insulin {
  * Meal class. Represents one meal:
  *
  * @constructor
- * @param {Number} carbs        - The amount of carbs
- * @param {Number} protein   - The time of the meal in minutes
- * @param {Number} type      - The type of insulin
+ * @param {Number} carbs     - The amount of carbs
+ * @param {Object} protein   - The time of the meal in minutes
  */
 class Meal {
-    constructor(dose, bolus_time, type) {
-        this.dose = dose;
-        this.bolus_time = bolus_time;
-        this.type = type;
+    constructor(carbs, meal_time) {
+        this.dose = carbs;
+        this.default_time = meal_time;
+        this.bolus_time = meal_time;
+        this.type= MEAL_COMPONENTS.SIMPLE_CARB;
     }
 
     /** 
@@ -258,11 +258,13 @@ class Meal {
     * https://github.com/LoopKit/Loop/issues/388#issuecomment-317938473
     **/
     apply(bg, time) {
+        
         let minutes = (time - this.bolus_time) / (60 * 1000);
         if (minutes < 0) {
             return bg
         } else {
-            return bg + this.getActivity(minutes) / 100 * isf
+            console.log("meal" +(this.getActivity(minutes) / 10))
+            return bg + this.getActivity(minutes) / 10
 
         }
     }
@@ -367,7 +369,6 @@ class Meal {
     }
 
 }
-
 
 
 
