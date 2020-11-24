@@ -175,6 +175,16 @@
               style="width: 600px"></input>
           </div>
         </div>
+        <div class="row">
+          <!-- Meal SLIDER-->
+          <div class="col-sm-2">
+            <p style="padding-top: 10px">Meal time</p>
+          </div>
+          <div class="col-sm-10">
+            <input type="range" name="meal_time" id=meal_amt min="0" max="100" value="0"
+              style="width: 600px"></input>
+          </div>
+        </div>
       </div>
     </center>
   </div>
@@ -186,6 +196,7 @@
 <script src="https://d3js.org/d3.v5.min.js"></script>
 <script src="dwn.js"></script>
 <script>
+  "use strict";
   //let's get our data ready
   let show = 0;
   let selectVal = 0;
@@ -239,36 +250,23 @@
   ["23:32:50", 285.0], ["23:37:50", 283.0], ["23:42:50", 288.0],
   ["23:47:50", 284.0], ["23:52:50", 280.0], ["23:57:50", 289.0]];
   
-  cgm=new Glucose()
+  let cgm=new Glucose()
   cgm.loadJSON(bg_raw)
 
-  
+  let timeParse = d3.timeParse("%H:%M:%S")
 
-  var timeParse = d3.timeParse("%H:%M:%S")
-  bg_raw.forEach(d => {
-    d[0] = timeParse(d[0]);
-  })
-
-
-
-
-  
-
-
-  let default_bolus_time = timeParse("17:00:00");
-
-
-  let insulin_bolus=new Insulin(10, default_bolus_time, INSULIN_TYPE.RAPID);
+  let insulin_bolus=new Insulin(10, timeParse("17:00:00"), INSULIN_TYPE.RAPID);
 
   cgm.addFactor(insulin_bolus);
+  let bg = cgm.getShape();
 
-
-  var svg = d3.select("svg"),
+  let svg = d3.select("svg"),
     margin = { top: 20, right: 20, bottom: 30, left: 50 },
     width = +svg.attr("width") - margin.left - margin.right,
     height = +svg.attr("height") - margin.top - margin.bottom;
 
-  var bg = cgm.getShape();
+  
+  
 
   var x = d3.scaleTime()
     .range([0, width]);
@@ -279,9 +277,6 @@
   var xAxis = d3.axisBottom(x),
     yAxis = d3.axisLeft(y);
 
-  // var low_threshold = d3.line()
-  //     .x(function(d) { return x(d[0]); })
-  //     .y(return y(70); );
 
   var line = d3.line()
     .x(function (d) { return x(d[0]); })
@@ -292,88 +287,9 @@
     .on('drag', dragged)
     .on('end', dragended);
 
-  svg.append('rect')
-    .attr('class', 'zoom')
-    .attr('cursor', 'move')
-    .attr('fill', 'none')
-    .attr('pointer-events', 'all')
-    .attr('width', width)
-    .attr('height', height)
-    .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
+  
 
-  // shade time in range section
-  svg.append('rect')
-    .style("fill", "#EFF6FE")
-    .attr("x", 50)
-    .attr("y", 280)
-    .attr("width", 680)
-    .attr("height", 130);
-
-  //rough estimate of upper threshold
-  svg.append('line')
-    .style("stroke", "#FFB800") // color of upper threshold line
-    .style("stroke-dasharray", ("3, 5"))
-    .style("stroke-width", 2)
-    .attr("x1", 50)
-    .attr("y1", 280)
-    .attr("x2", 720)
-    .attr("y2", 280);
-
-  //rough estimate of lower threshold
-  svg.append('line')
-    .style("stroke", "#EB8690") // color of lower threshold line
-    .style("stroke-dasharray", ("3, 5"))
-    .style("stroke-width", 2)
-    .attr("x1", 50)
-    .attr("y1", 410)
-    .attr("x2", 720)
-    .attr("y2", 410);
-
-  //rough estimate of upper threshold
-  svg.append('line')
-    .style("stroke", "#FFB800") // color of upper threshold line
-    .style("stroke-dasharray", ("3, 5"))
-    .style("stroke-width", 2)
-    .attr("x1", 50)
-    .attr("y1", 280)
-    .attr("x2", 720)
-    .attr("y2", 280);
-
-  // upper threshold label
-  svg.append("text")
-    .attr("y", 285)
-    .attr("x", 735)
-    .attr('text-anchor', 'middle')
-    .attr("class", "range") // use to style in stylesheet
-    .text("180");
-
-  // lower threshold label
-  svg.append("text")
-    .attr("y", 415)
-    .attr("x", 735)
-    .attr('text-anchor', 'middle')
-    .attr("class", "range") // use to style in stylesheet
-    .text("70");
-
-  // upper threshold label
-  svg.append("text")
-    .attr("y", 285)
-    .attr("x", 735)
-    .attr('text-anchor', 'middle')
-    .attr("class", "range") // use to style in stylesheet
-    .text("180");
-
-  // glucose label
-  svg.append("text")
-    .attr("transform", "translate(12,340) rotate(-90)")
-    .attr("class", "range") // use to style in stylesheet
-    .text("glucose (mg/dL)");
-
-  // target range label
-  svg.append("text")
-    .attr("transform", "translate(750,393) rotate(-90)")
-    .attr("id", "targetrange") // use to style in stylesheet
-    .text("TARGET RANGE");
+  draw_chart(svg)
 
 
   var focus = svg.append("g")
@@ -384,10 +300,6 @@
 
   x.domain(d3.extent(bg, function (d) { return d[0]; }));
   y.domain([0, 400]);
-
-  // svg.append("path")      // Add the low threshold line.
-  //     .attr("class", "line")
-  //     .attr("d", low_threshold(data));
 
   insulin_g.append("path")
     .datum(insulin_bolus.getShape())
@@ -424,6 +336,7 @@
     .attr("class", "range") // use to style in stylesheet
     .text("Meal");
 
+  // BG graph
   focus.selectAll('circle')
     .data(bg)
     .enter()
@@ -521,7 +434,7 @@
         document.getElementById("bolus_meal_time").innerHTML = Math.abs(difference) + " min before meal";
       }
     }
-    pos = (difference * 4.5) + 50;
+    let pos = (difference * 4.5) + 50;
     if (pos >= 0) {
       document.getElementById("bolus_meal_time").style.paddingLeft = pos + "px";
     }
@@ -530,7 +443,7 @@
     }
   }
 
-  var b_t = default_bolus_time;
+ // var b_t = default_bolus_time;
 
   // bolus point
   d3.select("circle")
@@ -558,18 +471,16 @@
 
 
   d3.select("#bolus_time").on("input", function (d) {
-    selectedValue = parseInt(this.value, 10);
-    selectVal = selectedValue // use for bolus pin
-
-    var bolus_time = d3.timeMinute.offset(default_bolus_time, selectedValue);
+    let selectedValue = parseInt(this.value, 10);
+    let selectVal = selectedValue // use for bolus pin
+    insulin_bolus.changeTimeByMinute(selectedValue)
+    let insulin = insulin_bolus.getShape()
+    let bolus_time = insulin_bolus.getTime()
 
     selected_time(bolus_time) // update selected time in the html
     time_from_meal(bolus_time)
-
-    b_t = bolus_time;
-    var insulin = insulin_bolus.setTime(bolus_time).getShape()
+    
     update_insulin(insulin);
-    //var bg_data = apply_insulin(insulin);
     update_bg(cgm.getShape());
 
     // bolus point

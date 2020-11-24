@@ -41,17 +41,17 @@ class Glucose {
     */
     getShape() {
         let result = deep_copy(this.base);
-        let last_change=0
-        for (let i=0;i<result.length;i++){
-            if(i>0){
-                last_change=this.base[i][1] - this.base[i - 1][1];
-                result[i][1]=result[i-1][1]+last_change;
+        let last_change = 0
+        for (let i = 0; i < result.length; i++) {
+            if (i > 0) {
+                last_change = this.base[i][1] - this.base[i - 1][1];
+                result[i][1] = result[i - 1][1] + last_change;
             }
-            
 
-            
 
-            this.factors.forEach(factor=> {
+
+
+            this.factors.forEach(factor => {
                 result[i][1] = factor.apply(result[i][1], result[i][0]);
             });
 
@@ -83,19 +83,25 @@ const INSULIN_TYPE = {
 }
 
 
+const MEAL_COMPONENTS = {
+    "SIMPLE_CARB": { PEAK: 20, DURATION: 60, ONSET: 0 },  // e.g. humalog
+}
+
+
 
 /**
  * Insulin class. Represents one bolus with:
  *
  * @constructor
  * @param {Number} dose         - The amount of Insulin in Units
- * @param {Number} bolus_time   - The time of the bolus in minutes
+ * @param {Object} bolus_time   - The time of the bolus 
  * @param {INSULIN_TYPE} type      - The type of insulin
  */
 class Insulin {
 
     constructor(dose, bolus_time, type) {
         this.dose = dose;
+        this.default_time=bolus_time;
         this.bolus_time = bolus_time;
         this.type = type;
     }
@@ -108,13 +114,12 @@ class Insulin {
     * Code adapted from https://github.com/openaps/oref0/blob/master/lib/iob/calculate.js inspired by 
     * https://github.com/LoopKit/Loop/issues/388#issuecomment-317938473
     **/
-    apply(bg, time){
-        let minutes =(time-this.bolus_time)/(60*1000);
-        if (minutes<0){
+    apply(bg, time) {
+        let minutes = (time - this.bolus_time) / (60 * 1000);
+        if (minutes < 0) {
             return bg
-        }else{
-            return bg-this.getActivity(minutes)/20
-            
+        } else {
+            return bg - this.getActivity(minutes) / 20
         }
     }
 
@@ -132,7 +137,7 @@ class Insulin {
         if (time < this.type.ONSET) {
             return 0; //ugly can we find a function with a nice slow start?
         }
-        if (time> this.end){
+        if (time > this.end) {
             return 0;
         }
         let minsAgo = time - this.type.ONSET;
@@ -181,7 +186,7 @@ class Insulin {
     }
 
     /**
-    * set/change the time of the bolus
+    * set the time of the bolus
     * @param {Object} bolus_time - Time of the bolus d3 date object
     * @return {Insulin} - the current object to allow chaining of methods
     **/
@@ -191,11 +196,21 @@ class Insulin {
     }
 
     /**
-    * gete the time of the bolus
+    * set the time of the bolus
+    * @param {Number} minute - Minute offset for this bolus
+    * @return {Insulin} - the current object to allow chaining of methods
+    **/
+    changeTimeByMinute(minute) {
+        this.bolus_time = d3.timeMinute.offset(this.default_time, minute)
+        return this;
+    }
+
+    /**
+    * get the time of the bolus
     * @return {Object} - Time of the bolus d3 date object
     **/
-    getTime(time) {
-        return bolus_time;
+    getTime() {
+        return this.bolus_time;
     }
 
     /**
@@ -213,8 +228,7 @@ class Insulin {
     * @return {Number} dose - The dose of this insulin bolus
     **/
     getDose(dose) {
-        this.dose = dose;
-        return this;
+        return this.dose;
     }
 
 }
@@ -225,18 +239,16 @@ class Insulin {
  * Meal class. Represents one meal:
  *
  * @constructor
- * @param {Number} dose         - The amount of Insulin in Units
- * @param {Number} bolus_time   - The time of the bolus in minutes
- * @param {INSULIN_TYPE} type      - The type of insulin
+ * @param {Number} carbs        - The amount of carbs
+ * @param {Number} protein   - The time of the meal in minutes
+ * @param {Number} type      - The type of insulin
  */
 class Meal {
-
     constructor(dose, bolus_time, type) {
         this.dose = dose;
         this.bolus_time = bolus_time;
         this.type = type;
     }
-
 
     /** 
     * Return insulin effect at a point in time
@@ -245,13 +257,13 @@ class Meal {
     * Code adapted from https://github.com/openaps/oref0/blob/master/lib/iob/calculate.js inspired by 
     * https://github.com/LoopKit/Loop/issues/388#issuecomment-317938473
     **/
-    apply(bg, time){
-        let minutes =(time-this.bolus_time)/(60*1000);
-        if (minutes<0){
+    apply(bg, time) {
+        let minutes = (time - this.bolus_time) / (60 * 1000);
+        if (minutes < 0) {
             return bg
-        }else{
-            return bg-this.getActivity(minutes)/100*isf
-            
+        } else {
+            return bg + this.getActivity(minutes) / 100 * isf
+
         }
     }
 
@@ -269,7 +281,7 @@ class Meal {
         if (time < this.type.ONSET) {
             return 0; //ugly can we find a function with a nice slow start?
         }
-        if (time> this.end){
+        if (time > this.end) {
             return 0;
         }
         let minsAgo = time - this.type.ONSET;
@@ -358,6 +370,93 @@ class Meal {
 
 
 
+
+function draw_chart(svg) {
+
+    svg.append('rect')
+        .attr('class', 'zoom')
+        .attr('cursor', 'move')
+        .attr('fill', 'none')
+        .attr('pointer-events', 'all')
+        .attr('width', width)
+        .attr('height', height)
+        .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
+
+    // shade time in range section
+    svg.append('rect')
+        .style("fill", "#EFF6FE")
+        .attr("x", 50)
+        .attr("y", 280)
+        .attr("width", 680)
+        .attr("height", 130);
+
+    //rough estimate of upper threshold
+    svg.append('line')
+        .style("stroke", "#FFB800") // color of upper threshold line
+        .style("stroke-dasharray", ("3, 5"))
+        .style("stroke-width", 2)
+        .attr("x1", 50)
+        .attr("y1", 280)
+        .attr("x2", 720)
+        .attr("y2", 280);
+
+    //rough estimate of lower threshold
+    svg.append('line')
+        .style("stroke", "#EB8690") // color of lower threshold line
+        .style("stroke-dasharray", ("3, 5"))
+        .style("stroke-width", 2)
+        .attr("x1", 50)
+        .attr("y1", 410)
+        .attr("x2", 720)
+        .attr("y2", 410);
+
+    //rough estimate of upper threshold
+    svg.append('line')
+        .style("stroke", "#FFB800") // color of upper threshold line
+        .style("stroke-dasharray", ("3, 5"))
+        .style("stroke-width", 2)
+        .attr("x1", 50)
+        .attr("y1", 280)
+        .attr("x2", 720)
+        .attr("y2", 280);
+
+    // upper threshold label
+    svg.append("text")
+        .attr("y", 285)
+        .attr("x", 735)
+        .attr('text-anchor', 'middle')
+        .attr("class", "range") // use to style in stylesheet
+        .text("180");
+
+    // lower threshold label
+    svg.append("text")
+        .attr("y", 415)
+        .attr("x", 735)
+        .attr('text-anchor', 'middle')
+        .attr("class", "range") // use to style in stylesheet
+        .text("70");
+
+    // upper threshold label
+    svg.append("text")
+        .attr("y", 285)
+        .attr("x", 735)
+        .attr('text-anchor', 'middle')
+        .attr("class", "range") // use to style in stylesheet
+        .text("180");
+
+    // glucose label
+    svg.append("text")
+        .attr("transform", "translate(12,340) rotate(-90)")
+        .attr("class", "range") // use to style in stylesheet
+        .text("glucose (mg/dL)");
+
+    // target range label
+    svg.append("text")
+        .attr("transform", "translate(750,393) rotate(-90)")
+        .attr("id", "targetrange") // use to style in stylesheet
+        .text("TARGET RANGE");
+
+}
 
 
 
@@ -369,6 +468,7 @@ function deep_copy(bg_orig) {
     });
     return bg
 }
+
 
 
 
