@@ -181,7 +181,7 @@
             <p style="padding-top: 10px">Meal time</p>
           </div>
           <div class="col-sm-10">
-            <input type="range" name="meal_time" id=meal_amt min="0" max="100" value="0"
+            <input type="range" name="meal_time" id=meal_time min="-150" max="100" value="0"
               style="width: 600px"></input>
           </div>
         </div>
@@ -250,175 +250,35 @@
   ["23:32:50", 285.0], ["23:37:50", 283.0], ["23:42:50", 288.0],
   ["23:47:50", 284.0], ["23:52:50", 280.0], ["23:57:50", 289.0]];
   
-  let cgm=new Glucose()
-  cgm.loadJSON(bg_raw)
+  let bg=new Glucose()
+  bg.loadJSON(bg_raw)
 
   let timeParse = d3.timeParse("%H:%M:%S")
 
   let insulin_bolus=new Insulin(10, timeParse("17:00:00"), INSULIN_TYPE.RAPID);
 
-  cgm.addFactor(insulin_bolus);
+  bg.addFactor(insulin_bolus);
 
 
+  let meal=new Meal(10, timeParse("16:42:00"))
+  bg.addFactor(meal);
+  
+  let chart=new Chart("svg", bg.getTimeRange())
 
-  let meal=new Meal(10, timeParse("16:55:00"))
-  cgm.addFactor(meal);
+  insulin_bolus.draw(chart.getCanvas());
 
-
-  let bg = cgm.getShape();
-
-  let svg = d3.select("svg"),
-    margin = { top: 20, right: 20, bottom: 30, left: 50 },
-    width = +svg.attr("width") - margin.left - margin.right,
-    height = +svg.attr("height") - margin.top - margin.bottom;
+  meal.draw(chart.getCanvas());
 
   
-  
-
-  var x = d3.scaleTime()
-    .range([0, width]);
-
-  var y = d3.scaleLinear().domain([0, 400])
-    .rangeRound([height, 0]);
-
-  var xAxis = d3.axisBottom(x),
-    yAxis = d3.axisLeft(y);
+  bg.draw(chart.getCanvas());
 
 
-  var line = d3.line()
-    .x(function (d) { return x(d[0]); })
-    .y(function (d) { return y(d[1]); });
 
-  let drag = d3.drag()
-    .on('start', dragstarted)
-    .on('drag', dragged)
-    .on('end', dragended);
+
 
   
 
-  draw_chart(svg)
-
-
-  var focus = svg.append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
   
-
-  x.domain(d3.extent(bg, function (d) { return d[0]; }));
-  y.domain([0, 400]);
-
-  var insulin_g = svg.append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-  insulin_g.append("path")
-    .datum(insulin_bolus.getShape())
-    .attr("fill", "#41948E")
-    .attr("fill-opacity", "0.5")
-    .attr("stroke", "#41948E") // insulin curve color
-    .attr("stroke-width", 5) // size(stroke) of the insulin curve
-    .attr("d", d3.line()
-      .x(function (d) { return x(d[0]) })
-      .y(function (d) { return y(d[1]) })
-    )
-
-  var meal_g = svg.append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-  meal_g.append("path")
-    .datum(meal.getShape())
-    .attr("fill", "#41948E")
-    .attr("fill-opacity", "0.5")
-    .attr("stroke", "#41948E") // insulin curve color
-    .attr("stroke-width", 5) // size(stroke) of the insulin curve
-    .attr("d", d3.line()
-      .x(function (d) { return x(d[0]) })
-      .y(function (d) { return y(d[1]) })
-    )
-
-
-
-
-  // meal vertical line
-  svg.append('line')
-    .style("stroke", "#C4c4c4") // color of meal line
-    .style("stroke-dasharray", ("3, 5"))
-    .style("stroke-width", 2)
-    .attr("x1", 315)
-    .attr("y1", 20)
-    .attr("x2", 315)
-    .attr("y2", 500);
-
-  // Meal point
-  svg.append("circle")
-    .attr("cx", 315)
-    .attr("cy", 495)
-    .attr("r", 5)
-    .style("fill", "black");
-
-  // Meal text
-  svg.append("text")
-    .attr("transform", "translate(300,480)")
-    .attr("class", "range") // use to style in stylesheet
-    .text("Meal");
-
-  // BG graph
-  focus.selectAll('circle')
-    .data(bg)
-    .enter()
-    .append('circle')
-    .attr('r', 3.0)
-    .attr('cx', function (d) { return x(d[0]); })
-    .attr('cy', function (d) { return y(d[1]); })
-    .style('cursor', 'pointer')
-    .style('fill', '#000000'); // glucose curve color
-
-  focus.selectAll('circle')
-    .call(drag);
-
-  focus.append('g')
-    .attr('class', 'axis axis--x')
-    .attr('transform', 'translate(0,' + height + ')')
-    .call(xAxis);
-
-  focus.append('g')
-    .attr('class', 'axis axis--y')
-    .call(yAxis);
-
-  function dragstarted(d) {
-    d3.select(this).raise().classed('active', true);
-  }
-
-  function dragged(d) {
-    d[0] = x.invert(d3.event.x);
-    d[1] = y.invert(d3.event.y);
-    d3.select(this,i)
-      // how would I modify the points around this one?
-      .attr('cy', y(d[1]))
-    //  focus.select('path').attr('d', line);
-  }
-
-  function dragended(d) {
-    d3.select(this).classed('active', false);
-  }
-
-  function update_bg(data) {
-    focus.selectAll('circle')
-      .data(data)
-      .attr('cx', function (d) { return x(d[0]); })
-      .attr('cy', function (d) { return y(d[1]); })
-      ;
-  }
-
-  function update_insulin(data) {
-    insulin_g.selectAll("path")
-      .datum(data)
-      // .transition()
-      // .duration(500)
-      .attr("d", d3.line()
-        .x(function (d) { return x(d[0]) })
-        .y(function (d) { return y(d[1]) })
-      )
-  }
 
 
   
@@ -468,43 +328,19 @@
     }
   }
 
- // var b_t = default_bolus_time;
 
-  // bolus point
-  d3.select("circle")
-    .attr("cx", 280)
-    .attr("cy", 475)
-    .attr("r", 5)
-    .style("fill", "black");
-
-  // bolus text
-  d3.select("text")
-    .attr("x", 300)
-    .attr("y", 480)
-    .attr("class", "range") // use to style in stylesheet
-    .text("Bolus");
-
-  // bolus vertical line
-  d3.select('line')
-    .style("stroke", "#C4c4c4") // color of meal line
-    .style("stroke-dasharray", ("3, 5"))
-    .style("stroke-width", 2)
-    .attr("x1", 329)
-    .attr("y1", 20)
-    .attr("x2", 329)
-    .attr("y2", 500);
+  
 
   d3.select("#meal_time").on("input", function (d) {
     let selectedValue = parseInt(this.value, 10);
-    let selectVal = selectedValue // use for bolus pin
-    meal_bolus.changeTimeByMinute(selectedValue)
-    let insulin = insulin_bolus.getShape()
-    let bolus_time = insulin_bolus.getTime()
+    meal.changeTimeByMinute(selectedValue)
+    meal.refresh()
+    bg.refresh()
+   
   });
 
   d3.select("#bolus_time").on("input", function (d) {
     let selectedValue = parseInt(this.value, 10);
-    let selectVal = selectedValue // use for bolus pin
     insulin_bolus.changeTimeByMinute(selectedValue)
     let insulin = insulin_bolus.getShape()
     let bolus_time = insulin_bolus.getTime()
@@ -512,62 +348,16 @@
     selected_time(bolus_time) // update selected time in the html
     time_from_meal(bolus_time)
     
-    update_insulin(insulin);
-    update_bg(cgm.getShape());
-
-    // bolus point
-    d3.select("circle")
-      .attr("cx", selectedValue * 0.95 + 280)
-      .attr("cy", 475)
-      .attr("r", 5)
-      .style("fill", "black");
-
-    // bolus text
-    d3.select("text")
-      .attr("x", selectedValue * 0.95 + 300)
-      .attr("y", 480)
-      .attr("class", "range") // use to style in stylesheet
-      .text("Bolus");
-
-    //bolus vertical line
-    d3.select('line')
-      .style("stroke", "#C4c4c4") // color of meal line
-      .style("stroke-dasharray", ("3, 5"))
-      .style("stroke-width", 2)
-      .attr("x1", selectedValue * 0.95 + 329)
-      .attr("y1", 20)
-      .attr("x2", selectedValue * 0.95 + 329)
-      .attr("y2", 500);
+    insulin_bolus.refresh()
+    bg.refresh()
 
   });
 
   d3.select("#insulin_amt").on("input", function (d) {
-    let dose = parseInt(this.value, 10) / 4
-    var insulin=insulin_bolus.setDose(dose).getShape()
-    update_insulin(insulin);
-   // var bg_data = apply_insulin(insulin)
-    update_bg(cgm.getShape());
-
-    // bolus point
-    d3.select("circle")
-      .attr("cx", selectVal * 0.95 + 280)
-      .attr("cy", 475)
-      .attr("r", 5)
-      .style("fill", "black");
-
-    // bolus text
-    d3.select("text")
-      .attr("y", 480)
-      .attr("class", "range") // use to style in stylesheet
-      .text("Bolus");
-
-    // bolus vertical line
-    d3.select('line')
-      .style("stroke", "#C4c4c4") // color of meal line
-      .style("stroke-dasharray", ("3, 5"))
-      .style("stroke-width", 2)
-      .attr("y1", 20)
-      .attr("y2", 500);
+    let dose = parseInt(this.value, 10)
+    var insulin=insulin_bolus.setDose(dose);
+    insulin_bolus.refresh()
+    bg.refresh()
   });
 
   // function to add shadow to the navbar
@@ -583,21 +373,6 @@
 
   // tooltips
   $(function () { $('[data-toggle="tooltip"]').tooltip() })
-
-  $("#targetrange").hover(function () { $("#target").show(); });
-  $("#targetrange").mouseleave(function () { $("#target").hide(); });
-
-  // open beginning modal
-  $(document).ready(function () {
-    $('#intro').modal({ backdrop: 'static', keyboard: false })
-    $('#intro').modal('show');
-  });
-
-  $('#intro').on('show.bs.modal', function (e) {
-    $('body').addClass("example-open");
-  }).on('hide.bs.modal', function (e) {
-    $('body').removeClass("example-open");
-  })
 
   $('#back').on('click', function () { window.location = 'graphs-menu.html'; });
   $('#reset').on('click', function () { window.location = 'prebolus.html'; });
