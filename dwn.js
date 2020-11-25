@@ -236,8 +236,13 @@ class Insulin {
             .attr("fill", "#41948E")
             .attr("fill-opacity", "0.5")
             .attr("stroke", "#41948E") // insulin curve color
-            .attr("stroke-width", 5); // size(stroke) of the insulin curve
-
+            .attr("stroke-width", 5) // size(stroke) of the insulin curve
+            .attr("d", d3.line()
+                .x(function (d) { return chart.getX(d[0]) })
+                .y(function (d) { return chart.getY(d[1]) })
+            )
+           // .call(d3.drag().on("drag", this.dragged))
+           
         // insulin vertical line
         this.g.append('line')
             .style("stroke", "#C4c4c4") // color of bolus line
@@ -253,6 +258,7 @@ class Insulin {
         this.g.append("text")
             .attr("class", "range") // use to style in stylesheet
             .text("Bolus");
+
         this.refresh();
     }
     refresh() {
@@ -262,10 +268,13 @@ class Insulin {
                 .x(function (d) { return chart.getX(d[0]) })
                 .y(function (d) { return chart.getY(d[1]) })
             )
+            
+          
         // bolus point
-        this.g.select("circle")
+        this.g.selectAll("circle")
             .attr("cx", chart.getX(this.bolus_time))
-            .attr("cy", chart.getY(0));
+            .attr("cy", chart.getY(0))
+            
 
         //bolus vertical line
         this.g.select('line')
@@ -279,8 +288,13 @@ class Insulin {
         this.g.select("text")
             .attr("x", chart.getX(this.bolus_time))
             .attr("y", chart.getY(5))
+        
+        // this.g.selectAll("circle")
+        // .call(d3.drag().on("drag", this.dragged))
     }
-
+    dragged(event, d) {
+        console.log(`dragged${event} and ${d}`);
+    }
 }
 
 
@@ -406,8 +420,6 @@ class Meal {
      */
     draw(svg) {
         this.g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-
         this.g.append("path")
             .datum(this.getShape())
             .attr("fill", "#41FF8E")
@@ -451,15 +463,11 @@ class Meal {
             .attr("x2", chart.getX(this.meal_time))
             .attr("y2", chart.getY(400));
 
-
         // bolus text
         this.g.select("text")
             .attr("x", chart.getX(this.meal_time))
             .attr("y", chart.getY(5))
     }
-
-
-
 }
 
 let margin = { top: 20, right: 20, bottom: 30, left: 50 };
@@ -469,9 +477,9 @@ class Chart {
         this.svg = d3.select(target); //select target
         this.width = this.svg.attr("width") - margin.left - margin.right;
         this.height = this.svg.attr("height") - margin.top - margin.bottom;
-        this.x = d3.scaleTime().range([0, this.width]);
+        this.x = d3.scaleTime().range([0, this.width]).clamp(true);
         this.y = d3.scaleLinear().domain([0, 400])
-            .rangeRound([this.height, 0]);
+            .rangeRound([this.height, 0]).clamp(true);
         this.y.domain([0, 400]);
         this.x.domain(timerange);
         this.draw(this.svg);
@@ -558,9 +566,14 @@ class Chart {
     getX(val) {
         return this.x(val);
     }
+    getXInverse(val) {
+        return this.x.invert(val);
+    }
     getY(val) {
         return this.y(val);
     }
+
+
 
     getCanvas() {
         return this.svg;
