@@ -18,12 +18,17 @@
  * @param {INSULIN_TYPE} type      - The type of insulin
  */
 class Glucose {
+    base = []
+    from
+    to
+    factors
+    g
     constructor(from, to) {
-        this.start
-        this.factors = []
-    }
-    generateBase(from, to) {
-
+        this.start;
+        this.factors = [];
+        d3.timeMinutes(from, to, 5).forEach(x => {
+            this.base.push([x, 100])
+        });;
     }
     loadJSON(json_object) {
         this.base = []
@@ -225,40 +230,30 @@ class Insulin {
         this.g = svg.append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+        // insulin curve
         this.g.append("path")
             .datum(this.getShape())
             .attr("fill", "#41948E")
             .attr("fill-opacity", "0.5")
             .attr("stroke", "#41948E") // insulin curve color
-            .attr("stroke-width", 5) // size(stroke) of the insulin curve
-            .attr("d", d3.line()
-                .x(function (d) { return chart.getX(d[0]) })
-                .y(function (d) { return chart.getY(d[1]) })
-            )
+            .attr("stroke-width", 5); // size(stroke) of the insulin curve
 
         // insulin vertical line
         this.g.append('line')
             .style("stroke", "#C4c4c4") // color of bolus line
             .style("stroke-dasharray", ("3, 5"))
-            .style("stroke-width", 2)
-            .attr("x1", chart.getX(this.bolus_time))
-            .attr("y1", chart.getY(0))
-            .attr("x2", chart.getX(this.bolus_time))
-            .attr("y2", chart.getY(400));
+            .style("stroke-width", 2);
 
         // bolus point
         this.g.append("circle")
-            .attr("cx", chart.getX(this.bolus_time))
-            .attr("cy", chart.getY(0))
             .attr("r", 5)
             .style("fill", "black");
 
         // bolus text
-        this.g.select("text")
-            .attr("x", chart.getX(this.bolus_time))
-            .attr("y", chart.getY(5))
+        this.g.append("text")
             .attr("class", "range") // use to style in stylesheet
             .text("Bolus");
+        this.refresh();
     }
     refresh() {
         this.g.selectAll("path")
@@ -269,8 +264,8 @@ class Insulin {
             )
         // bolus point
         this.g.select("circle")
-            .attr("x", chart.getX(this.bolus_time))
-            .attr("y", chart.getY(5));
+            .attr("cx", chart.getX(this.bolus_time))
+            .attr("cy", chart.getY(0));
 
         //bolus vertical line
         this.g.select('line')
@@ -334,7 +329,6 @@ class Meal {
         let end = this.type.DURATION;
         let peak = this.type.PEAK;
 
-
         if (minsAgo > this.end) {
             return 0;
         }
@@ -364,10 +358,10 @@ class Meal {
     * @param {Number} minute - Minute offset for this meal
     * @return {Insulin} - the current object to allow chaining of methods
     **/
-   changeTimeByMinute(minute) {
-    this.meal_time = d3.timeMinute.offset(this.default_time, minute)
-    return this;
-}
+    changeTimeByMinute(minute) {
+        this.meal_time = d3.timeMinute.offset(this.default_time, minute)
+        return this;
+    }
 
     /**
     * set/change the time of the bolus
@@ -419,35 +413,24 @@ class Meal {
             .attr("fill", "#41FF8E")
             .attr("fill-opacity", "0.5")
             .attr("stroke", "#41948E") // insulin curve color
-            .attr("stroke-width", 5) // size(stroke) of the insulin curve
-            .attr("d", d3.line()
-                .x(function (d) { return chart.getX(d[0]) })
-                .y(function (d) { return chart.getY(d[1]) })
-            )
+            .attr("stroke-width", 5); // size(stroke) of the insulin curve
+
         // meal vertical line
         this.g.append('line')
             .style("stroke", "#C4c4c4") // color of meal line
             .style("stroke-dasharray", ("3, 5"))
-            .style("stroke-width", 2)
-            .attr("x1", chart.getX(this.meal_time))
-            .attr("y1", chart.getY(0))
-            .attr("x2", chart.getX(this.meal_time))
-            .attr("y2", chart.getY(400));
+            .style("stroke-width", 2);
 
         // Meal point
         this.g.append("circle")
-            .attr("cx", chart.getX(this.meal_time))
-            .attr("cy", chart.getY(0))
             .attr("r", 5)
             .style("fill", "black");
 
         // Meal text
         this.g.append("text")
-            .attr("x", chart.getX(this.meal_time))
-            .attr("y", chart.getY(5))
-            //.attr("transform", "translate(300,480)")
             .attr("class", "range") // use to style in stylesheet
             .text("Meal");
+        this.refresh();
     }
     refresh() {
         this.g.selectAll("path")
@@ -458,8 +441,8 @@ class Meal {
             )
         // bolus point
         this.g.select("circle")
-            .attr("x", chart.getX(this.meal_time))
-            .attr("y", chart.getY(5));
+            .attr("cx", chart.getX(this.meal_time))
+            .attr("cy", chart.getY(0));
 
         //bolus vertical line
         this.g.select('line')
@@ -474,7 +457,7 @@ class Meal {
             .attr("x", chart.getX(this.meal_time))
             .attr("y", chart.getY(5))
     }
-    
+
 
 
 }
@@ -491,22 +474,12 @@ class Chart {
             .rangeRound([this.height, 0]);
         this.y.domain([0, 400]);
         this.x.domain(timerange);
-        this.draw();
+        this.draw(this.svg);
     }
 
 
-    draw() {
-        this.svg.append('rect')
-            .attr('class', 'zoom')
-            .attr('cursor', 'move')
-            .attr('fill', 'none')
-            .attr('pointer-events', 'all')
-            .attr('width', this.width)
-            .attr('height', this.height)
-            .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
-
-
-        this.area = this.svg.append("g")
+    draw(svg) {
+        this.area = svg.append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 
@@ -580,9 +553,7 @@ class Chart {
         this.area.append('g')
             .attr('class', 'axis axis--y')
             .call(yAxis);
-
         return this.svg;
-
     }
     getX(val) {
         return this.x(val);
