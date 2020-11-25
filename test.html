@@ -218,53 +218,6 @@
   bg.draw(chart.getCanvas());
 
 
-  function selected_time(bolus_time) {
-    var hours = bolus_time.getHours(); // gives the value in 24 hours format
-    var AmOrPm = hours >= 12 ? 'PM' : 'AM';
-    hours = (hours % 12) || 12;
-    var minutes = bolus_time.getMinutes() > 9 ? bolus_time.getMinutes() : '0' + bolus_time.getMinutes();
-    var finalTime = "Time (hr): " + hours + ":" + minutes + " " + AmOrPm;
-    document.getElementById("selectedTime").innerHTML = finalTime;
-  }
-
-  function time_from_meal(bolus_time) {
-    var bt_min = (bolus_time.getHours() * 60) + bolus_time.getMinutes();
-    var mt_min = 16 * 60 + 45;
-    var difference = bt_min - mt_min;
-    if (difference > 0) {
-      if (difference > 60) {
-        var hour = Math.floor(difference / 60)
-        var min = difference % 60
-        if (min == 0) { document.getElementById("bolus_meal_time").innerHTML = (hour) + " hr after meal"; }
-        else { document.getElementById("bolus_meal_time").innerHTML = hour + "hr " + min + " min after meal"; }
-      }
-      else {
-        document.getElementById("bolus_meal_time").innerHTML = difference + " min after meal";
-      }
-    }
-    else if (difference <= 0) {
-      if (difference < -60) {
-        var hour = Math.abs(Math.floor(difference / -60))
-        var min = Math.abs(difference % 60)
-        if (min == 0) { document.getElementById("bolus_meal_time").innerHTML = (hour) + " hr before meal"; }
-        else { document.getElementById("bolus_meal_time").innerHTML = hour + "hr " + min + " min before meal"; }
-      }
-      else {
-        document.getElementById("bolus_meal_time").innerHTML = Math.abs(difference) + " min before meal";
-      }
-    }
-    let pos = (difference * 4.5) + 50;
-    if (pos >= 0) {
-      document.getElementById("bolus_meal_time").style.paddingLeft = pos + "px";
-    }
-    if (pos < 0) {
-      document.getElementById("bolus_meal_time").style.paddingRight = Math.abs(pos) + "px";
-    }
-  }
-
-
-  
-
   d3.select("#meal_time").on("input", function (d) {
     let selectedValue = parseInt(this.value, 10);
     meal.changeTimeByMinute(selectedValue)
@@ -278,9 +231,6 @@
     insulin_bolus.changeTimeByMinute(selectedValue)
     let insulin = insulin_bolus.getShape()
     let bolus_time = insulin_bolus.getTime()
-
-    selected_time(bolus_time) // update selected time in the html
-    time_from_meal(bolus_time)
     
     insulin_bolus.refresh()
     bg.refresh()
