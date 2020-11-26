@@ -26,8 +26,8 @@ class Glucose {
     constructor(from, to) {
         this.start;
         this.factors = [];
-        d3.timeMinutes(from, to, 5).forEach(x => {
-            this.base.push([x, 100])
+        d3.timeMinutes(from, to, 5).forEach(x_val => {
+            this.base.push({"x":x_val, "y":100})
         });;
     }
     loadJSON(json_object) {
@@ -35,7 +35,7 @@ class Glucose {
         let timeParse = d3.timeParse("%H:%M:%S")
 
         json_object.forEach(d => {
-            this.base.push([timeParse(d[0]), d[1]]);
+            this.base.push({"x": timeParse(d[0]), "y":d[1]});
         })
     }
     addFactor(factor) {
@@ -56,11 +56,11 @@ class Glucose {
         let last_change = 0
         for (let i = 0; i < result.length; i++) {
             if (i > 0) {
-                last_change = this.base[i][1] - this.base[i - 1][1];
-                result[i][1] = result[i - 1][1] + last_change;
+                last_change = this.base[i].y - this.base[i - 1].y;
+                result[i].y = result[i - 1].y + last_change;
             }
             this.factors.forEach(factor => {
-                result[i][1] = factor.apply(result[i][1], result[i][0]);
+                result[i].y = factor.apply(result[i].y, result[i].x);
             });
 
         }
@@ -71,14 +71,14 @@ class Glucose {
         let bg_data = this.getShape();
         var inrange = 0;
         for (i = 0; i < bg_data.length; i++) {
-            if (bg_data[i][1] > 69 && bg_data[i][1] < 181) {
+            if (bg_data[i].y > 69 && bg_data[i].y < 181) {
                 inrange++;
             }
         }
         return Math.round(inrange / bg_data.length * 100);
     }
     getTimeRange() {
-        return d3.extent(this.base, function (d) { return d[0]; });
+        return d3.extent(this.base, function (d) { return d.x; });
     }
 
     draw(svg) {
@@ -91,8 +91,8 @@ class Glucose {
             .enter()
             .append('circle')
             .attr('r', 3.0)
-            .attr('cx', function (d) { return chart.getX(d[0]); })
-            .attr('cy', function (d) { return chart.getY(d[1]); })
+            .attr('cx', function (d) { return chart.getX(d.x); })
+            .attr('cy', function (d) { return chart.getY(d.y); })
             .style('cursor', 'pointer')
             .style('fill', '#000000'); // glucose curve color
     }
@@ -100,8 +100,8 @@ class Glucose {
     refresh() {
         this.g.selectAll('circle')
             .data(this.getShape())
-            .attr('cx', function (d) { return chart.getX(d[0]); })
-            .attr('cy', function (d) { return chart.getY(d[1]); })
+            .attr('cx', function (d) { return chart.getX(d.x); })
+            .attr('cy', function (d) { return chart.getY(d.y); })
             ;
     }
 }
@@ -183,7 +183,7 @@ class Insulin {
     getShape(sampling = 5) {
         let curve = [];
         for (let min = 0; min < this.type.DURATION; min += sampling) {
-            curve.push([d3.timeMinute.offset(this.bolus_time, min), this.getActivity(min)]);
+            curve.push({x:d3.timeMinute.offset(this.bolus_time, min), y:this.getActivity(min)});
         }
         return curve;
     }
@@ -245,8 +245,8 @@ class Insulin {
             .attr("stroke", "#41948E") // insulin curve color
             .attr("stroke-width", 5) // size(stroke) of the insulin curve
             .attr("d", d3.line()
-                .x(function (d) { return chart.getX(d[0]) })
-                .y(function (d) { return chart.getY(d[1]) })
+                .x(function (d) { return chart.getX(d.x) })
+                .y(function (d) { return chart.getY(d.y) })
             )
            // .call(d3.drag().on("drag", this.dragged))
            
@@ -272,8 +272,8 @@ class Insulin {
         this.g.selectAll("path")
             .datum(this.getShape())
             .attr("d", d3.line()
-                .x(function (d) { return chart.getX(d[0]) })
-                .y(function (d) { return chart.getY(d[1]) })
+                .x(function (d) { return chart.getX(d.x) })
+                .y(function (d) { return chart.getY(d.y) })
             )
             
           
@@ -370,7 +370,7 @@ class Meal {
     getShape(sampling = 2) {
         let curve = [];
         for (let min = 0; min < this.type.DURATION; min += sampling) {
-            curve.push([d3.timeMinute.offset(this.meal_time, min), this.getActivity(min)]);
+            curve.push({x:d3.timeMinute.offset(this.meal_time, min), y:this.getActivity(min)});
         }
         return curve;
     }
@@ -455,8 +455,8 @@ class Meal {
         this.g.selectAll("path")
             .datum(this.getShape())
             .attr("d", d3.line()
-                .x(function (d) { return chart.getX(d[0]) })
-                .y(function (d) { return chart.getY(d[1]) })
+                .x(function (d) { return chart.getX(d.x) })
+                .y(function (d) { return chart.getY(d.y) })
             )
         // bolus point
         this.g.select("circle")
@@ -593,9 +593,11 @@ class Chart {
 
 //ugly way of copying an array
 function deep_copy(bg_orig) {
-    var bg = bg_orig.map(function (arr) {
-        return arr.slice();
-    });
+    // var bg = bg_orig.map(function (arr) {
+    //     return arr.slice();
+    // });
+    var bg = bg_orig.map(d => ({...d}));
+    //var bg= bg_orig.slice()
     return bg
 }
 

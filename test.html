@@ -202,10 +202,11 @@
  
   let timeParse = d3.timeParse("%H:%M:%S")
   let bg=new Glucose(timeParse("12:00:00"), timeParse("23:00:00"))
-
+  
   let insulin_bolus=new Insulin(10, timeParse("17:00:00"), INSULIN_TYPE.RAPID);
 
   bg.addFactor(insulin_bolus);
+
 
 
   let meal=new Meal(10, timeParse("16:42:00"))
