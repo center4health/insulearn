@@ -41,6 +41,13 @@ class Glucose {
     addFactor(factor) {
         this.factors.push(factor)
     }
+
+    removeFactor(factor){
+        this.factors=this.factors.filter(function(included){ 
+            return !(included===factor); 
+        });
+    }
+
     /*
     * Returns the current bg curve
     */
