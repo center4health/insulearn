@@ -148,10 +148,10 @@
       <div style="width: 750px">
         <h3 style="text-align: left"><b>Insulin Timing & Dosing</b></h3>
         <p style="text-align: left">Choose a starting graph</p>
-      
-       
+
+
         <svg width="750" height="525"></svg>
-      
+
 
 
         <div class="row">
@@ -199,24 +199,25 @@
   "use strict";
   let show = 0;
   let selectVal = 0;
- 
+
+
   let timeParse = d3.timeParse("%H:%M:%S")
-  let bg=new Glucose(timeParse("12:00:00"), timeParse("23:00:00"))
-  
-  let insulin_bolus=new Insulin(10, timeParse("17:00:00"), INSULIN_TYPE.RAPID);
+  let bg = new Glucose(timeParse("12:00:00"), timeParse("23:00:00"))
+
+  let insulin_bolus = new Insulin(10, timeParse("17:00:00"), INSULIN_TYPE.RAPID);
 
   bg.addFactor(insulin_bolus);
 
 
 
-  let meal=new Meal(10, timeParse("16:42:00"))
+  let meal = new Meal(10, timeParse("16:42:00"))
   bg.addFactor(meal);
-  
-  let chart=new Chart("svg", bg.getTimeRange())
+
+  let chart = new Chart("svg", bg.getTimeRange())
 
   insulin_bolus.draw(chart.getCanvas());
   meal.draw(chart.getCanvas());
-  
+
 
   bg.draw(chart.getCanvas());
 
@@ -225,7 +226,7 @@
     meal.changeTimeByMinute(selectedValue)
     meal.refresh()
     bg.refresh()
-   
+
   });
 
   d3.select("#bolus_time").on("input", function (d) {
@@ -233,7 +234,7 @@
     insulin_bolus.changeTimeByMinute(selectedValue)
     let insulin = insulin_bolus.getShape()
     let bolus_time = insulin_bolus.getTime()
-    
+
     insulin_bolus.refresh()
     bg.refresh()
 
@@ -241,7 +242,7 @@
 
   d3.select("#insulin_amt").on("input", function (d) {
     let dose = parseInt(this.value, 10)
-    var insulin=insulin_bolus.setDose(dose);
+    var insulin = insulin_bolus.setDose(dose);
     insulin_bolus.refresh()
     bg.refresh()
   });

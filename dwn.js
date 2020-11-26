@@ -235,7 +235,8 @@ class Insulin {
     }
     draw(svg) {
         this.g = svg.append("g")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+            
 
         // insulin curve
         this.g.append("path")
@@ -248,7 +249,9 @@ class Insulin {
                 .x(function (d) { return chart.getX(d.x) })
                 .y(function (d) { return chart.getY(d.y) })
             )
-           // .call(d3.drag().on("drag", this.dragged))
+            .call(d3.drag()
+                .on('drag', (d)=>{this.dragged(d);}));
+            
            
         // insulin vertical line
         this.g.append('line')
@@ -295,13 +298,13 @@ class Insulin {
         this.g.select("text")
             .attr("x", chart.getX(this.bolus_time))
             .attr("y", chart.getY(5))
-        
-        // this.g.selectAll("circle")
-        // .call(d3.drag().on("drag", this.dragged))
     }
-    dragged(event, d) {
-        console.log(`dragged${event} and ${d}`);
+    dragged(d){
+        this.bolus_time=chart.getXInverse(chart.getX(this.bolus_time)+d3.event.dx)
+        this.refresh()
+        bg.refresh()
     }
+
 }
 
 
@@ -588,17 +591,9 @@ class Chart {
 }
 
 
-
-
-
 //ugly way of copying an array
 function deep_copy(bg_orig) {
-    // var bg = bg_orig.map(function (arr) {
-    //     return arr.slice();
-    // });
-    var bg = bg_orig.map(d => ({...d}));
-    //var bg= bg_orig.slice()
-    return bg
+    return bg_orig.map(d => ({...d}));
 }
 
 
