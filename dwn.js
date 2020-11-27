@@ -23,12 +23,14 @@ class Glucose {
     to
     factors
     g
-    constructor(from, to) {
+    constructor(from, to, isf = 2, carb_ratio = 8) {
         this.start;
         this.factors = [];
         d3.timeMinutes(from, to, 5).forEach(x_val => {
             this.base.push({ "x": x_val, "y": 100 })
-        });;
+        });
+        this.isf = isf;
+        this.carb_ratio = carb_ratio;
     }
     loadJSON(json_object) {
         this.base = []
@@ -80,29 +82,8 @@ class Glucose {
     getTimeRange() {
         return d3.extent(this.base, function (d) { return d.x; });
     }
-
-    draw(svg) {
-        this.g = svg.append("g")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-        // BG graph
-        this.g.selectAll('circle')
-            .data(this.getShape())
-            .enter()
-            .append('circle')
-            .attr('r', 3.0)
-            .attr('cx', function (d) { return chart.getX(d.x); })
-            .attr('cy', function (d) { return chart.getY(d.y); })
-            .style('cursor', 'pointer')
-            .style('fill', '#000000'); // glucose curve color
-    }
-
-    refresh() {
-        this.g.selectAll('circle')
-            .data(this.getShape())
-            .attr('cx', function (d) { return chart.getX(d.x); })
-            .attr('cy', function (d) { return chart.getY(d.y); })
-            ;
+    setChart(chart) {
+        this.chart = chart;
     }
 }
 
@@ -125,6 +106,7 @@ const MEAL_COMPONENTS = {
  */
 class Insulin {
     constructor(dose, bolus_time, type) {
+        this.uuid = uuidv4();
         this.dose = dose;
         this.default_time = bolus_time;
         this.bolus_time = bolus_time;
@@ -194,7 +176,11 @@ class Insulin {
     * @return {Insulin} - the current object to allow chaining of methods
     **/
     setTime(time) {
+        let old_time = this.bolus_time;
+        let minute_change = (time - old_time) / (60 - 1000)
+        //notify listeners?
         this.bolus_time = time;
+        this.updateGraph()
         return this;
     }
 
@@ -205,6 +191,7 @@ class Insulin {
     **/
     changeTimeByMinute(minute) {
         this.bolus_time = d3.timeMinute.offset(this.default_time, minute)
+        this.updateGraph();
         return this;
     }
 
@@ -233,78 +220,18 @@ class Insulin {
     getDose() {
         return this.dose;
     }
-    draw(svg) {
-        this.g = svg.append("g")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
 
-
-        // insulin curve
-        this.g.append("path")
-            .datum(this.getShape())
-            .attr("fill", "#41948E")
-            .attr("fill-opacity", "0.5")
-            .attr("stroke", "#41948E") // insulin curve color
-            .attr("stroke-width", 5) // size(stroke) of the insulin curve
-            .attr("d", d3.line()
-                .x(function (d) { return chart.getX(d.x) })
-                .y(function (d) { return chart.getY(d.y) })
-            )
-            .call(d3.drag()
-                .on('drag', (d) => { this.dragged(d); }));
-
-
-        // insulin vertical line
-        this.g.append('line')
-            .style("stroke", "#C4c4c4") // color of bolus line
-            .style("stroke-dasharray", ("3, 5"))
-            .style("stroke-width", 2);
-
-        // bolus point
-        this.g.append("circle")
-            .attr("r", 5)
-            .style("fill", "black");
-
-        // bolus text
-        this.g.append("text")
-            .attr("class", "range") // use to style in stylesheet
-            .text("Bolus");
-
-        this.refresh();
+    getUUID() {
+        return this.uuid;
     }
-    refresh() {
-        this.g.selectAll("path")
-            .datum(this.getShape())
-            .attr("d", d3.line()
-                .x(function (d) { return chart.getX(d.x) })
-                .y(function (d) { return chart.getY(d.y) })
-            )
-
-
-        // bolus point
-        this.g.selectAll("circle")
-            .attr("cx", chart.getX(this.bolus_time))
-            .attr("cy", chart.getY(0))
-
-
-        //bolus vertical line
-        this.g.select('line')
-            .attr("x1", chart.getX(this.bolus_time))
-            .attr("y1", chart.getY(0))
-            .attr("x2", chart.getX(this.bolus_time))
-            .attr("y2", chart.getY(400));
-
-
-        // bolus text
-        this.g.select("text")
-            .attr("x", chart.getX(this.bolus_time))
-            .attr("y", chart.getY(5))
+    setChart(chart) {
+        this.chart = chart
     }
-    dragged(d) {
-        this.bolus_time = chart.getXInverse(chart.getX(this.bolus_time) + d3.event.dx)
-        this.refresh()
-        bg.refresh()
+    updateGraph() {
+        if (this.chart) {
+            this.chart.updateInsulin(this);
+        }
     }
-
 }
 
 
@@ -318,6 +245,7 @@ class Insulin {
  */
 class Meal {
     constructor(carbs, meal_time) {
+        this.uuid = uuidv4();
         this.carbs = carbs;
         this.default_time = meal_time;
         this.meal_time = meal_time;
@@ -332,7 +260,6 @@ class Meal {
     * https://github.com/LoopKit/Loop/issues/388#issuecomment-317938473
     **/
     apply(bg, time) {
-
         let minutes = (time - this.meal_time) / (60 * 1000);
         if (minutes < 0) {
             return bg
@@ -384,6 +311,9 @@ class Meal {
     **/
     changeTimeByMinute(minute) {
         this.meal_time = d3.timeMinute.offset(this.default_time, minute)
+        if (this.chart) {
+            this.chart.updateMeal(this);
+        }
         return this;
     }
 
@@ -394,6 +324,7 @@ class Meal {
     **/
     setTime(time) {
         this.meal_time = time;
+        this.updateGraph();
         return this;
     }
 
@@ -401,8 +332,8 @@ class Meal {
     * gete the time of the meal
     * @return {Object} - Time of the meal d3 date object
     **/
-    getTime(time) {
-        return meal_time;
+    getTime() {
+        return this.meal_time;
     }
 
     /**
@@ -424,69 +355,28 @@ class Meal {
         return this;
     }
 
-    /**
-     * draw meal
-     * 
-     */
-    draw(svg) {
-        this.g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-        this.g.append("path")
-            .datum(this.getShape())
-            .attr("fill", "#41FF8E")
-            .attr("fill-opacity", "0.5")
-            .attr("stroke", "#41948E") // insulin curve color
-            .attr("stroke-width", 5); // size(stroke) of the insulin curve
-
-        // meal vertical line
-        this.g.append('line')
-            .style("stroke", "#C4c4c4") // color of meal line
-            .style("stroke-dasharray", ("3, 5"))
-            .style("stroke-width", 2);
-
-        // Meal point
-        this.g.append("circle")
-            .attr("r", 5)
-            .style("fill", "black");
-
-        // Meal text
-        this.g.append("text")
-            .attr("class", "range") // use to style in stylesheet
-            .text("Meal");
-        this.refresh();
+    getUUID() {
+        return this.uuid;
     }
-    refresh() {
-        this.g.selectAll("path")
-            .datum(this.getShape())
-            .attr("d", d3.line()
-                .x(function (d) { return chart.getX(d.x) })
-                .y(function (d) { return chart.getY(d.y) })
-            )
-        // bolus point
-        this.g.select("circle")
-            .attr("cx", chart.getX(this.meal_time))
-            .attr("cy", chart.getY(0));
 
-        //bolus vertical line
-        this.g.select('line')
-            .attr("x1", chart.getX(this.meal_time))
-            .attr("y1", chart.getY(0))
-            .attr("x2", chart.getX(this.meal_time))
-            .attr("y2", chart.getY(400));
-
-        // bolus text
-        this.g.select("text")
-            .attr("x", chart.getX(this.meal_time))
-            .attr("y", chart.getY(5))
+    setChart(chart) {
+        this.chart = chart;
+    }
+    updateGraph() {
+        if (this.chart) {
+            this.chart.updateMeal(this);
+        }
     }
 }
 
-let margin = { top: 20, right: 20, bottom: 30, left: 50 };
+
 
 class Chart {
+    margin = { top: 20, right: 20, bottom: 30, left: 50 };
     constructor(target, timerange, target_range = [70, 180]) {
         this.svg = d3.select(target); //select target
-        this.width = this.svg.attr("width") - margin.left - margin.right;
-        this.height = this.svg.attr("height") - margin.top - margin.bottom;
+        this.width = this.svg.attr("width") - this.margin.left - this.margin.right;
+        this.height = this.svg.attr("height") - this.margin.top - this.margin.bottom;
         this.target_range = target_range;
 
         this.x = d3.scaleTime().range([0, this.width]).clamp(true);
@@ -505,16 +395,15 @@ class Chart {
         } else {
             range = this.target_range;
         }
+        let range_svg = this.area.append('g').attr("class", "range")
 
-        let range_svg=this.area.append('g').attr("class","range")
-        
         // shade time in range section
         range_svg.append('rect')
             .style("fill", "#EFF6FE")
             .attr("x", 0)
-            .attr("y", this.getY(range[1]))
+            .attr("y", this.y(range[1]))
             .attr("width", this.width)
-            .attr("height", this.getY(range[0]) - this.getY(range[1]));
+            .attr("height", this.y(range[0]) - this.y(range[1]));
 
         //line lower threshold
         range_svg.append('line')
@@ -522,9 +411,9 @@ class Chart {
             .style("stroke-dasharray", ("3, 5"))
             .style("stroke-width", 2)
             .attr("x1", 0)
-            .attr("y1", this.getY(range[0]))
+            .attr("y1", this.y(range[0]))
             .attr("x2", this.width)
-            .attr("y2", this.getY(range[0]));
+            .attr("y2", this.y(range[0]));
 
         //line upper threshold
         range_svg.append('line')
@@ -532,13 +421,13 @@ class Chart {
             .style("stroke-dasharray", ("3, 5"))
             .style("stroke-width", 2)
             .attr("x1", 0)
-            .attr("y1", this.getY(range[1]))
+            .attr("y1", this.y(range[1]))
             .attr("x2", this.width)
-            .attr("y2", this.getY(range[1]));
+            .attr("y2", this.y(range[1]));
 
         // upper threshold label
         range_svg.append("text")
-            .attr("y", this.getY(range[1]))
+            .attr("y", this.y(range[1]))
             .attr("x", this.width)
             .attr('text-anchor', 'middle')
             .attr("class", "range") // use to style in stylesheet
@@ -546,7 +435,7 @@ class Chart {
 
         // lower threshold label
         range_svg.append("text")
-            .attr("y", this.getY(range[0]))
+            .attr("y", this.y(range[0]))
             .attr("x", this.width)
             .attr('text-anchor', 'middle')
             .attr("class", "range") // use to style in stylesheet
@@ -555,13 +444,13 @@ class Chart {
 
     drawBase(svg) {
         this.area = svg.append("g")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+            .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
 
         this.drawTargetRange();
 
         // glucose label
         this.svg.append("text")
-            .attr("transform", "translate(12,340) rotate(-90)")
+            .attr("transform", `translate(${this.margin.right / 2},${this.y(100)}) rotate(-90)`)
             .attr("class", "range") // use to style in stylesheet
             .text("glucose (mg/dL)");
 
@@ -576,29 +465,152 @@ class Chart {
         this.area.append('g')
             .attr('class', 'axis axis--y')
             .call(yAxis);
-        return this.svg;
-    }
-    getX(val) {
-        return this.x(val);
-    }
-    getXInverse(val) {
-        return this.x.invert(val);
-    }
-    getY(val) {
-        return this.y(val);
+        return this.area;
     }
 
+    drawBG(bg) {
+        this.bg = bg;
+        bg.setChart(this);
+        this.removeBG();  //clean up before we start
+        let g = this.area.append("g").attr("class", "bg_curve");
 
+        // BG graph
+        g.selectAll('circle')
+            .data(bg.getShape())
+            .enter()
+            .append('circle')
+            .attr('r', 3.0)
+            .style('cursor', 'pointer')
+            .style('fill', '#000000'); // glucose curve color
+        this.updateBG(bg);
+    }
 
-    getCanvas() {
-        return this.svg;
+    updateBG(bg) {
+        this.area.select(".bg_curve").selectAll('circle')
+            .data(bg.getShape())
+            .attr('cx', (d) => { return this.x(d.x); })
+            .attr('cy', (d) => { return this.y(d.y); });
+    }
+    removeBG() {
+        this.area.selectAll(".bg_curve").remove();
+    }
+
+    drawMeal(meal) {
+        meal.setChart(this);
+        this.removeMeal(meal); //clean up
+
+        let g = this.area.append("g").attr("class", "meal" + meal.getUUID());
+        g.append("path")
+            .datum(meal.getShape())
+            .attr("fill", "#41FF8E")
+            .attr("fill-opacity", "0.5")
+            .attr("stroke", "#41948E") // insulin curve color
+            .attr("stroke-width", 5) // size(stroke) of the insulin curve
+            .call(d3.drag()
+                .on('drag', (d, a, b, factor = meal) => { this.dragX(d, factor); }));
+
+        this.drawMarker(g, "Meal");
+        this.updateMeal(meal);
+    }
+    updateMeal(meal) {
+        let g = this.area.selectAll(".meal" + meal.getUUID())
+        this.updateCurve(g, meal);
+        this.updateMarker(g, meal);
+    }
+    removeMeal(meal) {
+        this.area.selectAll(".meal" + meal.getUUID()).remove();
+    }
+    drawMarker(g, name) {
+        //  vertical line
+        g.append('line')
+            .style("stroke", "#C4c4c4") // color of meal line
+            .style("stroke-dasharray", ("3, 5"))
+            .style("stroke-width", 2);
+        // point
+        g.append("circle")
+            .attr("r", 5)
+            .style("fill", "black");
+        // text
+        g.append("text")
+            .attr("class", "range") // use to style in stylesheet
+            .text(name);
+    }
+    updateMarker(g, factor) {
+        // bolus point
+        g.select("circle")
+            .attr("cx", this.x(factor.getTime()))
+            .attr("cy", this.y(0));
+
+        //bolus vertical line
+        g.select('line')
+            .attr("x1", this.x(factor.getTime()))
+            .attr("y1", this.y(0))
+            .attr("x2", this.x(factor.getTime()))
+            .attr("y2", this.y(400));
+
+        // bolus text
+        g.select("text")
+            .attr("x", this.x(factor.getTime()))
+            .attr("y", this.y(5));
+    }
+
+    drawInsulin(insulin) {
+        insulin.setChart(this);
+        this.area.selectAll(".insulin" + insulin.getUUID()).remove();
+        let g = this.area.append("g").attr("class", "insulin" + insulin.getUUID());
+
+        // insulin curve
+        g.append("path")
+            .datum(insulin.getShape())
+            .attr("fill", "#41948E")
+            .attr("fill-opacity", "0.5")
+            .attr("stroke", "#41948E") // insulin curve color
+            .attr("stroke-width", 5) // size(stroke) of the insulin curve
+            .call(d3.drag()
+                .on('drag', (d, a, b, factor = insulin) => { this.dragX(d, factor); }));
+
+        this.drawMarker(g, "Bolus");
+
+        this.updateInsulin(insulin);
+    }
+    updateCurve(g, factor) {
+        g.selectAll("path")
+            .datum(factor.getShape())
+            .attr("d", d3.line()
+                .x((d) => { return this.x(d.x) })
+                .y((d) => { return this.y(d.y) })
+            );
+
+    }
+    updateInsulin(insulin) {
+        let g = this.area.selectAll(".insulin" + insulin.getUUID());
+        this.updateCurve(g, insulin);
+        this.updateMarker(g, insulin);
+
+    }
+    removeInsulin(insulin) {
+        this.area.selectAll(".meal" + insulin.getUUID()).remove();
+    }
+    dragX(d, factor) {
+        let old_time = factor.getTime()
+        let new_time = this.x.invert(this.x(old_time) + d3.event.dx);
+        factor.setTime(new_time);
+        if (this.bg) {
+            this.updateBG(this.bg);
+        }
     }
 }
-
 
 //ugly way of copying an array
 function deep_copy(bg_orig) {
     return bg_orig.map(d => ({ ...d }));
+}
+// copied from https://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid
+function uuidv4() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
 }
 
 
