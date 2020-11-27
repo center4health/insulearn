@@ -303,16 +303,17 @@ class Meal extends Factor{
     }
 }
 
-
 /**
  * Chart class that handles all drawing using d3.
  * @constructor
- * @param target
+ * @param {Element} svg - target svg element we going to draw into
+ * @param {Array} timerange - array consisting of start and end time as Date objects
+ * @param {Array} target_range  - array indicating the upper and lower limit for time in range 
  */
 class Chart {
     margin = { top: 20, right: 20, bottom: 30, left: 50 };
-    constructor(target, timerange, target_range = [70, 180]) {
-        this.svg = d3.select(target); //select target
+    constructor(svg, timerange, target_range = [70, 180]) {
+        this.svg = d3.select(svg); //select target
         this.width = this.svg.attr("width") - this.margin.left - this.margin.right;
         this.height = this.svg.attr("height") - this.margin.top - this.margin.bottom;
         this.target_range = target_range;
