@@ -18,11 +18,8 @@
  * @param {INSULIN_TYPE} type      - The type of insulin
  */
 class Glucose {
-    base = []
-    from
-    to
-    factors
-    g
+    factors = [];
+    base = [];
     constructor(from, to, isf = 2, carb_ratio = 8) {
         this.start;
         this.factors = [];
@@ -87,12 +84,100 @@ class Glucose {
     }
 }
 
+/**
+ * Factor class the base class for meal and insulin (maybe exercise in the future)
+ * @constructor
+ * @param {Date} time - the time this factor was applied
+ * @param {Number} amount - the amount of insulin or carbs 
+ * @param {Object} type - the type of insulin or carbs 
+ * 
+ */
+class Factor {
+    constructor(time, amount, type) {
+        this.time = time;
+        this.default_time = time; //used to move things relatively to a start time
+        this.amount = amount;
+        this.uuid = uuidv4();
+        this.type = type;
+    }
+    /**
+   * returns activity curve at a point in time
+   * @param {Number} sampling - Sampling interval for the curve in minutes
+   * @return {Array} - 2-dimensional array with timestamps and values
+   **/
+    getShape(sampling = 5) {
+        let curve = [];
+        for (let min = 0; min < this.type.DURATION; min += sampling) {
+            curve.push({ x: d3.timeMinute.offset(this.time, min), y: this.getActivity(min) });
+        }
+        return curve;
+    }
+
+    /**
+    * set the time of the bolus
+    * @param {Object} bolus_time - Time of the bolus d3 date object
+    * @return {Insulin} - the current object to allow chaining of methods
+    **/
+    setTime(time) {
+        let old_time = this.time;
+        let minute_change = (time - old_time) / (60 - 1000)
+        //notify listeners?
+        this.time = time;
+        this.updateGraph()
+        return this;
+    }
+
+    /**
+    * set the time of the factor
+    * @param {Number} minute - Minute offset for this factor
+    * @return {Factor} - the current object to allow chaining of methods
+    **/
+    changeTimeByMinute(minute) {
+        this.time = d3.timeMinute.offset(this.default_time, minute)
+        this.updateGraph();
+        return this;
+    }
+
+    /**
+    * get the time of the bolus
+    * @return {Object} - Time of the bolus d3 date object
+    **/
+    getTime() {
+        return this.time;
+    }
+
+    /**
+    * set/change the amount
+    * @param {Number} dose - The new amount
+    * @return {Insulin} - the current object to allow chaining of methods
+    **/
+    setAmount(amount) {
+        this.amount = amount;
+        return this;
+    }
+
+    /**
+    * get the amount of insulin
+    * @return {Number} dose - The dose of this insulin bolus
+    **/
+    getAmount() {
+        return this.amount;
+    }
+
+    getUUID() {
+        return this.uuid;
+    }
+    setChart(chart) {
+        this.chart = chart
+    }
+}
+
 const INSULIN_TYPE = {
     "RAPID": { PEAK: 80, DURATION: 300, ONSET: 10 },  // e.g. humalog
 }
 
 const MEAL_COMPONENTS = {
-    "SIMPLE_CARB": { PEAK: 20, DURATION: 100, ONSET: 0 },  // e.g. humalog
+    "SIMPLE_CARB": { PEAK: 20, DURATION: 100, ONSET: 0 },  // e.g. sugar
 }
 
 
@@ -104,15 +189,10 @@ const MEAL_COMPONENTS = {
  * @param {Object} bolus_time   - The time of the bolus 
  * @param {INSULIN_TYPE} type      - The type of insulin
  */
-class Insulin {
+class Insulin extends Factor{
     constructor(dose, bolus_time, type) {
-        this.uuid = uuidv4();
-        this.dose = dose;
-        this.default_time = bolus_time;
-        this.bolus_time = bolus_time;
-        this.type = type;
+        super(bolus_time, dose, type);
     }
-
     /** 
     * Return insulin effect at a point in time
     *
@@ -121,7 +201,7 @@ class Insulin {
     * https://github.com/LoopKit/Loop/issues/388#issuecomment-317938473
     **/
     apply(bg, time) {
-        let minutes = (time - this.bolus_time) / (60 * 1000);
+        let minutes = (time - this.time) / (60 * 1000);
         if (minutes < 0) {
             return bg
         } else {
@@ -147,7 +227,7 @@ class Insulin {
             return 0;
         }
         let minsAgo = time - this.type.ONSET;
-        let insulin = this.dose * 1000;
+        let insulin = this.amount * 1000;
 
         let tau = peak * (1 - peak / end) / (1 - 2 * peak / end);  // time constant of exponential decay
         let a = 2 * tau / end;                                     // rise time factor
@@ -155,78 +235,7 @@ class Insulin {
 
         var activityContrib = insulin * (S / Math.pow(tau, 2)) * minsAgo * (1 - minsAgo / end) * Math.exp(-minsAgo / tau);
         return activityContrib
-    }
-
-    /**
-    * returns insulin activity curve at a point in time
-    * @param {Number} sampling - Sampling interval for the curve in minutes
-    * @return {Array} - 2-dimensional array with timestamps and insulin values
-    **/
-    getShape(sampling = 5) {
-        let curve = [];
-        for (let min = 0; min < this.type.DURATION; min += sampling) {
-            curve.push({ x: d3.timeMinute.offset(this.bolus_time, min), y: this.getActivity(min) });
-        }
-        return curve;
-    }
-
-    /**
-    * set the time of the bolus
-    * @param {Object} bolus_time - Time of the bolus d3 date object
-    * @return {Insulin} - the current object to allow chaining of methods
-    **/
-    setTime(time) {
-        let old_time = this.bolus_time;
-        let minute_change = (time - old_time) / (60 - 1000)
-        //notify listeners?
-        this.bolus_time = time;
-        this.updateGraph()
-        return this;
-    }
-
-    /**
-    * set the time of the bolus
-    * @param {Number} minute - Minute offset for this bolus
-    * @return {Insulin} - the current object to allow chaining of methods
-    **/
-    changeTimeByMinute(minute) {
-        this.bolus_time = d3.timeMinute.offset(this.default_time, minute)
-        this.updateGraph();
-        return this;
-    }
-
-    /**
-    * get the time of the bolus
-    * @return {Object} - Time of the bolus d3 date object
-    **/
-    getTime() {
-        return this.bolus_time;
-    }
-
-    /**
-    * set/change the amount of insulin
-    * @param {Number} dose - The new dose of this insulin bolus
-    * @return {Insulin} - the current object to allow chaining of methods
-    **/
-    setDose(dose) {
-        this.dose = dose;
-        return this;
-    }
-
-    /**
-    * get the amount of insulin
-    * @return {Number} dose - The dose of this insulin bolus
-    **/
-    getDose() {
-        return this.dose;
-    }
-
-    getUUID() {
-        return this.uuid;
-    }
-    setChart(chart) {
-        this.chart = chart
-    }
+    } 
     updateGraph() {
         if (this.chart) {
             this.chart.updateInsulin(this);
@@ -243,13 +252,9 @@ class Insulin {
  * @param {Number} carbs     - The amount of carbs
  * @param {Object} meal_time  - The time of the meal in minutes
  */
-class Meal {
+class Meal extends Factor{
     constructor(carbs, meal_time) {
-        this.uuid = uuidv4();
-        this.carbs = carbs;
-        this.default_time = meal_time;
-        this.meal_time = meal_time;
-        this.type = MEAL_COMPONENTS.SIMPLE_CARB;
+        super(meal_time, carbs, MEAL_COMPONENTS.SIMPLE_CARB);
     }
 
     /** 
@@ -260,15 +265,13 @@ class Meal {
     * https://github.com/LoopKit/Loop/issues/388#issuecomment-317938473
     **/
     apply(bg, time) {
-        let minutes = (time - this.meal_time) / (60 * 1000);
+        let minutes = (time - this.time) / (60 * 1000);
         if (minutes < 0) {
             return bg
         } else {
             return bg + this.getActivity(minutes) / 10
-
         }
     }
-
     /** 
     * Return digested carbs at a point in time
     *
@@ -283,84 +286,13 @@ class Meal {
         if (minsAgo > this.end) {
             return 0;
         }
-        let carbs = this.carbs * 500;
+        let carbs = this.amount * 500;
 
         let tau = peak * (1 - peak / end) / (1 - 2 * peak / end);  // time constant of exponential decay
         let a = 2 * tau / end;                                     // rise time factor
         let S = 1 / (1 - a + (1 + a) * Math.exp(-end / tau));      // auxiliary scale factor
         var activityContrib = carbs * (S / Math.pow(tau, 2)) * minsAgo * (1 - minsAgo / end) * Math.exp(-minsAgo / tau);
         return activityContrib
-    }
-
-    /**
-    * returns carb activity curve at a point in time
-    * @param {Number} sampling - Sampling interval for the curve in minutes
-    * @return {Array} - 2-dimensional array with timestamps and insulin values
-    **/
-    getShape(sampling = 2) {
-        let curve = [];
-        for (let min = 0; min < this.type.DURATION; min += sampling) {
-            curve.push({ x: d3.timeMinute.offset(this.meal_time, min), y: this.getActivity(min) });
-        }
-        return curve;
-    }
-    /**
-    * set the time of the meal
-    * @param {Number} minute - Minute offset for this meal
-    * @return {Insulin} - the current object to allow chaining of methods
-    **/
-    changeTimeByMinute(minute) {
-        this.meal_time = d3.timeMinute.offset(this.default_time, minute)
-        if (this.chart) {
-            this.chart.updateMeal(this);
-        }
-        return this;
-    }
-
-    /**
-    * set/change the time of the bolus
-    * @param {Object} time - Time of the meal d3 date object
-    * @return {Insulin} - the current object to allow chaining of methods
-    **/
-    setTime(time) {
-        this.meal_time = time;
-        this.updateGraph();
-        return this;
-    }
-
-    /**
-    * gete the time of the meal
-    * @return {Object} - Time of the meal d3 date object
-    **/
-    getTime() {
-        return this.meal_time;
-    }
-
-    /**
-    * set/change the amount of carbs
-    * @param {Number} carbs - The new dose of this insulin bolus
-    * @return {Insulin} - the current object to allow chaining of methods
-    **/
-    setCarbs(carbs) {
-        this.carbs = carbs;
-        return this;
-    }
-
-    /**
-    * get the amount of carbs
-    * @return {Number} carbs - The dose of this insulin bolus
-    **/
-    getCarbs() {
-        this.carbs = carbs;
-        return this;
-    }
-
-    getUUID() {
-        return this.uuid;
-    }
-
-    setChart(chart) {
-        this.chart = chart;
     }
     updateGraph() {
         if (this.chart) {
