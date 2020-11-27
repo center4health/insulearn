@@ -57,6 +57,7 @@ class Glucose {
             if (i > 0) {
                 last_change = this.base[i].y - this.base[i - 1].y;
                 result[i].y = result[i - 1].y + last_change;
+                
             }
             this.factors.forEach(factor => {
                 result[i].y = factor.apply(result[i].y, result[i].x);
@@ -202,7 +203,7 @@ class Insulin extends Factor{
     **/
     apply(bg, time) {
         let minutes = (time - this.time) / (60 * 1000);
-        if (minutes < 0) {
+        if ((minutes < 0) | minutes>this.type.DURATION) {
             return bg
         } else {
             return bg - this.getActivity(minutes) / 20
@@ -266,7 +267,7 @@ class Meal extends Factor{
     **/
     apply(bg, time) {
         let minutes = (time - this.time) / (60 * 1000);
-        if (minutes < 0) {
+        if (minutes < 0| minutes>this.type.DURATION) {
             return bg
         } else {
             return bg + this.getActivity(minutes) / 10
@@ -286,6 +287,7 @@ class Meal extends Factor{
         if (minsAgo > this.end) {
             return 0;
         }
+       
         let carbs = this.amount * 500;
 
         let tau = peak * (1 - peak / end) / (1 - 2 * peak / end);  // time constant of exponential decay
@@ -302,7 +304,11 @@ class Meal extends Factor{
 }
 
 
-
+/**
+ * Chart class that handles all drawing using d3.
+ * @constructor
+ * @param target
+ */
 class Chart {
     margin = { top: 20, right: 20, bottom: 30, left: 50 };
     constructor(target, timerange, target_range = [70, 180]) {

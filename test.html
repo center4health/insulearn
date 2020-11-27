@@ -213,10 +213,9 @@
 
   let chart = new Chart("svg", bg.getTimeRange())
 
-
+  //let's draw what we got
   chart.drawInsulin(insulin_bolus)
   chart.drawMeal(meal)
-
   chart.drawBG(bg);
 
   d3.select("#meal_time").on("input", function (d) {
