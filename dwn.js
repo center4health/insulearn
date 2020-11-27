@@ -27,7 +27,7 @@ class Glucose {
         this.start;
         this.factors = [];
         d3.timeMinutes(from, to, 5).forEach(x_val => {
-            this.base.push({"x":x_val, "y":100})
+            this.base.push({ "x": x_val, "y": 100 })
         });;
     }
     loadJSON(json_object) {
@@ -35,16 +35,16 @@ class Glucose {
         let timeParse = d3.timeParse("%H:%M:%S")
 
         json_object.forEach(d => {
-            this.base.push({"x": timeParse(d[0]), "y":d[1]});
+            this.base.push({ "x": timeParse(d[0]), "y": d[1] });
         })
     }
     addFactor(factor) {
         this.factors.push(factor)
     }
 
-    removeFactor(factor){
-        this.factors=this.factors.filter(function(included){ 
-            return !(included===factor); 
+    removeFactor(factor) {
+        this.factors = this.factors.filter(function (included) {
+            return !(included === factor);
         });
     }
 
@@ -183,7 +183,7 @@ class Insulin {
     getShape(sampling = 5) {
         let curve = [];
         for (let min = 0; min < this.type.DURATION; min += sampling) {
-            curve.push({x:d3.timeMinute.offset(this.bolus_time, min), y:this.getActivity(min)});
+            curve.push({ x: d3.timeMinute.offset(this.bolus_time, min), y: this.getActivity(min) });
         }
         return curve;
     }
@@ -236,7 +236,7 @@ class Insulin {
     draw(svg) {
         this.g = svg.append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-            
+
 
         // insulin curve
         this.g.append("path")
@@ -250,9 +250,9 @@ class Insulin {
                 .y(function (d) { return chart.getY(d.y) })
             )
             .call(d3.drag()
-                .on('drag', (d)=>{this.dragged(d);}));
-            
-           
+                .on('drag', (d) => { this.dragged(d); }));
+
+
         // insulin vertical line
         this.g.append('line')
             .style("stroke", "#C4c4c4") // color of bolus line
@@ -278,13 +278,13 @@ class Insulin {
                 .x(function (d) { return chart.getX(d.x) })
                 .y(function (d) { return chart.getY(d.y) })
             )
-            
-          
+
+
         // bolus point
         this.g.selectAll("circle")
             .attr("cx", chart.getX(this.bolus_time))
             .attr("cy", chart.getY(0))
-            
+
 
         //bolus vertical line
         this.g.select('line')
@@ -299,8 +299,8 @@ class Insulin {
             .attr("x", chart.getX(this.bolus_time))
             .attr("y", chart.getY(5))
     }
-    dragged(d){
-        this.bolus_time=chart.getXInverse(chart.getX(this.bolus_time)+d3.event.dx)
+    dragged(d) {
+        this.bolus_time = chart.getXInverse(chart.getX(this.bolus_time) + d3.event.dx)
         this.refresh()
         bg.refresh()
     }
@@ -373,7 +373,7 @@ class Meal {
     getShape(sampling = 2) {
         let curve = [];
         for (let min = 0; min < this.type.DURATION; min += sampling) {
-            curve.push({x:d3.timeMinute.offset(this.meal_time, min), y:this.getActivity(min)});
+            curve.push({ x: d3.timeMinute.offset(this.meal_time, min), y: this.getActivity(min) });
         }
         return curve;
     }
@@ -483,10 +483,12 @@ class Meal {
 let margin = { top: 20, right: 20, bottom: 30, left: 50 };
 
 class Chart {
-    constructor(target, timerange) {
+    constructor(target, timerange, target_range = [70, 180]) {
         this.svg = d3.select(target); //select target
         this.width = this.svg.attr("width") - margin.left - margin.right;
         this.height = this.svg.attr("height") - margin.top - margin.bottom;
+        this.target_range = target_range;
+
         this.x = d3.scaleTime().range([0, this.width]).clamp(true);
         this.y = d3.scaleLinear().domain([0, 400])
             .rangeRound([this.height, 0]).clamp(true);
@@ -495,20 +497,22 @@ class Chart {
         this.draw(this.svg);
     }
 
-
-    draw(svg) {
-        this.area = svg.append("g")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-
+    drawTargetRange(range) {
+        //remove whatever has been drawn before
+        this.area.selectAll("*").remove();
+        if (range) {
+            this.target_range = range;
+        } else {
+            range = this.target_range;
+        }
+        
         // shade time in range section
         this.area.append('rect')
             .style("fill", "#EFF6FE")
             .attr("x", 0)
-            .attr("y", this.getY(180))
+            .attr("y", this.getY(range[1]))
             .attr("width", this.width)
-            .attr("height", this.getY(70) - this.getY(180));
-
+            .attr("height", this.getY(range[0]) - this.getY(range[1]));
 
         //line lower threshold
         this.area.append('line')
@@ -516,9 +520,9 @@ class Chart {
             .style("stroke-dasharray", ("3, 5"))
             .style("stroke-width", 2)
             .attr("x1", 0)
-            .attr("y1", this.getY(70))
+            .attr("y1", this.getY(range[0]))
             .attr("x2", this.width)
-            .attr("y2", this.getY(70));
+            .attr("y2", this.getY(range[0]));
 
         //line upper threshold
         this.area.append('line')
@@ -526,39 +530,44 @@ class Chart {
             .style("stroke-dasharray", ("3, 5"))
             .style("stroke-width", 2)
             .attr("x1", 0)
-            .attr("y1", this.getY(180))
+            .attr("y1", this.getY(range[1]))
             .attr("x2", this.width)
-            .attr("y2", this.getY(180));
+            .attr("y2", this.getY(range[1]));
 
         // upper threshold label
         this.area.append("text")
-            .attr("y", this.getY(180))
+            .attr("y", this.getY(range[1]))
             .attr("x", this.width)
             .attr('text-anchor', 'middle')
             .attr("class", "range") // use to style in stylesheet
-            .text("180");
+            .text(range[1]);
 
         // lower threshold label
         this.area.append("text")
-            .attr("y", 415)
-            .attr("x", 735)
+            .attr("y", this.getY(range[0]))
+            .attr("x", this.width)
             .attr('text-anchor', 'middle')
             .attr("class", "range") // use to style in stylesheet
-            .text("70");
-
-
-        // glucose label
-        this.svg.append("text")
-            .attr("transform", "translate(12,340) rotate(-90)")
-            .attr("class", "range") // use to style in stylesheet
-            .text("glucose (mg/dL)");
+            .text(range[0]);
 
         // target range label
         this.svg.append("text")
             .attr("transform", "translate(750,393) rotate(-90)")
             .attr("id", "targetrange") // use to style in stylesheet
             .text("TARGET RANGE");
+    }
 
+    draw(svg) {
+        this.area = svg.append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        this.drawTargetRange();
+
+        // glucose label
+        this.svg.append("text")
+            .attr("transform", "translate(12,340) rotate(-90)")
+            .attr("class", "range") // use to style in stylesheet
+            .text("glucose (mg/dL)");
 
         let xAxis = d3.axisBottom(this.x);
         let yAxis = d3.axisLeft(this.y);
@@ -593,7 +602,7 @@ class Chart {
 
 //ugly way of copying an array
 function deep_copy(bg_orig) {
-    return bg_orig.map(d => ({...d}));
+    return bg_orig.map(d => ({ ...d }));
 }
 
 

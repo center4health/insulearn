@@ -221,6 +221,8 @@
 
   bg.draw(chart.getCanvas());
 
+  chart.drawTargetRange([70,140])
+
   d3.select("#meal_time").on("input", function (d) {
     let selectedValue = parseInt(this.value, 10);
     meal.changeTimeByMinute(selectedValue)
