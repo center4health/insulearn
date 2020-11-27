@@ -494,20 +494,22 @@ class Chart {
             .rangeRound([this.height, 0]).clamp(true);
         this.y.domain([0, 400]);
         this.x.domain(timerange);
-        this.draw(this.svg);
+        this.drawBase(this.svg);
     }
 
     drawTargetRange(range) {
         //remove whatever has been drawn before
-        this.area.selectAll("*").remove();
+        this.area.selectAll(".range").remove();
         if (range) {
             this.target_range = range;
         } else {
             range = this.target_range;
         }
+
+        let range_svg=this.area.append('g').attr("class","range")
         
         // shade time in range section
-        this.area.append('rect')
+        range_svg.append('rect')
             .style("fill", "#EFF6FE")
             .attr("x", 0)
             .attr("y", this.getY(range[1]))
@@ -515,7 +517,7 @@ class Chart {
             .attr("height", this.getY(range[0]) - this.getY(range[1]));
 
         //line lower threshold
-        this.area.append('line')
+        range_svg.append('line')
             .style("stroke", "#EB8690") // color of lower threshold line
             .style("stroke-dasharray", ("3, 5"))
             .style("stroke-width", 2)
@@ -525,7 +527,7 @@ class Chart {
             .attr("y2", this.getY(range[0]));
 
         //line upper threshold
-        this.area.append('line')
+        range_svg.append('line')
             .style("stroke", "#FFB800") // color of upper threshold line
             .style("stroke-dasharray", ("3, 5"))
             .style("stroke-width", 2)
@@ -535,7 +537,7 @@ class Chart {
             .attr("y2", this.getY(range[1]));
 
         // upper threshold label
-        this.area.append("text")
+        range_svg.append("text")
             .attr("y", this.getY(range[1]))
             .attr("x", this.width)
             .attr('text-anchor', 'middle')
@@ -543,21 +545,15 @@ class Chart {
             .text(range[1]);
 
         // lower threshold label
-        this.area.append("text")
+        range_svg.append("text")
             .attr("y", this.getY(range[0]))
             .attr("x", this.width)
             .attr('text-anchor', 'middle')
             .attr("class", "range") // use to style in stylesheet
             .text(range[0]);
-
-        // target range label
-        this.svg.append("text")
-            .attr("transform", "translate(750,393) rotate(-90)")
-            .attr("id", "targetrange") // use to style in stylesheet
-            .text("TARGET RANGE");
     }
 
-    draw(svg) {
+    drawBase(svg) {
         this.area = svg.append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
