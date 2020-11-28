@@ -132,6 +132,7 @@ class Factor {
         let minute_change = (time - old_time) / (60 - 1000)
         //notify listeners?
         if(this.notifyTime){
+            console.log("trying")
             this.notifyTime(time, minute_change);
         }
         this.time = time;
@@ -150,7 +151,7 @@ class Factor {
      * add listener to amount changes
      * @param {Method} method
      */
-    onTimeChange(method){
+    onAmountChange(method){
         this.notifyAmount=method
     }
 
@@ -161,6 +162,9 @@ class Factor {
     **/
     changeTimeByMinute(minute) {
         this.time = d3.timeMinute.offset(this.default_time, minute)
+        if(this.notifyTime){
+            this.notifyTime(this.time, minute);
+        }
         this.updateGraph();
         return this;
     }

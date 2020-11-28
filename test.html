@@ -171,7 +171,7 @@
             <p style="padding-top: 10px">Dose (U)</p>
           </div>
           <div class="col-sm-10">
-            <input type="range" name="insulin_amt" id=insulin_amt min="0" max="30" value="0"
+            <input type="range" name="insulin_amt" id=insulin_amt min="0" max="30" value="10"
               style="width: 600px"></input>
           </div>
         </div>
@@ -208,7 +208,7 @@
 
   bg.addFactor(insulin_bolus);
 
-  let meal = new Meal(30, timeParse("16:42:00"))
+  let meal = new Meal(90, timeParse("16:42:00"))
   bg.addFactor(meal);
 
   let chart = new Chart("svg", bg.getTimeRange())
@@ -217,6 +217,24 @@
   chart.drawInsulin(insulin_bolus)
   chart.drawMeal(meal)
   chart.drawBG(bg);
+
+
+  d3.timeFormat("%H:%M")
+  insulin_bolus.onTimeChange(
+    function(time, minutes){
+      document.getElementById("selectedTime").innerHTML 
+        = d3.timeFormat("%H:%M")(time);
+      let dif=Math.floor((meal.getTime()-time)/(60*1000));
+      let dif_str=""
+      if (dif<0){
+        dif_str=`${Math.abs(dif)} min after meal`
+      }else{
+        dif_str=`${dif} min before meal`
+      }
+      document.getElementById("bolus_meal_time").innerHTML 
+        = dif_str;  
+    }   
+  );
 
   d3.select("#meal_time").on("input", function (d) {
     let selectedValue = parseInt(this.value, 10);
