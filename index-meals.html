@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="style-meal.css">
+    <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
@@ -22,17 +22,43 @@
       border-color: #ededed; /*dark green*/
     }
 
-    .footer {
-       position: absolute;
+  .footer {
+       position: fixed;
        padding-top: 25px;
        padding-bottom: 25px;
        left: 0;
-       bottom: 1;
+       bottom: 0;
        width: 100%;
        background-color: #41948E; /*emerald green*/
        color: white;
        text-align: center;
     }
+
+	.dropdown {
+	  position: relative;
+	  display: inline-block;
+	}
+
+	.dropdown-content {
+	  display: none;
+	  position: absolute;
+	  min-width: 160px;
+	  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+	  z-index: 1;
+	}
+
+	.dropdown-content a {
+	  color: black;
+	  padding: 12px 16px;
+	  text-decoration: none;
+	  display: block;
+	}
+
+	.dropdown-content a:hover {background-color: #ddd;}
+
+	.dropdown:hover .dropdown-content {display: block;}
+
+	.dropdown:hover .dropbtn {background-color: #1f635f;}
 
   </style>
   <body>
@@ -55,46 +81,58 @@
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
           <ul class="nav navbar-nav navbar-right">
             <li class="active"><a href="#">Home</a></li>
-           
+        	<li class="nav-item dropdown">
+            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Interactive Graphs <span class="caret"></span></a>
+                    <div class="dropdown-menu dropdown-menu-right">
+                        <a href="terminology-meal.html" class="dropdown-item">Food Response</a>
+                        <div class="dropdown-divider"></div>
+                       <a href="graphs-menu.html"class="dropdown-item">Insulin Timing</a>
             <li class="nav-item dropdown">
             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Learn More <span class="caret"></span></a>
                     <div class="dropdown-menu dropdown-menu-right">
-                        <a href="terminology.html" class="dropdown-item">Insulin Timing</a>
+                        <a href="terminology-meal.html" class="dropdown-item">Food Response</a>
                         <div class="dropdown-divider"></div>
-                       <a href="terminology-meal.html"class="dropdown-item">Nutrition</a>
+                       <a href="terminology.html"class="dropdown-item">Insulin Timing</a>
             <li><a href="about.html">About</a></li>
           </ul>
         </div><!-- /.navbar-collapse -->
       </div><!-- /.container-fluid -->
     </nav>
 
-    <div class="container">
+  <div class="container">
       <div class="row" style="padding-top: 50px">
-        <div class="col-sm-12">
-          <h1 style="padding-bottom: 10px;"><b><center>Diabetes</b> is manageable</center></h1>
-          <h4 style="padding-bottom: 20px;"><center>InsuLearn is an interactive visualization tool that is transforming diabetes education.</center></h4>
-        </div>
-      <div class="row">
         <div class="col-sm-6">
-          <h4 style="margin-left: 130px;"><b>Insulin Timing and Dosing</b></h4>
-          <img src="img/glucose.gif" width="100%" style="border: 2px solid #c4c4c4; border-radius: 10px" class="insumeal">
-           <h4 style="padding: 25px;"> Understanding the relationship between <b> insulin </b>and blood glucose levels is important to diabetes management. <br><br>Can we picture how <b>insulin</b> affects glucose levels?</h4>
-           <button type="button" class="btn btn-primary" style="margin-bottom: 50px; margin-left: 100px" id="learn">Learn More »</button>
-          <button type="button" class="btn btn-primary" style="margin-bottom: 50px; margin-left: 50px" id="seeworks">Try It Yourself »</button>
-        </div>
+          <h1 style="padding-bottom: 20px;"><b>Diabetes</b> is manageable</h1>
+          <h4 style="padding-bottom: 15px;">Understanding how <b>food type </b>and <b>insulin</b> affects blood glucose
+              levels is important to diabetes management.</h4>
+          <h4>Our goal is to show, through a series of interactive graphs, 
+              that learning about the glucose response to food types and when and how much insulin to dose for meals
+              can lead to better control of blood glucose levels.</h4><br>
+              <div class="dropdown">
+  				<button class="dropbtn btn btn-primary" style="margin-right: 50px" id="learn">Learn More <span class="caret"></span></button>
+  					<div class="dropdown-content">
+    				<a href="terminology-meal.html">Nutrition</a>
+    				<a href="terminology.html">Insulin Timing</a>
+    			</div>
+    		</div>
 
+    		<div class="dropdown">
+  				<button class="dropbtn btn btn-primary">Try It Yourself <span class="caret"></span></button>
+  					<div class="dropdown-content">
+    				<a href="#">Food Response</a>
+    				<a href="graphs-menu.html">Insulin Timing</a>
+    			</div>
+    		</div>
+         <!-- <button type="button" class="btn btn-primary" style="margin-bottom: 50px; margin-right: 20px" id="learn">Learn More »</button>
+          <button type="button" class="btn btn-primary" style="margin-bottom: 50px" id="seeworks">Try It Yourself »</button> -->
+        </div>
         <div class="col-sm-6">
-          <h4 style="margin-left: 130px"><b>Simple and Complex Carbs</b></h4>
-          <img src="img/early-bolus.png" width="100%" style="border: 2px solid #c4c4c4; border-radius: 10px" class="insumeal">
-           <h4 style="padding: 25px;"> Understanding the relationship between <b>meals</b> and blood glucose levels is important to diabetes management. <br><br>Can we picture how <b>meals</b> affects glucose levels?</h4>
-           <button type="button" class="btn btn-primary" style="margin-bottom: 50px; margin-left: 100px" id="learn">Learn More »</button>
-          <button type="button" class="btn btn-primary" style="margin-bottom: 50px; margin-left: 50px" id="seeworks2">Try It Yourself »</button>
-            <div style="padding-bottom: 50px">
-          </div>
+          <img src="img/glucose.gif" width=100%>
         </div>
       </div>
+      <div style="padding-bottom: 250px">
+      </div>
     </div>
-
 
     <!-- Footer -->
     <footer class="footer">
@@ -111,7 +149,7 @@
              information purposes only.</p>
         </div>
       </div>
-    </footer> 
+    </footer>
   </body>
   <script>
     // function to add shadow to the navbar
