@@ -14,7 +14,6 @@ const SETTINGS={
     isf:30,
     carb_ratio:10,
     zoom:10
-
 }
 
 /**
@@ -129,7 +128,7 @@ class Factor {
     **/
     setTime(time) {
         let old_time = this.time;
-        let minute_change = (time - old_time) / (60 - 1000)
+        let minute_change = (time - old_time) / 10000 //(60 - 1000)
         //notify listeners?
         if(this.notifyTime){
             console.log("trying")
@@ -214,11 +213,12 @@ class Factor {
 
 
 const INSULIN_TYPE = {
-    "RAPID": { PEAK: 80, DURATION: 300, ONSET: 10 },  // e.g. humalog
+    "RAPID": { PEAK: 80, DURATION: 300, ONSET: 15 },  // e.g. humalog
 }
 
 const MEAL_COMPONENTS = {
-    "SIMPLE_CARB": { PEAK: 30, DURATION: 300, ONSET: 0 },  // e.g. sugar
+    "SIMPLE_CARB": { PEAK: 30, DURATION: 200, ONSET: 0, NAME: "SIMPLE CARB" },  // e.g. sugar
+    "COMPLEX_CARB": { PEAK: 60, DURATION: 300, ONSET: 0, NAME: "COMPLEX CARB"}
 }
 
 
@@ -294,8 +294,8 @@ class Insulin extends Factor {
  * @param {Object} meal_time  - The time of the meal in minutes
  */
 class Meal extends Factor {
-    constructor(carbs, meal_time) {
-        super(meal_time, carbs, MEAL_COMPONENTS.SIMPLE_CARB);
+    constructor(carbs, meal_time, type) {
+        super(meal_time, carbs, type);
     }
 
     /** 
@@ -312,6 +312,9 @@ class Meal extends Factor {
         } else {
             return bg + this.getActivity(minutes)/SETTINGS.zoom
         }
+    }
+    getName() {
+        return this.name;
     }
     /** 
     * Return digested carbs at a point in time
@@ -344,6 +347,46 @@ class Meal extends Factor {
 }
 
 /**
+ * Helper Function for wrapping text
+ * https://stackoverflow.com/questions/24784302/wrapping-text-in-d3
+ * @param {} text 
+ * @param {*} width 
+ */
+function wrap(text, width) {
+    text.each(function () {
+        var text = d3.select(this),
+            words = text.text().split(/\s+/).reverse(),
+            word,
+            line = [],
+            lineNumber = 0,
+            lineHeight = 1.1, // ems
+            x = text.attr("x"),
+            y = text.attr("y"),
+            dy = 0, //parseFloat(text.attr("dy")),
+            tspan = text.text(null)
+                        .append("tspan")
+                        .attr("x", x)
+                        .attr("y", y)
+                        .attr("dy", dy + "em");
+        while (word = words.pop()) {
+            line.push(word);
+            tspan.text(line.join(" "));
+            if (tspan.node().getComputedTextLength() > width) {
+                line.pop();
+                tspan.text(line.join(" "));
+                line = [word];
+                tspan = text.append("tspan")
+                            .attr("x", x)
+                            .attr("y", y)
+                            .attr("dy", ++lineNumber * lineHeight + dy + "em")
+                            .text(word);
+            }
+        }
+    });
+}
+
+
+/**
  * Chart class that handles all drawing using d3.
  * @constructor
  * @param {Element} svg - target svg element we going to draw into
@@ -364,6 +407,36 @@ class Chart {
         this.y.domain([0, 400]);
         this.x.domain(timerange);
         this.drawBase(this.svg);
+        this.drawToolTip(this.svg);
+    }
+
+    drawToolTip(svg, hoverObj) {
+        let tooltip = svg.append("g");
+        let rectData = {
+            height: 150,
+            width: 300,
+            x: 380,
+            y: 10,
+            rx: 30
+        };
+
+        // Background
+        tooltip.append("rect")
+            .style("fill", "white")
+            .style("stroke", "black")
+            .attr("x", rectData.x)
+            .attr("y", rectData.y)
+            .attr("width", rectData.width)
+            .attr("height", rectData.height)
+            .attr("rx", rectData.rx);
+
+        // Text
+        tooltip.append("text").text("Please hover over \"!\" and other points of interest for more information")
+            .attr("x", rectData.x + 30)
+            .attr("y", rectData.y + 30)
+            .attr("visibility", "visible")
+            .attr("id", "tooltip-text")
+            .call(wrap, 250);
     }
 
     drawTargetRange(range) {
@@ -431,7 +504,7 @@ class Chart {
         this.svg.append("text")
             .attr("transform", `translate(${this.margin.right / 2},${this.y(100)}) rotate(-90)`)
             .attr("class", "range") // use to style in stylesheet
-            .text("glucose (mg/dL)");
+            .text("Digestion Rate");
 
         let xAxis = d3.axisBottom(this.x);
         let yAxis = d3.axisLeft(this.y);
@@ -481,14 +554,18 @@ class Chart {
         let g = this.area.append("g").attr("class", "meal" + meal.getUUID());
         g.append("path")
             .datum(meal.getShape())
+            .attr("class", "curve")
             .attr("fill", "#41FF8E")
             .attr("fill-opacity", "0.5")
             .attr("stroke", "#41948E") // insulin curve color
-            .attr("stroke-width", 5) // size(stroke) of the insulin curve
-            .call(d3.drag()
-                .on('drag', (d, a, b, factor = meal) => { this.dragX(d, factor); }));
-
-        this.drawMarker(g, "Meal", meal);
+            .attr("stroke-width", 5); // size(stroke) of the insulin curve
+            //.call(d3.drag()
+            //    .on('drag', (d, a, b, factor = meal) => { this.dragX(d, factor); }));
+        if (meal.type.NAME === "SIMPLE CARB") {
+            this.drawMarker(g, meal.getName(), meal, "I am simple carb");
+        } else {
+            this.drawMarker(g, meal.getName(), meal, "I am complex carb");
+        }
         this.updateMeal(meal);
     }
     updateMeal(meal) {
@@ -499,16 +576,7 @@ class Chart {
     removeMeal(meal) {
         this.area.selectAll(".meal" + meal.getUUID()).remove();
     }
-    drawMarker(g, name, factor) {
-        //  vertical line
-        g.append('line')
-            .style("stroke", "#C4c4c4") // color of meal line
-            .style("stroke-dasharray", ("3, 5"))
-            .style("stroke-width", 2);
-        // point
-        g.append("circle")
-            .attr("r", 5)
-            .style("fill", "black");
+    drawMarker(g, name, factor, toolTipText="fix me") {
         // text
         g.append("text")
             .attr("class", "range") // use to style in stylesheet
@@ -517,25 +585,47 @@ class Chart {
         //yhandle
         let handle = factor.getYHandle()
         
-        let h_svg=g.append("ellipse")
+        // Draggable eclipse
+        /*<svg width="74" height="74" viewBox="0 0 74 74" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M74 37C74 57.4345 57.4345 74 37 74C16.5655 74 0 57.4345 0 37C0 16.5655 16.5655 0 37 0C57.4345 0 74 16.5655 74 37Z" fill="#41948E"/>
+            <path d="M35.9393 61.0607C36.5251 61.6464 37.4749 61.6464 38.0607 61.0607L47.6066 51.5147C48.1924 50.9289 48.1924 49.9792 47.6066 49.3934C47.0208 48.8076 46.0711 48.8076 45.4853 49.3934L37 57.8787L28.5147 49.3934C27.9289 48.8076 26.9792 48.8076 26.3934 49.3934C25.8076 49.9792 25.8076 50.9289 26.3934 51.5147L35.9393 61.0607ZM35.5 28V60H38.5V28H35.5Z" fill="white"/>
+            <path d="M38.0607 11.9393C37.4749 11.3536 36.5251 11.3536 35.9393 11.9393L26.3934 21.4853C25.8076 22.0711 25.8076 23.0208 26.3934 23.6066C26.9792 24.1924 27.9289 24.1924 28.5147 23.6066L37 15.1213L45.4853 23.6066C46.0711 24.1924 47.0208 24.1924 47.6066 23.6066C48.1924 23.0208 48.1924 22.0711 47.6066 21.4853L38.0607 11.9393ZM38.5 57L38.5 13L35.5 13L35.5 57L38.5 57Z" fill="white"/>
+        </svg>*/
+
+        let draggable_eclipse = g.append("svg")
+            //.attr("fill", "none");
+            
+
+        draggable_eclipse.append("ellipse")
             .style("fill", "#285C58")
             .attr("cx", this.x(handle.x))
             .attr("cy", this.y(handle.y))
-            .attr("rx", 10)
-            .attr("ry", 25)
+            .attr("rx", 13)
+            .attr("ry", 15)
+            .on("mouseover", function(d, i) {
+                d3.select("#tooltip-text")
+                    .text(toolTipText)
+                    .call(wrap, 270);;
+            })
+            .on("mouseout", function(d, i) {
+                d3.select("#tooltip-text")
+                    .text("Please hover over \"!\" and other points of interest for more information")
+                    .call(wrap, 270);;
+            })
             .call(d3.drag()
                 .on('drag', 
                 (d, a, b, factor_param = factor) => { 
                     this.dragY(d, factor_param); 
                 }));
-        // g.append('path')
-        // .attr('d', d3.line()([
-        //     [this.x(handle.x), this.y(handle.y)-10],
-        //     [this.x(handle.x), this.y(handle.y)+10]]))
-        // .attr('stroke', 'black')
-        // .attr('marker-start', 'url(#arrow)')
-        // .attr('marker-end', 'url(#arrow)')
-        // .attr('fill', 'black')
+        /*draggable_eclipse.append("path")
+                .attr("d", "M12.5303 2.46967C12.2374 2.17678 11.7626 2.17678 11.4697 2.46967L6.6967 7.24264C6.40381 7.53553 6.40381 8.01041 6.6967 8.3033C6.98959 8.59619 7.46447 8.59619 7.75736 8.3033L12 4.06066L16.2426 8.3033C16.5355 8.59619 17.0104 8.59619 17.3033 8.3033C17.5962 8.01041 17.5962 7.53553 17.3033 7.24264L12.5303 2.46967ZM12.75 12L12.75 3L11.25 3L11.25 12L12.75 12Z")
+                ;
+        draggable_eclipse.append("path")
+                .attr("d", "M11.4687 20.5293C11.761 20.8227 12.2359 20.8237 12.5294 20.5313L17.3115 15.7675C17.6049 15.4752 17.6058 15.0003 17.3135 14.7068C17.0212 14.4134 16.5463 14.4125 16.2528 14.7048L12.0021 18.9393L7.76758 14.6886C7.47524 14.3951 7.00037 14.3942 6.70692 14.6865C6.41346 14.9789 6.41255 15.4537 6.70489 15.7472L11.4687 20.5293ZM11.2711 8.99856L11.2501 19.9985L12.7501 20.0014L12.7711 9.00144L11.2711 8.99856Z");
+                //.attr("fill", "black");*/
+
+
+
     }
     updateMarker(g, factor) {
         // bolus point
@@ -556,7 +646,7 @@ class Chart {
             .attr("y", this.y(5));
         //handle
         let handle = factor.getYHandle()
-        g.select("ellipse")
+        g.select("ellipse") // TODO: Replace w/ SVG of draggable
             .attr("cx", this.x(handle.x))
             .attr("cy", this.y(handle.y))
       
@@ -570,14 +660,14 @@ class Chart {
         // insulin curve
         g.append("path")
             .datum(insulin.getShape())
-            .attr("fill", "#41948E")
+            .attr("fill", "#944141")
             .attr("fill-opacity", "0.5")
-            .attr("stroke", "#41948E") // insulin curve color
+            .attr("stroke", "#944141") // insulin curve color
             .attr("stroke-width", 5) // size(stroke) of the insulin curve
             .call(d3.drag()
                 .on('drag', (d, a, b, factor = insulin) => { this.dragX(d, factor); }));
 
-        this.drawMarker(g, "Bolus", insulin);
+        this.drawMarker(g, "", insulin, "I am insulin");
 
         this.updateInsulin(insulin);
     }
@@ -599,14 +689,14 @@ class Chart {
     removeInsulin(insulin) {
         this.area.selectAll(".meal" + insulin.getUUID()).remove();
     }
-    dragX(d, factor) {
+    /*dragX(d, factor) {
         let old_time = factor.getTime()
         let new_time = this.x.invert(this.x(old_time) + d3.event.dx);
         factor.setTime(new_time);
         if (this.bg) {
             this.updateBG(this.bg);
         }
-    }
+    }*/
     dragY(d, factor) {
         let old_amount = factor.getAmount()
         let new_amount = this.y.invert(this.y(old_amount) + d3.event.dy);
@@ -629,12 +719,7 @@ function uuidv4() {
     });
 }
 
-
-
-
-
-
-
-
-
-
+// TODO
+// ToolTip on top
+// SVG buttons at the bottom to remove and add the meals
+// 
