@@ -124,7 +124,19 @@ body > #header{position:fixed;}
        box-shadow: 0 0 10px rgba(0,0,0,0.2);
   }
 
-
+/*drop down menu*/
+  .dropdown-item {
+      color: #747474;
+      display: block;
+      padding: 14px 16px;
+      font-weight: 600;
+     }
+  .dropdown-item:hover {
+      color: #41948E;
+      text-decoration: none;
+      background-color: #F0F0F0;
+    }
+    
   /* sliders https://www.cssportal.com/style-input-range/*/
   input[type=range] {
     height: 28px;
