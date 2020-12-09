@@ -268,7 +268,7 @@ class Insulin extends Factor {
             return 0;
         }
         let minsAgo = time - this.type.ONSET;
-        let insulin = this.amount*SETTINGS.zoom;
+        let insulin = this.amount ;//*SETTINGS.zoom;
 
         let tau = peak * (1 - peak / end) / (1 - 2 * peak / end);  // time constant of exponential decay
         let a = 2 * tau / end;                                     // rise time factor
@@ -277,6 +277,7 @@ class Insulin extends Factor {
         var activityContrib = insulin * (S / Math.pow(tau, 2)) * minsAgo * (1 - minsAgo / end) * Math.exp(-minsAgo / tau);
         return activityContrib*SETTINGS.isf
     }
+    
     updateGraph() {
         if (this.chart) {
             this.chart.updateInsulin(this);
@@ -323,23 +324,27 @@ class Meal extends Factor {
     * Code adapted from https://github.com/openaps/oref0/blob/master/lib/iob/calculate.js inspired by 
     * https://github.com/LoopKit/Loop/issues/388#issuecomment-317938473
     **/
-    getActivity(minsAgo) {
-        let end = this.type.DURATION;
-        let peak = this.type.PEAK;
+    getActivity(time) {
+        let end = this.type.DURATION - this.type.ONSET;
+        let peak = this.type.PEAK - this.type.ONSET;
 
-        if (minsAgo > this.end) {
+        if (time < this.type.ONSET) {
+            return 0; //ugly can we find a function with a nice slow start?
+        }
+        if (time > this.end) {
             return 0;
         }
-
-        let carbs = this.amount*SETTINGS.zoom;
+        let minsAgo = time - this.type.ONSET;
+        let insulin = this.amount ;//*SETTINGS.zoom;
 
         let tau = peak * (1 - peak / end) / (1 - 2 * peak / end);  // time constant of exponential decay
         let a = 2 * tau / end;                                     // rise time factor
         let S = 1 / (1 - a + (1 + a) * Math.exp(-end / tau));      // auxiliary scale factor
-        var activityContrib = carbs * (S / Math.pow(tau, 2)) * minsAgo * (1 - minsAgo / end) * Math.exp(-minsAgo / tau);
-        return activityContrib*SETTINGS.isf/SETTINGS.carb_ratio
+
+        var activityContrib = insulin * (S / Math.pow(tau, 2)) * minsAgo * (1 - minsAgo / end) * Math.exp(-minsAgo / tau);
+        return activityContrib*SETTINGS.isf
     }
-    updateGraph() {
+updateGraph() {
         if (this.chart) {
             this.chart.updateMeal(this);
         }
@@ -391,24 +396,26 @@ function wrap(text, width) {
  * @constructor
  * @param {Element} svg - target svg element we going to draw into
  * @param {Array} timerange - array consisting of start and end time as Date objects
- * @param {Array} target_range  - array indicating the upper and lower limit for time in range 
+ * @param {Array} targetRange  - array indicating the upper and lower limit for time in range 
  */
 class Chart {
     margin = { top: 20, right: 20, bottom: 30, left: 50 };
-    constructor(svg, timerange, target_range = [70, 180]) {
+    constructor(svg, timeRange, targetRange = [70, 180]) {
         this.svg = d3.select(svg); //select target
+
         this.width = this.svg.attr("width") - this.margin.left - this.margin.right;
         this.height = this.svg.attr("height") - this.margin.top - this.margin.bottom;
-        this.target_range = target_range;
-
+        this.targetRange = targetRange;
+    
         this.x = d3.scaleTime().range([0, this.width]).clamp(true);
-        this.y = d3.scaleLinear().domain([0, 400])
+        this.y = d3.scaleLinear().domain([0, 300])
             .rangeRound([this.height, 0]).clamp(true);
-        this.y.domain([0, 400]);
-        this.x.domain(timerange);
+        this.y.domain([0, 300]);
+        this.x.domain(timeRange);
+    
         this.drawBase(this.svg);
         this.drawToolTip(this.svg);
-    }
+        }
 
     drawToolTip(svg, hoverObj) {
         let tooltip = svg.append("g");
@@ -439,63 +446,45 @@ class Chart {
             .call(wrap, 250);
     }
 
-    drawTargetRange(range) {
-        //remove whatever has been drawn before
-        this.area.selectAll(".range").remove();
-        if (range) {
-            this.target_range = range;
-        } else {
-            range = this.target_range;
-        }
-        let range_svg = this.area.append('g').attr("class", "range")
-
+    drawTargetRange(range=this.targetRange) {
+        let targetRangeGroup = this.graphArea.append('g').attr("class", "range");
+        let rect = {
+            x1: 0,
+            x2: this.width,
+            y1: this.y(range[0]),
+            y2: this.y(range[1]),
+        };
         // shade time in range section
-        range_svg.append('rect')
+        targetRangeGroup.append('rect')
             .style("fill", "#EFF6FE")
-            .attr("x", 0)
-            .attr("y", this.y(range[1]))
-            .attr("width", this.width)
-            .attr("height", this.y(range[0]) - this.y(range[1]));
+            .attr("x", rect.x1)
+            .attr("y", rect.y2)
+            .attr("width", rect.x2)
+            .attr("height", rect.y1 - rect.y2);
 
         //line lower threshold
-        range_svg.append('line')
-            .style("stroke", "#EB8690") // color of lower threshold line
+        targetRangeGroup.append('line')
+            .style("stroke", "#EB8690")
             .style("stroke-dasharray", ("3, 5"))
             .style("stroke-width", 2)
-            .attr("x1", 0)
-            .attr("y1", this.y(range[0]))
-            .attr("x2", this.width)
-            .attr("y2", this.y(range[0]));
+            .attr("x1", rect.x1)
+            .attr("y1", rect.y1)
+            .attr("x2", rect.x2)
+            .attr("y2", rect.y1);
 
         //line upper threshold
-        range_svg.append('line')
-            .style("stroke", "#FFB800") // color of upper threshold line
+        targetRangeGroup.append('line')
+            .style("stroke", "#EB8690")
             .style("stroke-dasharray", ("3, 5"))
             .style("stroke-width", 2)
-            .attr("x1", 0)
-            .attr("y1", this.y(range[1]))
-            .attr("x2", this.width)
-            .attr("y2", this.y(range[1]));
-
-        // upper threshold label
-        range_svg.append("text")
-            .attr("y", this.y(range[1]))
-            .attr("x", this.width)
-            .attr('text-anchor', 'middle')
-            .attr("class", "range") // use to style in stylesheet
-            .text(range[1]);
-
-        // lower threshold label
-        range_svg.append("text")
-            .attr("y", this.y(range[0]))
-            .attr("x", this.width)
-            .attr('text-anchor', 'middle')
-            .attr("class", "range") // use to style in stylesheet
-            .text(range[0]);
+            .attr("x1", rect.x1)
+            .attr("y1", rect.y2)
+            .attr("x2", rect.x2)
+            .attr("y2", rect.y2);
     }
 
     drawBase(svg) {
-        this.area = svg.append("g")
+        this.graphArea = svg.append("g")
             .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
 
         this.drawTargetRange();
@@ -504,27 +493,27 @@ class Chart {
         this.svg.append("text")
             .attr("transform", `translate(${this.margin.right / 2},${this.y(100)}) rotate(-90)`)
             .attr("class", "range") // use to style in stylesheet
-            .text("Digestion Rate");
+            .text("Glucose Response");
 
         let xAxis = d3.axisBottom(this.x);
-        let yAxis = d3.axisLeft(this.y);
+        let yAxis = d3.axisLeft(this.y).tickSize(0).tickValues([]);
 
-        this.area.append('g')
+        this.graphArea.append('g')
             .attr('class', 'axis axis--x')
             .attr('transform', 'translate(0,' + this.height + ')')
             .call(xAxis);
 
-        this.area.append('g')
+        this.graphArea.append('g')
             .attr('class', 'axis axis--y')
             .call(yAxis);
-        return this.area;
-    }
+    }  
+
 
     drawBG(bg) {
         this.bg = bg;
         bg.setChart(this);
         this.removeBG();  //clean up before we start
-        let g = this.area.append("g").attr("class", "bg_curve");
+        let g = this.graphArea.append("g").attr("class", "bg_curve");
 
         // BG graph
         g.selectAll('circle')
@@ -532,26 +521,26 @@ class Chart {
             .enter()
             .append('circle')
             .attr('r', 3.0)
-            .style('cursor', 'pointer')
+            //.style('cursor', 'pointer')
             .style('fill', '#000000'); // glucose curve color
         this.updateBG(bg);
     }
 
     updateBG(bg) {
-        this.area.select(".bg_curve").selectAll('circle')
+        this.graphArea.select(".bg_curve").selectAll('circle')
             .data(bg.getShape())
             .attr('cx', (d) => { return this.x(d.x); })
             .attr('cy', (d) => { return this.y(d.y); });
     }
     removeBG() {
-        this.area.selectAll(".bg_curve").remove();
+        this.graphArea.selectAll(".bg_curve").remove();
     }
 
     drawMeal(meal) {
         meal.setChart(this);
         this.removeMeal(meal); //clean up
 
-        let g = this.area.append("g").attr("class", "meal" + meal.getUUID());
+        let g = this.graphArea.append("g").attr("class", "meal" + meal.getUUID());
         g.append("path")
             .datum(meal.getShape())
             .attr("class", "curve")
@@ -569,12 +558,12 @@ class Chart {
         this.updateMeal(meal);
     }
     updateMeal(meal) {
-        let g = this.area.selectAll(".meal" + meal.getUUID())
+        let g = this.graphArea.selectAll(".meal" + meal.getUUID())
         this.updateCurve(g, meal);
         this.updateMarker(g, meal);
     }
     removeMeal(meal) {
-        this.area.selectAll(".meal" + meal.getUUID()).remove();
+        this.graphArea.selectAll(".meal" + meal.getUUID()).remove();
     }
     drawMarker(g, name, factor, toolTipText="fix me") {
         // text
@@ -584,13 +573,6 @@ class Chart {
 
         //yhandle
         let handle = factor.getYHandle()
-        
-        // Draggable eclipse
-        /*<svg width="74" height="74" viewBox="0 0 74 74" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M74 37C74 57.4345 57.4345 74 37 74C16.5655 74 0 57.4345 0 37C0 16.5655 16.5655 0 37 0C57.4345 0 74 16.5655 74 37Z" fill="#41948E"/>
-            <path d="M35.9393 61.0607C36.5251 61.6464 37.4749 61.6464 38.0607 61.0607L47.6066 51.5147C48.1924 50.9289 48.1924 49.9792 47.6066 49.3934C47.0208 48.8076 46.0711 48.8076 45.4853 49.3934L37 57.8787L28.5147 49.3934C27.9289 48.8076 26.9792 48.8076 26.3934 49.3934C25.8076 49.9792 25.8076 50.9289 26.3934 51.5147L35.9393 61.0607ZM35.5 28V60H38.5V28H35.5Z" fill="white"/>
-            <path d="M38.0607 11.9393C37.4749 11.3536 36.5251 11.3536 35.9393 11.9393L26.3934 21.4853C25.8076 22.0711 25.8076 23.0208 26.3934 23.6066C26.9792 24.1924 27.9289 24.1924 28.5147 23.6066L37 15.1213L45.4853 23.6066C46.0711 24.1924 47.0208 24.1924 47.6066 23.6066C48.1924 23.0208 48.1924 22.0711 47.6066 21.4853L38.0607 11.9393ZM38.5 57L38.5 13L35.5 13L35.5 57L38.5 57Z" fill="white"/>
-        </svg>*/
 
         let draggable_eclipse = g.append("svg")
             //.attr("fill", "none");
@@ -602,6 +584,7 @@ class Chart {
             .attr("cy", this.y(handle.y))
             .attr("rx", 13)
             .attr("ry", 15)
+            .style('cursor', 'pointer')
             .on("mouseover", function(d, i) {
                 d3.select("#tooltip-text")
                     .text(toolTipText)
@@ -654,8 +637,8 @@ class Chart {
 
     drawInsulin(insulin) {
         insulin.setChart(this);
-        this.area.selectAll(".insulin" + insulin.getUUID()).remove();
-        let g = this.area.append("g").attr("class", "insulin" + insulin.getUUID());
+        this.graphArea.selectAll(".insulin" + insulin.getUUID()).remove();
+        let g = this.graphArea.append("g").attr("class", "insulin" + insulin.getUUID());
 
         // insulin curve
         g.append("path")
@@ -681,13 +664,13 @@ class Chart {
 
     }
     updateInsulin(insulin) {
-        let g = this.area.selectAll(".insulin" + insulin.getUUID());
+        let g = this.graphArea.selectAll(".insulin" + insulin.getUUID());
         this.updateCurve(g, insulin);
         this.updateMarker(g, insulin);
 
     }
     removeInsulin(insulin) {
-        this.area.selectAll(".meal" + insulin.getUUID()).remove();
+        this.graphArea.selectAll(".meal" + insulin.getUUID()).remove();
     }
     /*dragX(d, factor) {
         let old_time = factor.getTime()
