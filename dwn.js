@@ -10,10 +10,19 @@
 
 "use strict";
 
-const SETTINGS={
-    isf:30,
-    carb_ratio:10,
-    zoom:10
+const SETTINGS = {
+    isf: 30,
+    carb_ratio: 10,
+    zoom: 10
+}
+
+const INSULIN_TYPE = {
+    "RAPID": { PEAK: 80, DURATION: 300, ONSET: 15 },  // e.g. humalog
+}
+
+const MEAL_COMPONENTS = {
+    "SIMPLE_CARB": { PEAK: 30, DURATION: 200, ONSET: 0, NAME: "SIMPLE CARB" },  // e.g. sugar
+    "COMPLEX_CARB": { PEAK: 60, DURATION: 300, ONSET: 0, NAME: "COMPLEX CARB" }
 }
 
 /**
@@ -30,14 +39,14 @@ class Glucose {
     constructor(from, to) {
         this.start;
         this.factors = [];
-        this.sampling=5
+        this.sampling = 5
         d3.timeMinutes(from, to, this.sampling).forEach(x_val => {
             this.base.push({ "x": x_val, "y": 100 })
         });
     }
     loadJSON(json_object, sampling) {
         this.base = [];
-        this.sampling=5;
+        this.sampling = 5;
         let timeParse = d3.timeParse("%H:%M:%S")
 
         json_object.forEach(d => {
@@ -116,7 +125,7 @@ class Factor {
     getShape(sampling = 5) {
         let curve = [];
         for (let min = 0; min < this.type.DURATION; min += sampling) {
-            curve.push({ x: d3.timeMinute.offset(this.time, min), y: this.getActivity(min)});
+            curve.push({ x: d3.timeMinute.offset(this.time, min), y: this.getActivity(min) });
         }
         return curve;
     }
@@ -130,7 +139,7 @@ class Factor {
         let old_time = this.time;
         let minute_change = (time - old_time) / 10000 //(60 - 1000)
         //notify listeners?
-        if(this.notifyTime){
+        if (this.notifyTime) {
             console.log("trying")
             this.notifyTime(time, minute_change);
         }
@@ -142,16 +151,16 @@ class Factor {
      * add listener to minute changes
      * @param {Method} method
      */
-    onTimeChange(method){
-        this.notifyTime=method
+    onTimeChange(method) {
+        this.notifyTime = method
     }
 
-     /**
-     * add listener to amount changes
-     * @param {Method} method
-     */
-    onAmountChange(method){
-        this.notifyAmount=method
+    /**
+    * add listener to amount changes
+    * @param {Method} method
+    */
+    onAmountChange(method) {
+        this.notifyAmount = method
     }
 
     /**
@@ -161,7 +170,7 @@ class Factor {
     **/
     changeTimeByMinute(minute) {
         this.time = d3.timeMinute.offset(this.default_time, minute)
-        if(this.notifyTime){
+        if (this.notifyTime) {
             this.notifyTime(this.time, minute);
         }
         this.updateGraph();
@@ -182,9 +191,9 @@ class Factor {
     * @return {Insulin} - the current object to allow chaining of methods
     **/
     setAmount(amount) {
-        let change= amount-this.amount;
+        let change = amount - this.amount;
         this.amount = amount;
-        if(this.notifyAmount){
+        if (this.notifyAmount) {
             this.notifyAmount(amount, change);
         }
         this.updateGraph()
@@ -207,19 +216,12 @@ class Factor {
     }
     getYHandle() {
         let peak = d3.timeMinute.offset(this.time, this.type.PEAK)
-        return { x: peak, y: this.getActivity(this.type.PEAK)}
+        return { x: peak, y: this.getActivity(this.type.PEAK) }
     }
 }
 
 
-const INSULIN_TYPE = {
-    "RAPID": { PEAK: 80, DURATION: 300, ONSET: 15 },  // e.g. humalog
-}
 
-const MEAL_COMPONENTS = {
-    "SIMPLE_CARB": { PEAK: 30, DURATION: 200, ONSET: 0, NAME: "SIMPLE CARB" },  // e.g. sugar
-    "COMPLEX_CARB": { PEAK: 60, DURATION: 300, ONSET: 0, NAME: "COMPLEX CARB"}
-}
 
 
 /**
@@ -246,7 +248,7 @@ class Insulin extends Factor {
         if ((minutes < 0) | minutes > this.type.DURATION) {
             return bg
         } else {
-            return bg - this.getActivity(minutes)/SETTINGS.zoom
+            return bg - this.getActivity(minutes) / SETTINGS.zoom
         }
     }
 
@@ -268,16 +270,16 @@ class Insulin extends Factor {
             return 0;
         }
         let minsAgo = time - this.type.ONSET;
-        let insulin = this.amount ;//*SETTINGS.zoom;
+        let insulin = this.amount;//*SETTINGS.zoom;
 
         let tau = peak * (1 - peak / end) / (1 - 2 * peak / end);  // time constant of exponential decay
         let a = 2 * tau / end;                                     // rise time factor
         let S = 1 / (1 - a + (1 + a) * Math.exp(-end / tau));      // auxiliary scale factor
 
         var activityContrib = insulin * (S / Math.pow(tau, 2)) * minsAgo * (1 - minsAgo / end) * Math.exp(-minsAgo / tau);
-        return activityContrib*SETTINGS.isf
+        return activityContrib * SETTINGS.isf
     }
-    
+
     updateGraph() {
         if (this.chart) {
             this.chart.updateInsulin(this);
@@ -311,7 +313,7 @@ class Meal extends Factor {
         if (minutes < 0 | minutes > this.type.DURATION) {
             return bg
         } else {
-            return bg + this.getActivity(minutes)/SETTINGS.zoom
+            return bg + this.getActivity(minutes) / SETTINGS.zoom
         }
     }
     getName() {
@@ -335,16 +337,16 @@ class Meal extends Factor {
             return 0;
         }
         let minsAgo = time - this.type.ONSET;
-        let insulin = this.amount ;//*SETTINGS.zoom;
+        let insulin = this.amount;//*SETTINGS.zoom;
 
         let tau = peak * (1 - peak / end) / (1 - 2 * peak / end);  // time constant of exponential decay
         let a = 2 * tau / end;                                     // rise time factor
         let S = 1 / (1 - a + (1 + a) * Math.exp(-end / tau));      // auxiliary scale factor
 
         var activityContrib = insulin * (S / Math.pow(tau, 2)) * minsAgo * (1 - minsAgo / end) * Math.exp(-minsAgo / tau);
-        return activityContrib*SETTINGS.isf
+        return activityContrib * SETTINGS.isf
     }
-updateGraph() {
+    updateGraph() {
         if (this.chart) {
             this.chart.updateMeal(this);
         }
@@ -369,10 +371,10 @@ function wrap(text, width) {
             y = text.attr("y"),
             dy = 0, //parseFloat(text.attr("dy")),
             tspan = text.text(null)
-                        .append("tspan")
-                        .attr("x", x)
-                        .attr("y", y)
-                        .attr("dy", dy + "em");
+                .append("tspan")
+                .attr("x", x)
+                .attr("y", y)
+                .attr("dy", dy + "em");
         while (word = words.pop()) {
             line.push(word);
             tspan.text(line.join(" "));
@@ -381,10 +383,10 @@ function wrap(text, width) {
                 tspan.text(line.join(" "));
                 line = [word];
                 tspan = text.append("tspan")
-                            .attr("x", x)
-                            .attr("y", y)
-                            .attr("dy", ++lineNumber * lineHeight + dy + "em")
-                            .text(word);
+                    .attr("x", x)
+                    .attr("y", y)
+                    .attr("dy", ++lineNumber * lineHeight + dy + "em")
+                    .text(word);
             }
         }
     });
@@ -406,16 +408,16 @@ class Chart {
         this.width = this.svg.attr("width") - this.margin.left - this.margin.right;
         this.height = this.svg.attr("height") - this.margin.top - this.margin.bottom;
         this.targetRange = targetRange;
-    
+
         this.x = d3.scaleTime().range([0, this.width]).clamp(true);
         this.y = d3.scaleLinear().domain([0, 300])
             .rangeRound([this.height, 0]).clamp(true);
         this.y.domain([0, 300]);
         this.x.domain(timeRange);
-    
+
         this.drawBase(this.svg);
         this.drawToolTip(this.svg);
-        }
+    }
 
     drawToolTip(svg, hoverObj) {
         let tooltip = svg.append("g");
@@ -446,7 +448,7 @@ class Chart {
             .call(wrap, 250);
     }
 
-    drawTargetRange(range=this.targetRange) {
+    drawTargetRange(range = this.targetRange) {
         let targetRangeGroup = this.graphArea.append('g').attr("class", "range");
         let rect = {
             x1: 0,
@@ -506,7 +508,7 @@ class Chart {
         this.graphArea.append('g')
             .attr('class', 'axis axis--y')
             .call(yAxis);
-    }  
+    }
 
 
     drawBG(bg) {
@@ -547,9 +549,9 @@ class Chart {
             .attr("fill", "#41FF8E")
             .attr("fill-opacity", "0.5")
             .attr("stroke", "#41948E") // insulin curve color
-            .attr("stroke-width", 5); // size(stroke) of the insulin curve
-            //.call(d3.drag()
-            //    .on('drag', (d, a, b, factor = meal) => { this.dragX(d, factor); }));
+            .attr("stroke-width", 5) // size(stroke) of the insulin curve
+            .call(d3.drag()
+                .on('drag', (d, a, b, factor = meal) => { this.dragX(d, factor); }));
         if (meal.type.NAME === "SIMPLE CARB") {
             this.drawMarker(g, meal.getName(), meal, "I am simple carb");
         } else {
@@ -565,7 +567,7 @@ class Chart {
     removeMeal(meal) {
         this.graphArea.selectAll(".meal" + meal.getUUID()).remove();
     }
-    drawMarker(g, name, factor, toolTipText="fix me") {
+    drawMarker(g, name, factor, toolTipText = "fix me") {
         // text
         g.append("text")
             .attr("class", "range") // use to style in stylesheet
@@ -575,8 +577,8 @@ class Chart {
         let handle = factor.getYHandle()
 
         let draggable_eclipse = g.append("svg")
-            //.attr("fill", "none");
-            
+        //.attr("fill", "none");
+
 
         draggable_eclipse.append("ellipse")
             .style("fill", "#285C58")
@@ -585,21 +587,21 @@ class Chart {
             .attr("rx", 13)
             .attr("ry", 15)
             .style('cursor', 'pointer')
-            .on("mouseover", function(d, i) {
+            .on("mouseover", function (d, i) {
                 d3.select("#tooltip-text")
                     .text(toolTipText)
                     .call(wrap, 270);;
             })
-            .on("mouseout", function(d, i) {
+            .on("mouseout", function (d, i) {
                 d3.select("#tooltip-text")
                     .text("Please hover over \"!\" and other points of interest for more information")
                     .call(wrap, 270);;
             })
             .call(d3.drag()
-                .on('drag', 
-                (d, a, b, factor_param = factor) => { 
-                    this.dragY(d, factor_param); 
-                }));
+                .on('drag',
+                    (d, a, b, factor_param = factor) => {
+                        this.dragY(d, factor_param);
+                    }));
         /*draggable_eclipse.append("path")
                 .attr("d", "M12.5303 2.46967C12.2374 2.17678 11.7626 2.17678 11.4697 2.46967L6.6967 7.24264C6.40381 7.53553 6.40381 8.01041 6.6967 8.3033C6.98959 8.59619 7.46447 8.59619 7.75736 8.3033L12 4.06066L16.2426 8.3033C16.5355 8.59619 17.0104 8.59619 17.3033 8.3033C17.5962 8.01041 17.5962 7.53553 17.3033 7.24264L12.5303 2.46967ZM12.75 12L12.75 3L11.25 3L11.25 12L12.75 12Z")
                 ;
@@ -632,7 +634,7 @@ class Chart {
         g.select("ellipse") // TODO: Replace w/ SVG of draggable
             .attr("cx", this.x(handle.x))
             .attr("cy", this.y(handle.y))
-      
+
     }
 
     drawInsulin(insulin) {
@@ -672,14 +674,14 @@ class Chart {
     removeInsulin(insulin) {
         this.graphArea.selectAll(".meal" + insulin.getUUID()).remove();
     }
-    /*dragX(d, factor) {
+    dragX(d, factor) {
         let old_time = factor.getTime()
         let new_time = this.x.invert(this.x(old_time) + d3.event.dx);
         factor.setTime(new_time);
         if (this.bg) {
             this.updateBG(this.bg);
         }
-    }*/
+    }
     dragY(d, factor) {
         let old_amount = factor.getAmount()
         let new_amount = this.y.invert(this.y(old_amount) + d3.event.dy);

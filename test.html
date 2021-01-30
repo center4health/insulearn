@@ -208,7 +208,7 @@
 
   bg.addFactor(insulin_bolus);
 
-  let meal = new Meal(90, timeParse("16:42:00"))
+  let meal = new Meal(90, timeParse("16:42:00"), MEAL_COMPONENTS.SIMPLE_CARB)
   bg.addFactor(meal);
 
   let chart = new Chart("svg", bg.getTimeRange())
