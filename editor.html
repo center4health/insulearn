@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Diabetes Educational Tool</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="style.css">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+    rel="stylesheet">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+
+
+<body>
+
+  <!--Fixed Navigation Bar-->
+  <nav class="navbar navbar-default navbar-fixed-top" id="header">
+    <div class="container-fluid">
+      <!-- Brand and toggle get grouped for better mobile display -->
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+          data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="index.html"><b>InsuLearn</b></a>
+      </div>
+
+      <!-- Links to home, interactive graphs, terminology, and about -->
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="index.html">Home</a></li>
+          <li class="active"><a href="#">Interactive Graphs</a></li>
+          <li><a href="terminology.html">Learn More</a></li>
+          <li><a href="about.html">About</a></li>
+        </ul>
+      </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+  </nav>
+
+  <div class="container">
+    <a href="index.html" style="color: #9B9B9B"><img src="img/back_arrow.png" style="width: 25px"> Back to
+      Main Menu</a>
+    <center>
+
+      <h3 style="text-align: left"><b>Graph Editor</b></h3>
+      <p style="text-align: left">Choose a starting graph</p>
+
+      <div class="row">
+        <div class="col-sm-8">
+          <svg width="750" height="525"></svg>
+
+
+        </div>
+        <div class="col-sm-1">
+          <button data-toggle="modal" data-target="#insulin_add" type="button" class="btn btn-secondary">Add
+            Insulin</button>
+          <button data-toggle="modal" data-target="#simple_add" type="button" class="btn btn-primary">Add Simple
+            Carb</button>
+          <button data-toggle="modal" data-target="#complex_add" type="button" class="btn btn-primary">Add Complex
+            Carb</button>
+        </div>
+      </div>
+
+
+      <!-- <div class="row">
+        <div class="col-sm-2">
+          <p id="selectedTime">Time (hr): 5:00 PM</p>
+        </div>
+        <div class="col-sm-10">
+          <p id="bolus_meal_time">15 min after meal</p>
+          <input type="range" name="bolus_time" id=bolus_time min="-150" max="120" value="0"
+            style="width: 600px"></input>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-2">
+          <p style="padding-top: 10px">Dose (U)</p>
+        </div>
+        <div class="col-sm-10">
+          <input type="range" name="insulin_amt" id=insulin_amt min="0" max="30" value="10"
+            style="width: 600px"></input>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-2">
+          <p style="padding-top: 10px">Meal time</p>
+        </div>
+        <div class="col-sm-10">
+          <input type="range" name="meal_time" id=meal_time min="-150" max="120" value="0" style="width: 600px"></input>
+        </div>
+      </div> -->
+
+    </center>
+  </div>
+
+  <!-- Modal pop-ups -->
+  <div class="modal" tabindex="-1" id="insulin_add" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Add Insulin</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+
+          <p>Bolus time</p>
+          <form>
+            <div class="form-group">
+              <label for="strokeColor">Stroke Color</label>
+              <input id="strokeColor" type="color" value="#ff0000">
+            </div>
+            <div class="form-group">
+              <label for="fillColor">Stroke Color</label>
+              <input id="fillColor" type="color" value="#944141">
+            </div>
+            <div class="form-group">
+              <input type="range" name="bolus_time" id=bolus_time min="-150" max="120" value="0"
+                style="width: 600px"></input>
+            </div>
+          </form>
+
+        </div>
+        <div class="modal-footer">
+          <button id="insulin" type="button" class="btn btn-primary" data-dismiss="modal">Add Insulin</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" tabindex="-1" id="simple_add" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Add Carbohydrates</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>Modal body text goes here.</p>
+        </div>
+        <div class="modal-footer">
+          <button id="simple" type="button" class="btn btn-primary" data-dismiss="modal">Save changes</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" tabindex="-1" id="complex_add" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Modal title</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>Modal body text goes here.</p>
+        </div>
+        <div class="modal-footer">
+          <button id="complex" type="button" class="btn btn-primary" data-dismiss="modal">Save changes</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+</body>
+
+<script src="https://d3js.org/d3.v5.min.js"></script>
+<script src="dwn.js"></script>
+<script>
+  "use strict";
+
+
+
+
+  let show = 0;
+  let selectVal = 0;
+
+  let timeParse = d3.timeParse("%H:%M:%S")
+  let bg = new Glucose(timeParse("12:00:00"), timeParse("24:00:00"))
+  let chart = new Chart("svg", bg.getTimeRange())
+  chart.drawBG(bg);
+
+  $('#insulin').on('click', function () {
+    let insulin_bolus = new Insulin(100, timeParse("17:00:00"), INSULIN_TYPE.RAPID);
+    bg.addFactor(insulin_bolus);
+
+    chart.drawInsulin(insulin_bolus, $('#strokeColor').val(), $('#fillColor').val())
+    chart.drawBG(bg);
+  });
+
+  $('#simple').on('click', function () {
+    let meal = new Meal(30, timeParse("16:42:00"), MEAL_COMPONENTS.SIMPLE_CARB)
+    bg.addFactor(meal);
+    chart.drawMeal(meal)
+    chart.drawBG(bg);
+  });
+
+  $('#complex').on('click', function () {
+    let meal = new Meal(90, timeParse("16:42:00"), MEAL_COMPONENTS.COMPLEX_CARB)
+    bg.addFactor(meal);
+    chart.drawMeal(meal)
+    chart.drawBG(bg);
+  });
+
+  // function to add shadow to the navbar
+  $(window).scroll(function () {
+    var scroll = $(window).scrollTop();
+    if (scroll > 0) {
+      $("#header").addClass("active");
+    }
+    else {
+      $("#header").removeClass("active");
+    }
+  });
+
+  // tooltips
+  $(function () { $('[data-toggle="tooltip"]').tooltip() })
+
+  $('#back').on('click', function () { window.location = 'graphs-menu.html'; });
+  $('#reset').on('click', function () { window.location = 'prebolus.html'; });
+  $('#next').on('click', function () { $('#intro').modal('hide'); });
+</script>
+
+</html>

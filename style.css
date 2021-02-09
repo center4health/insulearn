@@ -227,3 +227,97 @@ body > #header{position:fixed;}
   input[type=range]:focus::-ms-fill-upper {
     background: #41948E;
   }
+
+  .popup {
+    display: none;
+    background-color: white;
+    position: absolute;
+    top: 320px;
+    z-index: 0.5;
+    width: 25%;
+    left: 37%;
+    border-style: solid;
+    border-width: 10px;
+    border-top: hidden;
+    border-right: hidden;
+    border-left: hidden;
+    -webkit-box-shadow: 2px 2px 10px 0px rgba(209, 209, 209, 1);
+    -moz-box-shadow: 2px 2px 10px 0px rgba(209, 209, 209, 1);
+    -o-box-shadow: 2px 2px 10px 0px rgba(209, 209, 209, 1);
+    box-shadow: 2px 2px 10px 0px rgba(209, 209, 209, 1);
+    border-radius: 5px;
+    padding: 20px;
+  }
+
+  .example-open .modal-backdrop {
+    background-color: black;
+    /* adds overlay to beginning pop-up */
+  }
+
+  .modal-backdrop {
+    background-color: transparent;
+    /* removes overlay from popup */
+  }
+
+  .modal-content {
+    /* shadow for the modal */
+    -webkit-box-shadow: 2px 2px 10px 0px rgba(209, 209, 209, 1);
+    -moz-box-shadow: 2px 2px 10px 0px rgba(209, 209, 209, 1);
+    -o-box-shadow: 2px 2px 10px 0px rgba(209, 209, 209, 1);
+    box-shadow: 2px 2px 10px 0px rgba(209, 209, 209, 1);
+    border: white 0px;
+  }
+
+  #target {
+    position: absolute;
+    width: 300px;
+    top: 615px;
+    left: 765px;
+    z-index: 10;
+    border-bottom: hidden;
+  }
+
+  #intro,
+  #scenario {
+    position: absolute;
+    top: 25%
+  }
+
+  /* #reset {
+      position: absolute;
+      top: 250px;
+      right: 350px;
+    } */
+
+  .tooltip-inner {
+    background-color: white;
+    font-family: 'Montserrat', sans-serif;
+    color: black;
+    font-size: 16px;
+    padding: 20px;
+    -webkit-box-shadow: 2px 2px 10px 0px rgba(209, 209, 209, 1);
+    -moz-box-shadow: 2px 2px 10px 0px rgba(209, 209, 209, 1);
+    -o-box-shadow: 2px 2px 10px 0px rgba(209, 209, 209, 1);
+    box-shadow: 2px 2px 10px 0px rgba(209, 209, 209, 1);
+    border: white 0px;
+    max-width: 300px;
+    text-align: left;
+  }
+
+  .tooltip.in {
+    opacity: 1; /* solid background for tooltip */
+  }
+
+  #timeNum {
+    font-size: 24px;
+    color: #41948E;
+  }
+
+  #bolus_meal_time {
+    font-size: 12px;
+    margin-top: -15px;
+    margin-bottom: -5px;
+    padding-left: 125px;
+    margin-left: -100px;
+    margin-right: -100px;
+  }

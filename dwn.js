@@ -26,7 +26,7 @@ const MEAL_COMPONENTS = {
 }
 
 /**
- * Glucose class. Represents the glucose data for a defined tiemspan
+ * Glucose class. Represents the glucose data for a defined timespan
  *
  * @constructor
  * @param {Number} dose         - The amount of Insulin in Units
@@ -219,9 +219,6 @@ class Factor {
         return { x: peak, y: this.getActivity(this.type.PEAK) }
     }
 }
-
-
-
 
 
 /**
@@ -422,7 +419,7 @@ class Chart {
     drawToolTip(svg, hoverObj) {
         let tooltip = svg.append("g");
         let rectData = {
-            height: 150,
+            height: 100,
             width: 300,
             x: 380,
             y: 10,
@@ -440,7 +437,7 @@ class Chart {
             .attr("rx", rectData.rx);
 
         // Text
-        tooltip.append("text").text("Please hover over \"!\" and other points of interest for more information")
+        tooltip.append("text").text("You can display information here")
             .attr("x", rectData.x + 30)
             .attr("y", rectData.y + 30)
             .attr("visibility", "visible")
@@ -592,11 +589,6 @@ class Chart {
                     .text(toolTipText)
                     .call(wrap, 270);;
             })
-            .on("mouseout", function (d, i) {
-                d3.select("#tooltip-text")
-                    .text("Please hover over \"!\" and other points of interest for more information")
-                    .call(wrap, 270);;
-            })
             .call(d3.drag()
                 .on('drag',
                     (d, a, b, factor_param = factor) => {
@@ -637,7 +629,7 @@ class Chart {
 
     }
 
-    drawInsulin(insulin) {
+    drawInsulin(insulin, stroke_color="#944141", fill_color="#944141") {
         insulin.setChart(this);
         this.graphArea.selectAll(".insulin" + insulin.getUUID()).remove();
         let g = this.graphArea.append("g").attr("class", "insulin" + insulin.getUUID());
@@ -645,9 +637,9 @@ class Chart {
         // insulin curve
         g.append("path")
             .datum(insulin.getShape())
-            .attr("fill", "#944141")
+            .attr("fill", fill_color)
             .attr("fill-opacity", "0.5")
-            .attr("stroke", "#944141") // insulin curve color
+            .attr("stroke", stroke_color) // insulin curve color
             .attr("stroke-width", 5) // size(stroke) of the insulin curve
             .call(d3.drag()
                 .on('drag', (d, a, b, factor = insulin) => { this.dragX(d, factor); }));
@@ -704,7 +696,3 @@ function uuidv4() {
     });
 }
 
-// TODO
-// ToolTip on top
-// SVG buttons at the bottom to remove and add the meals
-// 
