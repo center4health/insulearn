@@ -26,31 +26,35 @@ const MEAL_COMPONENTS = {
 }
 
 /**
- * Glucose class. Represents the glucose data for a defined timespan
+ * Model class. Represents the glucose and carb data for a defined timespan
  *
  * @constructor
  * @param {Number} dose         - The amount of Insulin in Units
  * @param {Number} bolus_time   - The time of the bolus in minutes
  * @param {INSULIN_TYPE} type      - The type of insulin
  */
-class Glucose {
+class Model {
     factors = [];
-    base = [];
+    bgbase = [];
+    carbbase = [];
     constructor(from, to) {
         this.start;
         this.factors = [];
         this.sampling = 5
         d3.timeMinutes(from, to, this.sampling).forEach(x_val => {
-            this.base.push({ "x": x_val, "y": 100 })
+            this.bgbase.push({ "x": x_val, "y": 100 })
+        });
+        d3.timeMinutes(from, to, this.sampling).forEach(x_val => {
+            this.carbbase.push({ "x": x_val, "y": 0 })
         });
     }
     loadJSON(json_object, sampling) {
-        this.base = [];
+        this.bgbase = [];
         this.sampling = 5;
         let timeParse = d3.timeParse("%H:%M:%S")
 
         json_object.forEach(d => {
-            this.base.push({ "x": timeParse(d[0]), "y": d[1] });
+            this.bgbase.push({ "x": timeParse(d[0]), "y": d[1] });
         })
     }
     addFactor(factor) {
@@ -62,16 +66,42 @@ class Glucose {
             return !(included === factor);
         });
     }
+    /*
+    * Returns the current carb curve for all carbs added before this one
+    * 
+    */
+    getCarb(curr_meal=None) {
+        let result = deep_copy(this.carbbase);
+        let last_change = 0
+        for (let i = 0; i < result.length; i++) {
+            if (i > 0) {
+                last_change = this.carbbase[i].y - this.carbbase[i - 1].y;
+                result[i].y = result[i - 1].y + last_change;
+
+            }
+            this.factors.forEach(factor => {
+                if (factor instanceof Meal) {
+                    result[i].y = factor.apply(result[i].y, result[i].x);
+                    //stop if we added this meal
+                    if (factor === curr_meal) {
+                        return result;
+                    }
+                }
+            });
+
+        }
+        return result;
+    }
 
     /*
     * Returns the current bg curve
     */
-    getShape() {
-        let result = deep_copy(this.base);
+    getBG() {
+        let result = deep_copy(this.bgbase);
         let last_change = 0
         for (let i = 0; i < result.length; i++) {
             if (i > 0) {
-                last_change = this.base[i].y - this.base[i - 1].y;
+                last_change = this.bgbase[i].y - this.bgbase[i - 1].y;
                 result[i].y = result[i - 1].y + last_change;
 
             }
@@ -94,7 +124,7 @@ class Glucose {
         return Math.round(inrange / bg_data.length * 100);
     }
     getTimeRange() {
-        return d3.extent(this.base, function (d) { return d.x; });
+        return d3.extent(this.bgbase, function (d) { return d.x; });
     }
     setChart(chart) {
         this.chart = chart;
@@ -399,6 +429,7 @@ function wrap(text, width) {
  */
 class Chart {
     margin = { top: 20, right: 20, bottom: 30, left: 50 };
+    
     constructor(svg, timeRange, targetRange = [70, 180]) {
         this.svg = d3.select(svg); //select target
 
@@ -407,7 +438,7 @@ class Chart {
         this.targetRange = targetRange;
 
         this.x = d3.scaleTime().range([0, this.width]).clamp(true);
-        this.y = d3.scaleLinear().domain([0, 300])
+        this.y = d3.scaleLinear().domain([0, 400])
             .rangeRound([this.height, 0]).clamp(true);
         this.y.domain([0, 300]);
         this.x.domain(timeRange);
@@ -516,7 +547,7 @@ class Chart {
 
         // BG graph
         g.selectAll('circle')
-            .data(bg.getShape())
+            .data(bg.getBG())
             .enter()
             .append('circle')
             .attr('r', 3.0)
@@ -527,7 +558,7 @@ class Chart {
 
     updateBG(bg) {
         this.graphArea.select(".bg_curve").selectAll('circle')
-            .data(bg.getShape())
+            .data(bg.getBG())
             .attr('cx', (d) => { return this.x(d.x); })
             .attr('cy', (d) => { return this.y(d.y); });
     }
@@ -540,20 +571,18 @@ class Chart {
         this.removeMeal(meal); //clean up
 
         let g = this.graphArea.append("g").attr("class", "meal" + meal.getUUID());
+
         g.append("path")
-            .datum(meal.getShape())
-            .attr("class", "curve")
+            .data(meal.getShape())
+            .attr("class", "area")
             .attr("fill", "#41FF8E")
             .attr("fill-opacity", "0.5")
             .attr("stroke", "#41948E") // insulin curve color
             .attr("stroke-width", 5) // size(stroke) of the insulin curve
             .call(d3.drag()
                 .on('drag', (d, a, b, factor = meal) => { this.dragX(d, factor); }));
-        if (meal.type.NAME === "SIMPLE CARB") {
-            this.drawMarker(g, meal.getName(), meal, "I am simple carb");
-        } else {
-            this.drawMarker(g, meal.getName(), meal, "I am complex carb");
-        }
+        
+        this.drawMarker(g, "Meal", meal, "I am a meal");
         this.updateMeal(meal);
     }
     updateMeal(meal) {
@@ -565,10 +594,22 @@ class Chart {
         this.graphArea.selectAll(".meal" + meal.getUUID()).remove();
     }
     drawMarker(g, name, factor, toolTipText = "fix me") {
+
+        //  vertical line
+        g.append('line')
+            .style("stroke", "#C4c4c4") // color of meal line
+            .style("stroke-dasharray", ("3, 5"))
+            .style("stroke-width", 2);
+        // point
+        g.append("circle")
+            .attr("r", 5)
+            .style("fill", "black");
         // text
         g.append("text")
             .attr("class", "range") // use to style in stylesheet
             .text(name);
+
+       
 
         //yhandle
         let handle = factor.getYHandle()
@@ -629,7 +670,7 @@ class Chart {
 
     }
 
-    drawInsulin(insulin, stroke_color="#944141", fill_color="#944141") {
+    drawInsulin(insulin, stroke_color = "#944141", fill_color = "#944141") {
         insulin.setChart(this);
         this.graphArea.selectAll(".insulin" + insulin.getUUID()).remove();
         let g = this.graphArea.append("g").attr("class", "insulin" + insulin.getUUID());
@@ -644,17 +685,22 @@ class Chart {
             .call(d3.drag()
                 .on('drag', (d, a, b, factor = insulin) => { this.dragX(d, factor); }));
 
-        this.drawMarker(g, "", insulin, "I am insulin");
+        this.drawMarker(g, "Bolus", insulin, "I am insulin");
 
         this.updateInsulin(insulin);
     }
     updateCurve(g, factor) {
         g.selectAll("path")
             .datum(factor.getShape())
-            .attr("d", d3.line()
-                .x((d) => { return this.x(d.x) })
-                .y((d) => { return this.y(d.y) })
-            );
+            .attr("d",  d3.area()
+                .x((d) =>{ return this.x(d.x); })
+                .y0((d) =>{ return this.y(d.y+10);} )
+                .y1((d) =>{ return this.y(d.y); })
+                );
+            // .attr("d", d3.line()
+            //     .x((d) => { return this.x(d.x) })
+            //     .y((d) => { return this.y(d.y) })
+            // );
 
     }
     updateInsulin(insulin) {

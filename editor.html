@@ -185,14 +185,11 @@
 <script>
   "use strict";
 
-
-
-
   let show = 0;
   let selectVal = 0;
 
   let timeParse = d3.timeParse("%H:%M:%S")
-  let bg = new Glucose(timeParse("12:00:00"), timeParse("24:00:00"))
+  let bg = new Model(timeParse("12:00:00"), timeParse("24:00:00"))
   let chart = new Chart("svg", bg.getTimeRange())
   chart.drawBG(bg);
 
