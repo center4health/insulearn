@@ -36,7 +36,7 @@ const MEAL_COMPONENTS = {
 class Model {
     factors = [];
     bgbase = [];
-    carbbase = [];
+    zero_base = [];
     constructor(from, to) {
         this.start;
         this.factors = [];
@@ -45,7 +45,7 @@ class Model {
             this.bgbase.push({ "x": x_val, "y": 100 })
         });
         d3.timeMinutes(from, to, this.sampling).forEach(x_val => {
-            this.carbbase.push({ "x": x_val, "y": 0 })
+            this.zero_base.push({ "x": x_val, "y0": 0, "y1": 0 })
         });
     }
     loadJSON(json_object, sampling) {
@@ -70,27 +70,55 @@ class Model {
     * Returns the current carb curve for all carbs added before this one
     * 
     */
-    getCarb(curr_meal=None) {
-        let result = deep_copy(this.carbbase);
-        let last_change = 0
+    getShapeOf(curr_factor = None) {
+        let result = deep_copy(this.zero_base);
         for (let i = 0; i < result.length; i++) {
-            if (i > 0) {
-                last_change = this.carbbase[i].y - this.carbbase[i - 1].y;
-                result[i].y = result[i - 1].y + last_change;
-
-            }
             this.factors.forEach(factor => {
-                if (factor instanceof Meal) {
-                    result[i].y = factor.apply(result[i].y, result[i].x);
+                if (curr_factor.constructor === factor.constructor) {
                     //stop if we added this meal
-                    if (factor === curr_meal) {
+                    if (factor === curr_factor) {
+                        result[i].y1 = result[i].y0 + factor.getActivityAt(result[i].x);
                         return result;
+                    } else {
+                        result[i].y0 = result[i].y0 + factor.getActivityAt(result[i].x);
                     }
                 }
             });
 
         }
         return result;
+    }
+    getDependentFactors(curr_factor) {
+        let dependent = [];
+        var found = false;
+        this.factors.forEach(factor => {
+            if (curr_factor.constructor === factor.constructor) {
+                if (found) {
+                    dependent.push(factor);
+                }
+                if (curr_factor === factor) {
+                    found = true;
+                }
+            }
+        });
+        return dependent;
+    }
+
+    getYHandleOf(curr_factor) {
+        let x_val = curr_factor.getYHandleTime();
+        let y_val = 0;
+        this.factors.forEach(factor => {
+            if (curr_factor.constructor === factor.constructor) {
+                //stop if we added this meal
+                if (factor === curr_factor) {
+                    y_val = y_val + factor.getActivityAt(x_val);
+                    return { x: x_val, y: y_val }
+                } else {
+                    y_val = y_val + factor.getActivityAt(x_val);
+                }
+            }
+        });
+        return { x: x_val, y: y_val };
     }
 
     /*
@@ -148,16 +176,30 @@ class Factor {
         this.type = type;
     }
     /**
-   * returns activity curve at a point in time
-   * @param {Number} sampling - Sampling interval for the curve in minutes
-   * @return {Array} - 2-dimensional array with timestamps and values
-   **/
-    getShape(sampling = 5) {
-        let curve = [];
-        for (let min = 0; min < this.type.DURATION; min += sampling) {
-            curve.push({ x: d3.timeMinute.offset(this.time, min), y: this.getActivity(min) });
+     * returns activity curve at a point in time
+     * @param {Number} sampling - Sampling interval for the curve in minutes
+     * @return {Array} - 2-dimensional array with timestamps and values
+     **/
+    // getShape(sampling = 5) {
+    //     let curve = [];
+    //     for (let min = 0; min < this.type.DURATION; min += sampling) {
+    //         curve.push({ x: d3.timeMinute.offset(this.time, min), y: this.getActivity(min) });
+    //     }
+    //     return curve;
+    // }
+
+    /**
+     * returns activity at a point in time
+     * @param {Object} time - absolute time on the graph 
+     * @return {Number} - value of activity at tht point
+     **/
+    getActivityAt(time) {
+        let minutes = (time - this.time) / (60 * 1000);
+        if ((minutes < 0) | minutes > this.type.DURATION) {
+            return 0
+        } else {
+            return this.getActivity(minutes)
         }
-        return curve;
     }
 
     /**
@@ -244,9 +286,8 @@ class Factor {
     setChart(chart) {
         this.chart = chart
     }
-    getYHandle() {
-        let peak = d3.timeMinute.offset(this.time, this.type.PEAK)
-        return { x: peak, y: this.getActivity(this.type.PEAK) }
+    getYHandleTime() {
+        return d3.timeMinute.offset(this.time, this.type.PEAK)
     }
 }
 
@@ -309,7 +350,7 @@ class Insulin extends Factor {
 
     updateGraph() {
         if (this.chart) {
-            this.chart.updateInsulin(this);
+            this.chart.updateFactor(this);
         }
     }
 }
@@ -375,7 +416,7 @@ class Meal extends Factor {
     }
     updateGraph() {
         if (this.chart) {
-            this.chart.updateMeal(this);
+            this.chart.updateFactor(this);
         }
     }
 }
@@ -429,19 +470,19 @@ function wrap(text, width) {
  */
 class Chart {
     margin = { top: 20, right: 20, bottom: 30, left: 50 };
-    
-    constructor(svg, timeRange, targetRange = [70, 180]) {
-        this.svg = d3.select(svg); //select target
 
+    constructor(svg, model, targetRange = [70, 180]) {
+        this.svg = d3.select(svg); //select target
+        this.model = model;
         this.width = this.svg.attr("width") - this.margin.left - this.margin.right;
         this.height = this.svg.attr("height") - this.margin.top - this.margin.bottom;
-        this.targetRange = targetRange;
+        this.targetRange = model.getTimeRange();
 
         this.x = d3.scaleTime().range([0, this.width]).clamp(true);
         this.y = d3.scaleLinear().domain([0, 400])
             .rangeRound([this.height, 0]).clamp(true);
-        this.y.domain([0, 300]);
-        this.x.domain(timeRange);
+        this.y.domain([0, 400]);
+        this.x.domain(this.targetRange);
 
         this.drawBase(this.svg);
         this.drawToolTip(this.svg);
@@ -568,31 +609,29 @@ class Chart {
 
     drawMeal(meal) {
         meal.setChart(this);
-        this.removeMeal(meal); //clean up
+        this.removeFactor(meal); //clean up
 
-        let g = this.graphArea.append("g").attr("class", "meal" + meal.getUUID());
+        let g = this.graphArea.append("g").attr("class", "curve" + meal.getUUID());
 
         g.append("path")
-            .data(meal.getShape())
+            .data(this.model.getShapeOf(meal))
             .attr("class", "area")
             .attr("fill", "#41FF8E")
             .attr("fill-opacity", "0.5")
             .attr("stroke", "#41948E") // insulin curve color
-            .attr("stroke-width", 5) // size(stroke) of the insulin curve
+            .attr("stroke-width", 0) // size(stroke) of the insulin curve
             .call(d3.drag()
                 .on('drag', (d, a, b, factor = meal) => { this.dragX(d, factor); }));
-        
+
         this.drawMarker(g, "Meal", meal, "I am a meal");
-        this.updateMeal(meal);
+        this.updateFactor(meal);
     }
-    updateMeal(meal) {
-        let g = this.graphArea.selectAll(".meal" + meal.getUUID())
-        this.updateCurve(g, meal);
-        this.updateMarker(g, meal);
-    }
-    removeMeal(meal) {
-        this.graphArea.selectAll(".meal" + meal.getUUID()).remove();
-    }
+    // updateMeal(meal) {
+    //     let g = this.graphArea.selectAll(".curve" + meal.getUUID())
+    //     this.updateCurve(g, meal);
+    //     this.updateMarker(g, meal);
+    // }
+
     drawMarker(g, name, factor, toolTipText = "fix me") {
 
         //  vertical line
@@ -609,10 +648,8 @@ class Chart {
             .attr("class", "range") // use to style in stylesheet
             .text(name);
 
-       
-
         //yhandle
-        let handle = factor.getYHandle()
+        let handle = this.model.getYHandleOf(factor);
 
         let draggable_eclipse = g.append("svg")
         //.attr("fill", "none");
@@ -635,14 +672,6 @@ class Chart {
                     (d, a, b, factor_param = factor) => {
                         this.dragY(d, factor_param);
                     }));
-        /*draggable_eclipse.append("path")
-                .attr("d", "M12.5303 2.46967C12.2374 2.17678 11.7626 2.17678 11.4697 2.46967L6.6967 7.24264C6.40381 7.53553 6.40381 8.01041 6.6967 8.3033C6.98959 8.59619 7.46447 8.59619 7.75736 8.3033L12 4.06066L16.2426 8.3033C16.5355 8.59619 17.0104 8.59619 17.3033 8.3033C17.5962 8.01041 17.5962 7.53553 17.3033 7.24264L12.5303 2.46967ZM12.75 12L12.75 3L11.25 3L11.25 12L12.75 12Z")
-                ;
-        draggable_eclipse.append("path")
-                .attr("d", "M11.4687 20.5293C11.761 20.8227 12.2359 20.8237 12.5294 20.5313L17.3115 15.7675C17.6049 15.4752 17.6058 15.0003 17.3135 14.7068C17.0212 14.4134 16.5463 14.4125 16.2528 14.7048L12.0021 18.9393L7.76758 14.6886C7.47524 14.3951 7.00037 14.3942 6.70692 14.6865C6.41346 14.9789 6.41255 15.4537 6.70489 15.7472L11.4687 20.5293ZM11.2711 8.99856L11.2501 19.9985L12.7501 20.0014L12.7711 9.00144L11.2711 8.99856Z");
-                //.attr("fill", "black");*/
-
-
 
     }
     updateMarker(g, factor) {
@@ -663,7 +692,7 @@ class Chart {
             .attr("x", this.x(factor.getTime()))
             .attr("y", this.y(5));
         //handle
-        let handle = factor.getYHandle()
+        let handle = this.model.getYHandleOf(factor);
         g.select("ellipse") // TODO: Replace w/ SVG of draggable
             .attr("cx", this.x(handle.x))
             .attr("cy", this.y(handle.y))
@@ -672,45 +701,47 @@ class Chart {
 
     drawInsulin(insulin, stroke_color = "#944141", fill_color = "#944141") {
         insulin.setChart(this);
-        this.graphArea.selectAll(".insulin" + insulin.getUUID()).remove();
-        let g = this.graphArea.append("g").attr("class", "insulin" + insulin.getUUID());
+        this.removeFactor(insulin);
+        //  this.graphArea.selectAll(".curve" + insulin.getUUID()).remove();
+        let g = this.graphArea.append("g").attr("class", "curve" + insulin.getUUID());
 
         // insulin curve
         g.append("path")
-            .datum(insulin.getShape())
+            .datum(this.model.getShapeOf(insulin))
             .attr("fill", fill_color)
             .attr("fill-opacity", "0.5")
             .attr("stroke", stroke_color) // insulin curve color
-            .attr("stroke-width", 5) // size(stroke) of the insulin curve
+            .attr("stroke-width", 0) // size(stroke) of the insulin curve
             .call(d3.drag()
                 .on('drag', (d, a, b, factor = insulin) => { this.dragX(d, factor); }));
 
         this.drawMarker(g, "Bolus", insulin, "I am insulin");
 
-        this.updateInsulin(insulin);
+        this.updateFactor(insulin);
     }
     updateCurve(g, factor) {
         g.selectAll("path")
-            .datum(factor.getShape())
-            .attr("d",  d3.area()
-                .x((d) =>{ return this.x(d.x); })
-                .y0((d) =>{ return this.y(d.y+10);} )
-                .y1((d) =>{ return this.y(d.y); })
-                );
-            // .attr("d", d3.line()
-            //     .x((d) => { return this.x(d.x) })
-            //     .y((d) => { return this.y(d.y) })
-            // );
+            .datum(this.model.getShapeOf(factor))
+            .attr("d", d3.area()
+                .x((d) => { return this.x(d.x); })
+                .y0((d) => { return this.y(d.y0); })
+                .y1((d) => { return this.y(d.y1); })
+            );
+
 
     }
-    updateInsulin(insulin) {
-        let g = this.graphArea.selectAll(".insulin" + insulin.getUUID());
-        this.updateCurve(g, insulin);
-        this.updateMarker(g, insulin);
+    updateFactor(factor) {
+        let g = this.graphArea.selectAll(".curve" + factor.getUUID());
+        this.updateCurve(g, factor);
+        this.updateMarker(g, factor);
 
+        //update all dependent graphs
+        this.model.getDependentFactors(factor).forEach(dep => {
+            this.updateFactor(dep);
+        });
     }
-    removeInsulin(insulin) {
-        this.graphArea.selectAll(".meal" + insulin.getUUID()).remove();
+    removeFactor(factor) {
+        this.graphArea.selectAll(".curve" + factor.getUUID()).remove();
     }
     dragX(d, factor) {
         let old_time = factor.getTime()

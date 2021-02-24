@@ -189,30 +189,30 @@
   let selectVal = 0;
 
   let timeParse = d3.timeParse("%H:%M:%S")
-  let bg = new Model(timeParse("12:00:00"), timeParse("24:00:00"))
-  let chart = new Chart("svg", bg.getTimeRange())
-  chart.drawBG(bg);
+  let model = new Model(timeParse("12:00:00"), timeParse("24:00:00"))
+  let chart = new Chart("svg", model)
+  chart.drawBG(model);
 
   $('#insulin').on('click', function () {
     let insulin_bolus = new Insulin(100, timeParse("17:00:00"), INSULIN_TYPE.RAPID);
-    bg.addFactor(insulin_bolus);
+    model.addFactor(insulin_bolus);
 
     chart.drawInsulin(insulin_bolus, $('#strokeColor').val(), $('#fillColor').val())
-    chart.drawBG(bg);
+    chart.drawBG(model);
   });
 
   $('#simple').on('click', function () {
     let meal = new Meal(30, timeParse("16:42:00"), MEAL_COMPONENTS.SIMPLE_CARB)
-    bg.addFactor(meal);
+    model.addFactor(meal);
     chart.drawMeal(meal)
-    chart.drawBG(bg);
+    chart.drawBG(model);
   });
 
   $('#complex').on('click', function () {
     let meal = new Meal(90, timeParse("16:42:00"), MEAL_COMPONENTS.COMPLEX_CARB)
-    bg.addFactor(meal);
+    model.addFactor(meal);
     chart.drawMeal(meal)
-    chart.drawBG(bg);
+    chart.drawBG(model);
   });
 
   // function to add shadow to the navbar
