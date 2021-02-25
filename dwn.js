@@ -73,17 +73,21 @@ class Model {
     getShapeOf(curr_factor = None) {
         let result = deep_copy(this.zero_base);
         for (let i = 0; i < result.length; i++) {
-            this.factors.forEach(factor => {
-                if (curr_factor.constructor === factor.constructor) {
-                    //stop if we added this meal
-                    if (factor === curr_factor) {
-                        result[i].y1 = result[i].y0 + factor.getActivityAt(result[i].x);
-                        return result;
-                    } else {
-                        result[i].y0 = result[i].y0 + factor.getActivityAt(result[i].x);
+            var searching = true;
+            for (let factor of this.factors) {
+                if (searching) {
+                    if (curr_factor.constructor === factor.constructor) {
+                        
+                        //stop if we added this meal
+                        if (factor === curr_factor) {
+                            result[i].y1 = result[i].y0 + factor.getActivityAt(result[i].x);
+                            searching = false;
+                        } else {
+                            result[i].y0 = result[i].y0 + factor.getActivityAt(result[i].x);
+                        }
                     }
                 }
-            });
+            }
 
         }
         return result;
@@ -614,7 +618,7 @@ class Chart {
         let g = this.graphArea.append("g").attr("class", "curve" + meal.getUUID());
 
         g.append("path")
-            .data(this.model.getShapeOf(meal))
+            .datum(this.model.getShapeOf(meal))
             .attr("class", "area")
             .attr("fill", "#41FF8E")
             .attr("fill-opacity", "0.5")
@@ -626,11 +630,6 @@ class Chart {
         this.drawMarker(g, "Meal", meal, "I am a meal");
         this.updateFactor(meal);
     }
-    // updateMeal(meal) {
-    //     let g = this.graphArea.selectAll(".curve" + meal.getUUID())
-    //     this.updateCurve(g, meal);
-    //     this.updateMarker(g, meal);
-    // }
 
     drawMarker(g, name, factor, toolTipText = "fix me") {
 
@@ -731,14 +730,17 @@ class Chart {
 
     }
     updateFactor(factor) {
+        //update this graph
         let g = this.graphArea.selectAll(".curve" + factor.getUUID());
         this.updateCurve(g, factor);
         this.updateMarker(g, factor);
 
-        //update all dependent graphs
-        this.model.getDependentFactors(factor).forEach(dep => {
+         //update all dependent graphs
+         this.model.getDependentFactors(factor).forEach(dep => {
             this.updateFactor(dep);
         });
+
+
     }
     removeFactor(factor) {
         this.graphArea.selectAll(".curve" + factor.getUUID()).remove();
