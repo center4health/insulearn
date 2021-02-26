@@ -189,8 +189,9 @@
   let selectVal = 0;
 
   let timeParse = d3.timeParse("%H:%M:%S")
-  let model = new Model(timeParse("12:00:00"), timeParse("24:00:00"))
-  let chart = new Chart("svg", model)
+  let model = new Model(timeParse("12:00:00"), timeParse("24:00:00"));
+  let chart = new Chart("svg", model);
+  chart.drawTargetRange([70,180]);
   chart.drawBG(model);
 
   $('#insulin').on('click', function () {

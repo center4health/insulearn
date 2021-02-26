@@ -77,7 +77,7 @@ class Model {
             for (let factor of this.factors) {
                 if (searching) {
                     if (curr_factor.constructor === factor.constructor) {
-                        
+
                         //stop if we added this meal
                         if (factor === curr_factor) {
                             result[i].y1 = result[i].y0 + factor.getActivityAt(result[i].x);
@@ -660,7 +660,8 @@ class Chart {
             .attr("cy", this.y(handle.y))
             .attr("rx", 13)
             .attr("ry", 15)
-            .style('cursor', 'pointer')
+            .style("fill", "url(#arrow)")
+           // .style('cursor', 'pointer')
             .on("mouseover", function (d, i) {
                 d3.select("#tooltip-text")
                     .text(toolTipText)
@@ -671,6 +672,19 @@ class Chart {
                     (d, a, b, factor_param = factor) => {
                         this.dragY(d, factor_param);
                     }));
+        draggable_eclipse.append("pattern")
+        .attr("id", "arrow")
+        .attr("class", "svg-image")
+        .attr("x", "0")
+        .attr("y", "0")
+        .attr("height", "1")
+        .attr("width", "1")
+        .append("svg:image")
+            .attr("x", "0")
+            .attr("y", "0")
+            .attr('width', 26)
+            .attr('height', 30)
+            .attr("xlink:href", "doublearrow.png")
 
     }
     updateMarker(g, factor) {
@@ -735,8 +749,8 @@ class Chart {
         this.updateCurve(g, factor);
         this.updateMarker(g, factor);
 
-         //update all dependent graphs
-         this.model.getDependentFactors(factor).forEach(dep => {
+        //update all dependent graphs
+        this.model.getDependentFactors(factor).forEach(dep => {
             this.updateFactor(dep);
         });
 
