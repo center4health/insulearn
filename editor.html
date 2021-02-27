@@ -50,7 +50,8 @@
     <center>
 
       <h3 style="text-align: left"><b>Graph Editor</b></h3>
-      <p style="text-align: left">Choose a starting graph</p>
+
+      
 
       <div class="row">
         <div class="col-sm-8">
@@ -68,34 +69,27 @@
         </div>
       </div>
 
-
       <!-- <div class="row">
-        <div class="col-sm-2">
-          <p id="selectedTime">Time (hr): 5:00 PM</p>
-        </div>
-        <div class="col-sm-10">
-          <p id="bolus_meal_time">15 min after meal</p>
-          <input type="range" name="bolus_time" id=bolus_time min="-150" max="120" value="0"
-            style="width: 600px"></input>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-sm-2">
-          <p style="padding-top: 10px">Dose (U)</p>
-        </div>
-        <div class="col-sm-10">
-          <input type="range" name="insulin_amt" id=insulin_amt min="0" max="30" value="10"
-            style="width: 600px"></input>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-sm-2">
-          <p style="padding-top: 10px">Meal time</p>
-        </div>
-        <div class="col-sm-10">
-          <input type="range" name="meal_time" id=meal_time min="-150" max="120" value="0" style="width: 600px"></input>
-        </div>
+        <p>Factor Details</p>
+        <form>
+          <div class="form-group">
+            <label for="strokeColor">Stroke Color</label>
+            <input id="strokeColor" type="color" value="#944141">
+          </div>
+          <div class="form-group">
+            <label for="fillColor">Stroke Color</label>
+            <input id="fillColor" type="color" value="#944141">
+          </div>
+          <div class="form-group">
+            <input type="range" name="bolus_time" id=bolus_time min="-150" max="120" value="0"
+              style="width: 600px"></input>
+          </div>
+        </form>
+
       </div> -->
+
+
+
 
     </center>
   </div>
@@ -191,9 +185,12 @@
   let timeParse = d3.timeParse("%H:%M:%S")
   let model = new Model(timeParse("12:00:00"), timeParse("24:00:00"));
   let chart = new Chart("svg", model);
-  chart.drawTargetRange([70,180]);
+  chart.drawTargetRange([70, 180]);
   chart.drawBG(model);
 
+  $('#insulin2').on('click', function () {
+      console.log("insuloin")
+  });
   $('#insulin').on('click', function () {
     let insulin_bolus = new Insulin(100, timeParse("17:00:00"), INSULIN_TYPE.RAPID);
     model.addFactor(insulin_bolus);
