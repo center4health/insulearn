@@ -760,7 +760,7 @@ class Chart {
         this.graphArea.selectAll(".curve" + factor.getUUID()).remove();
     }
     dragX(d, factor) {
-        let old_time = factor.getTime()
+        let old_time = factor.getTime();
         let new_time = this.x.invert(this.x(old_time) + d3.event.dx);
         factor.setTime(new_time);
         if (this.bg) {
@@ -768,8 +768,10 @@ class Chart {
         }
     }
     dragY(d, factor) {
-        let old_amount = factor.getAmount()
-        let new_amount = this.y.invert(this.y(old_amount) + d3.event.dy);
+        let old_amount = factor.getAmount();
+        let old_y=this.model.getYHandleOf(factor).y;
+        let new_amount =(old_amount/old_y) *(old_y-d3.event.dy);
+      
         factor.setAmount(new_amount);
         if (this.bg) {
             this.updateBG(this.bg);
