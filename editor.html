@@ -283,13 +283,6 @@
     chart.drawBG(model);
   });
 
-  $('#complex').on('click', function () {
-    let meal = new Meal(90, timeParse("16:42:00"), MEAL_COMPONENTS.COMPLEX_CARB)
-    model.addFactor(meal);
-    chart.drawMeal(meal)
-    chart.drawBG(model);
-  });
-
   // function to add shadow to the navbar
   $(window).scroll(function () {
     var scroll = $(window).scrollTop();
