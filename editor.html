@@ -257,8 +257,8 @@
     console.log("insuloin")
   });
   $('#insulin').on('click', function () {
-    let insulin_bolus = new Insulin(100, timeParse("17:00:00"), INSULIN_TYPE.RAPID, $('#imarkertext').val());
-
+    let bolus_time=d3.timeMinute.offset(mintime, $('#bolus_time').val());
+    let insulin_bolus = new Insulin(100, bolus_time, INSULIN_TYPE.RAPID, $('#imarkertext').val());
     insulin_bolus.displayoptions.startmarker = $('#imarker').prop('checked');
     insulin_bolus.displayoptions.name = $('#imarkerlabel').prop('checked');
     insulin_bolus.displayoptions.line = $('#imarkerline').prop('checked');
@@ -271,7 +271,8 @@
   });
 
   $('#simple').on('click', function () {
-    let meal = new Meal(30, timeParse("16:42:00"), MEAL_COMPONENTS.SIMPLE_CARB, $('#cmarkertext').val());
+    let meal_time=d3.timeMinute.offset(mintime, $('#meal_time').val());
+    let meal = new Meal(30, meal_time, MEAL_COMPONENTS.SIMPLE_CARB, $('#cmarkertext').val());
     meal.displayoptions.startmarker = $('#cmarker').prop('checked');
     meal.displayoptions.name = $('#cmarkerlabel').prop('checked');
     meal.displayoptions.line = $('#cmarkerline').prop('checked');
