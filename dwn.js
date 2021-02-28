@@ -111,17 +111,20 @@ class Model {
     getYHandleOf(curr_factor) {
         let x_val = curr_factor.getYHandleTime();
         let y_val = 0;
-        this.factors.forEach(factor => {
-            if (curr_factor.constructor === factor.constructor) {
-                //stop if we added this meal
-                if (factor === curr_factor) {
-                    y_val = y_val + factor.getActivityAt(x_val);
-                    return { x: x_val, y: y_val }
-                } else {
-                    y_val = y_val + factor.getActivityAt(x_val);
+        var searching = true;
+        for (let factor of this.factors) {
+            if (searching) {
+                if (curr_factor.constructor === factor.constructor) {
+
+                    if (factor === curr_factor) {
+                        y_val = y_val + factor.getActivityAt(x_val);
+                        searching = false;
+                    } else {
+                        y_val = y_val + factor.getActivityAt(x_val);
+                    }
                 }
             }
-        });
+        }
         return { x: x_val, y: y_val };
     }
 
@@ -172,25 +175,24 @@ class Model {
  * 
  */
 class Factor {
-    constructor(time, amount, type) {
+    constructor(time, amount, type, name = "Factor") {
         this.time = time;
         this.default_time = time; //used to move things relatively to a start time
         this.amount = amount;
         this.uuid = uuidv4();
         this.type = type;
+        this.name = name;
+        this.displayoptions = {
+            startmarker: true,
+            line: true,
+            text: true,
+            yhandle: true,
+            xhandle:true
+        }
     }
-    /**
-     * returns activity curve at a point in time
-     * @param {Number} sampling - Sampling interval for the curve in minutes
-     * @return {Array} - 2-dimensional array with timestamps and values
-     **/
-    // getShape(sampling = 5) {
-    //     let curve = [];
-    //     for (let min = 0; min < this.type.DURATION; min += sampling) {
-    //         curve.push({ x: d3.timeMinute.offset(this.time, min), y: this.getActivity(min) });
-    //     }
-    //     return curve;
-    // }
+    getName() {
+        return this.name;
+    }
 
     /**
      * returns activity at a point in time
@@ -305,8 +307,8 @@ class Factor {
  * @param {INSULIN_TYPE} type      - The type of insulin
  */
 class Insulin extends Factor {
-    constructor(dose, bolus_time, type) {
-        super(bolus_time, dose, type);
+    constructor(dose, bolus_time, type, name = "Bolus") {
+        super(bolus_time, dose, type, name);
     }
     /** 
     * Return insulin effect at a point in time
@@ -369,8 +371,8 @@ class Insulin extends Factor {
  * @param {Object} meal_time  - The time of the meal in minutes
  */
 class Meal extends Factor {
-    constructor(carbs, meal_time, type) {
-        super(meal_time, carbs, type);
+    constructor(carbs, meal_time, type, name = 'Meal') {
+        super(meal_time, carbs, type, name);
     }
 
     /** 
@@ -388,9 +390,7 @@ class Meal extends Factor {
             return bg + this.getActivity(minutes) / SETTINGS.zoom
         }
     }
-    getName() {
-        return this.name;
-    }
+
     /** 
     * Return digested carbs at a point in time
     *
@@ -524,8 +524,8 @@ class Chart {
     drawTargetRange(range = this.targetRange) {
         let targetRangeGroup = this.graphArea.append('g').attr("class", "range");
         let rect = {
-            x1: 0,
-            x2: this.width,
+            x1: 1,
+            x2: this.width - 1,
             y1: this.y(range[0]),
             y2: this.y(range[1]),
         };
@@ -611,80 +611,67 @@ class Chart {
         this.graphArea.selectAll(".bg_curve").remove();
     }
 
-    drawMeal(meal) {
-        meal.setChart(this);
-        this.removeFactor(meal); //clean up
+    drawMarker(g, factor, toolTipText = "fix me") {
+        if (factor.displayoptions.startmarker) {
+            if (factor.displayoptions.line) {
+                //  vertical line
+                g.append('line')
+                    .style("stroke", "#C4c4c4") // color of meal line
+                    .style("stroke-dasharray", ("3, 5"))
+                    .style("stroke-width", 2);
+            }
 
-        let g = this.graphArea.append("g").attr("class", "curve" + meal.getUUID());
+            // point
+            g.append("circle")
+                .attr("r", 5)
+                .style("fill", "black");
 
-        g.append("path")
-            .datum(this.model.getShapeOf(meal))
-            .attr("class", "area")
-            .attr("fill", "#41FF8E")
-            .attr("fill-opacity", "0.5")
-            .attr("stroke", "#41948E") // insulin curve color
-            .attr("stroke-width", 0) // size(stroke) of the insulin curve
-            .call(d3.drag()
-                .on('drag', (d, a, b, factor = meal) => { this.dragX(d, factor); }));
-
-        this.drawMarker(g, "Meal", meal, "I am a meal");
-        this.updateFactor(meal);
-    }
-
-    drawMarker(g, name, factor, toolTipText = "fix me") {
-
-        //  vertical line
-        g.append('line')
-            .style("stroke", "#C4c4c4") // color of meal line
-            .style("stroke-dasharray", ("3, 5"))
-            .style("stroke-width", 2);
-        // point
-        g.append("circle")
-            .attr("r", 5)
-            .style("fill", "black");
-        // text
-        g.append("text")
-            .attr("class", "range") // use to style in stylesheet
-            .text(name);
-
+            if (factor.displayoptions.name) {
+                // text
+                g.append("text")
+                    .attr("class", "range") // use to style in stylesheet
+                    .text(factor.name);
+            }
+        }
         //yhandle
-        let handle = this.model.getYHandleOf(factor);
+        if (factor.displayoptions.yhandle) {
+            let handle = this.model.getYHandleOf(factor);
 
-        let draggable_eclipse = g.append("svg")
-        //.attr("fill", "none");
+            let draggable_eclipse = g.append("svg")
 
 
-        draggable_eclipse.append("ellipse")
-            .style("fill", "#285C58")
-            .attr("cx", this.x(handle.x))
-            .attr("cy", this.y(handle.y))
-            .attr("rx", 13)
-            .attr("ry", 15)
-            .style("fill", "url(#arrow)")
-           // .style('cursor', 'pointer')
-            .on("mouseover", function (d, i) {
-                d3.select("#tooltip-text")
-                    .text(toolTipText)
-                    .call(wrap, 270);;
-            })
-            .call(d3.drag()
-                .on('drag',
-                    (d, a, b, factor_param = factor) => {
-                        this.dragY(d, factor_param);
-                    }));
-        draggable_eclipse.append("pattern")
-        .attr("id", "arrow")
-        .attr("class", "svg-image")
-        .attr("x", "0")
-        .attr("y", "0")
-        .attr("height", "1")
-        .attr("width", "1")
-        .append("svg:image")
-            .attr("x", "0")
-            .attr("y", "0")
-            .attr('width', 26)
-            .attr('height', 30)
-            .attr("xlink:href", "doublearrow.png")
+            draggable_eclipse.append("ellipse")
+                .style("fill", "#285C58")
+                .attr("cx", this.x(handle.x))
+                .attr("cy", this.y(handle.y))
+                .attr("rx", 13)
+                .attr("ry", 15)
+                .style("fill", "url(#arrow)")
+                // .style('cursor', 'pointer')
+                .on("mouseover", function (d, i) {
+                    d3.select("#tooltip-text")
+                        .text(toolTipText)
+                        .call(wrap, 270);;
+                })
+                .call(d3.drag()
+                    .on('drag',
+                        (d, a, b, factor_param = factor) => {
+                            this.dragY(d, factor_param);
+                        }));
+            draggable_eclipse.append("pattern")
+                .attr("id", "arrow")
+                .attr("class", "svg-image")
+                .attr("x", "0")
+                .attr("y", "0")
+                .attr("height", "1")
+                .attr("width", "1")
+                .append("svg:image")
+                .attr("x", "0")
+                .attr("y", "0")
+                .attr('width', 26)
+                .attr('height', 30)
+                .attr("xlink:href", "doublearrow.png")
+        }
 
     }
     updateMarker(g, factor) {
@@ -711,26 +698,32 @@ class Chart {
             .attr("cy", this.y(handle.y))
 
     }
+    drawFactor(factor, stroke_color = "#944141", fill_color = "#944141"){
+        factor.setChart(this);
+        this.removeFactor(factor);
+        let g = this.graphArea.append("g").attr("class", "curve" + factor.getUUID());
 
-    drawInsulin(insulin, stroke_color = "#944141", fill_color = "#944141") {
-        insulin.setChart(this);
-        this.removeFactor(insulin);
-        //  this.graphArea.selectAll(".curve" + insulin.getUUID()).remove();
-        let g = this.graphArea.append("g").attr("class", "curve" + insulin.getUUID());
-
-        // insulin curve
-        g.append("path")
-            .datum(this.model.getShapeOf(insulin))
+        // factor curve
+        let graph = g.append("path")
+            .datum(this.model.getShapeOf(factor))
             .attr("fill", fill_color)
             .attr("fill-opacity", "0.5")
             .attr("stroke", stroke_color) // insulin curve color
-            .attr("stroke-width", 0) // size(stroke) of the insulin curve
-            .call(d3.drag()
-                .on('drag', (d, a, b, factor = insulin) => { this.dragX(d, factor); }));
+            .attr("stroke-width", 1) // size(stroke) of the insulin curve
+        if (factor.displayoptions.xhandle) {
+            graph.call(d3.drag()
+                .on('drag', (d, a, b, xfactor = factor) => { this.dragX(d, xfactor); }));
+        }
+        this.drawMarker(g, factor, "I am insulin");
+        this.updateFactor(factor);
+    }
 
-        this.drawMarker(g, "Bolus", insulin, "I am insulin");
+    drawMeal(meal) {
+        this.drawFactor(meal,"#41948E", "#41FF8E");
+    }
 
-        this.updateFactor(insulin);
+    drawInsulin(insulin, stroke_color = "#944141", fill_color = "#944141") {
+        this.drawFactor(insulin, stroke_color, fill_color);
     }
     updateCurve(g, factor) {
         g.selectAll("path")
@@ -769,9 +762,11 @@ class Chart {
     }
     dragY(d, factor) {
         let old_amount = factor.getAmount();
-        let old_y=this.model.getYHandleOf(factor).y;
-        let new_amount =(old_amount/old_y) *(old_y-d3.event.dy);
-      
+        let old_y = this.model.getYHandleOf(factor).y;
+        let new_amount = (old_amount / old_y) * (old_y - d3.event.dy);
+        if (new_amount < 0) {
+            new_amount = 0.001;
+        }
         factor.setAmount(new_amount);
         if (this.bg) {
             this.updateBG(this.bg);

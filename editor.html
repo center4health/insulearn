@@ -51,7 +51,7 @@
 
       <h3 style="text-align: left"><b>Graph Editor</b></h3>
 
-      
+
 
       <div class="row">
         <div class="col-sm-8">
@@ -63,8 +63,6 @@
           <button data-toggle="modal" data-target="#insulin_add" type="button" class="btn btn-secondary">Add
             Insulin</button>
           <button data-toggle="modal" data-target="#simple_add" type="button" class="btn btn-primary">Add Simple
-            Carb</button>
-          <button data-toggle="modal" data-target="#complex_add" type="button" class="btn btn-primary">Add Complex
             Carb</button>
         </div>
       </div>
@@ -106,19 +104,45 @@
         </div>
         <div class="modal-body">
 
-          <p>Bolus time</p>
+          <p>Customize</p>
           <form>
+            <div class="form-group">
+              <label for="#imarkertext">Label</label>
+              <input id="imarkertext" type="text" value="Bolus">
+            </div>
+            <div class="form-group">
+              <input id="imarker" type="checkbox" value="" checked>
+              <label for="#imarker">Draw Marker</label>
+            </div>
+            <div class="form-group">
+              <input id="imarkerlabel" type="checkbox" value="" checked>
+              <label for="#imarkerlabel">Show text</label>
+            </div>
+            <div class="form-group">
+              <input id="imarkerline" type="checkbox" value="" checked>
+              <label for="#imarkerline">Show vertical line</label>
+            </div>
+            <div class="form-group">
+              <input id="iyhandle" type="checkbox" value="" checked>
+              <label for="#iyhandle">Show Handle to change amount</label>
+            </div>
+            <div class="form-group">
+              <input id="ixhandle" type="checkbox" value="" checked>
+              <label for="#ixhandle">Allow horizontal dragging </label>
+            </div>
+
             <div class="form-group">
               <label for="strokeColor">Stroke Color</label>
               <input id="strokeColor" type="color" value="#944141">
             </div>
+
             <div class="form-group">
-              <label for="fillColor">Stroke Color</label>
+              <label for="fillColor">Fill Color</label>
               <input id="fillColor" type="color" value="#944141">
             </div>
             <div class="form-group">
-              <input type="range" name="bolus_time" id=bolus_time min="-150" max="120" value="0"
-                style="width: 600px"></input>
+              <label for="bolus_time">Bolus time</label>
+              <input type="range" name="bolus_time" id=bolus_time min="0" max="720" value="360"></input>
             </div>
           </form>
 
@@ -141,7 +165,47 @@
           </button>
         </div>
         <div class="modal-body">
-          <p>Modal body text goes here.</p>
+          <p>Customize</p>
+          <form>
+            <div class="form-group">
+              <label for="#cmarkertext">Label</label>
+              <input id="cmarkertext" type="text" value="Meal">
+            </div>
+            <div class="form-group">
+              <input id="cmarker" type="checkbox" value="" checked>
+              <label for="#cmarker">Draw Marker</label>
+            </div>
+            <div class="form-group">
+              <input id="cmarkerlabel" type="checkbox" value="" checked>
+              <label for="#cmarkerlabel">Show text</label>
+            </div>
+            <div class="form-group">
+              <input id="cmarkerline" type="checkbox" value="" checked>
+              <label for="#cmarkerline">Show vertical line</label>
+            </div>
+            <div class="form-group">
+              <input id="cyhandle" type="checkbox" value="" checked>
+              <label for="#cyhandle">Show Handle to change amount</label>
+            </div>
+            <div class="form-group">
+              <input id="cxhandle" type="checkbox" value="" checked>
+              <label for="#cxhandle">Allow horizontal dragging </label>
+            </div>
+
+            <div class="form-group">
+              <label for="cstrokeColor">Stroke Color</label>
+              <input id="cstrokeColor" type="color" value="#41948E">
+            </div>
+
+            <div class="form-group">
+              <label for="cfillColor">Fill Color</label>
+              <input id="cfillColor" type="color" value="#41FF8E">
+            </div>
+            <div class="form-group">
+              <label for="meal_time">Stroke Color</label>
+              <input type="range" name="meal_time" id=bolus_time min="0" max="720" value="360"></input>
+            </div>
+          </form>
         </div>
         <div class="modal-footer">
           <button id="simple" type="button" class="btn btn-primary" data-dismiss="modal">Save changes</button>
@@ -183,24 +247,36 @@
   let selectVal = 0;
 
   let timeParse = d3.timeParse("%H:%M:%S")
-  let model = new Model(timeParse("12:00:00"), timeParse("24:00:00"));
+  let mintime = timeParse("12:00:00");
+  let model = new Model(mintime, timeParse("24:00:00"));
   let chart = new Chart("svg", model);
   chart.drawTargetRange([70, 180]);
   chart.drawBG(model);
 
   $('#insulin2').on('click', function () {
-      console.log("insuloin")
+    console.log("insuloin")
   });
   $('#insulin').on('click', function () {
-    let insulin_bolus = new Insulin(100, timeParse("17:00:00"), INSULIN_TYPE.RAPID);
-    model.addFactor(insulin_bolus);
+    let insulin_bolus = new Insulin(100, timeParse("17:00:00"), INSULIN_TYPE.RAPID, $('#imarkertext').val());
 
+    insulin_bolus.displayoptions.startmarker = $('#imarker').prop('checked');
+    insulin_bolus.displayoptions.name = $('#imarkerlabel').prop('checked');
+    insulin_bolus.displayoptions.line = $('#imarkerline').prop('checked');
+    insulin_bolus.displayoptions.yhandle = $('#iyhandle').prop('checked');
+    insulin_bolus.displayoptions.xhandle = $('#ixhandle').prop('checked');
+    console.log(insulin_bolus.displayoptions)
+    model.addFactor(insulin_bolus);
     chart.drawInsulin(insulin_bolus, $('#strokeColor').val(), $('#fillColor').val())
     chart.drawBG(model);
   });
 
   $('#simple').on('click', function () {
-    let meal = new Meal(30, timeParse("16:42:00"), MEAL_COMPONENTS.SIMPLE_CARB)
+    let meal = new Meal(30, timeParse("16:42:00"), MEAL_COMPONENTS.SIMPLE_CARB, $('#cmarkertext').val());
+    meal.displayoptions.startmarker = $('#cmarker').prop('checked');
+    meal.displayoptions.name = $('#cmarkerlabel').prop('checked');
+    meal.displayoptions.line = $('#cmarkerline').prop('checked');
+    meal.displayoptions.yhandle = $('#cyhandle').prop('checked');
+    meal.displayoptions.xhandle = $('#cxhandle').prop('checked');
     model.addFactor(meal);
     chart.drawMeal(meal)
     chart.drawBG(model);
