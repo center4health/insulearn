@@ -491,7 +491,7 @@ class Chart {
         this.x.domain(this.targetRange);
 
         this.drawBase(this.svg);
-        this.drawToolTip(this.svg);
+       // this.drawToolTip(this.svg);
     }
 
     drawToolTip(svg, hoverObj) {
