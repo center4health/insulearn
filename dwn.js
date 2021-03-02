@@ -187,7 +187,7 @@ class Factor {
             line: true,
             text: true,
             yhandle: true,
-            xhandle:true
+            xhandle: true
         }
     }
     getName() {
@@ -477,6 +477,8 @@ class Chart {
 
     constructor(svg, model, targetRange = [70, 180]) {
         this.svg = d3.select(svg); //select target
+        this.svg.attr("height", 500).attr("width", 750);
+        this.svg.attr("viewBox", `0 0 750 500`).attr("preserveAspectRatio", "xMinYMin meet")
         this.model = model;
         this.width = this.svg.attr("width") - this.margin.left - this.margin.right;
         this.height = this.svg.attr("height") - this.margin.top - this.margin.bottom;
@@ -698,7 +700,7 @@ class Chart {
             .attr("cy", this.y(handle.y))
 
     }
-    drawFactor(factor, stroke_color = "#944141", fill_color = "#944141"){
+    drawFactor(factor, stroke_color = "#944141", fill_color = "#944141") {
         factor.setChart(this);
         this.removeFactor(factor);
         let g = this.graphArea.append("g").attr("class", "curve" + factor.getUUID());
@@ -719,7 +721,7 @@ class Chart {
     }
 
     drawMeal(meal) {
-        this.drawFactor(meal,"#41948E", "#41FF8E");
+        this.drawFactor(meal, "#41948E", "#41FF8E");
     }
 
     drawInsulin(insulin, stroke_color = "#944141", fill_color = "#944141") {

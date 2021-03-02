@@ -45,21 +45,24 @@
   </nav>
 
   <div class="container">
-    <a href="index.html" style="color: #9B9B9B"><img src="img/back_arrow.png" style="width: 25px"> Back to
-      Main Menu</a>
+    <div class="row">
+      <a href="index.html" style="color: #9B9B9B"><img src="img/back_arrow.png" style="width: 25px"> Back to
+        Main Menu</a>
+    </div>
     <center>
 
-      <h3 style="text-align: left"><b>Graph Editor</b></h3>
-
+      <div class="row">
+        <h3 style="text-align: left"><b>Graph Editor</b></h3>
+      </div>
 
 
       <div class="row">
-        <div class="col-sm-8">
-          <svg width="750" height="525"></svg>
+        <div class="col-12 col-md-8">
+          <svg></svg>
 
 
         </div>
-        <div class="col-sm-1">
+        <div class="col-6 col-md-4">
           <button data-toggle="modal" data-target="#insulin_add" type="button" class="btn btn-secondary">Add
             Insulin</button>
           <button data-toggle="modal" data-target="#simple_add" type="button" class="btn btn-primary">Add Simple
@@ -203,7 +206,7 @@
             </div>
             <div class="form-group">
               <label for="meal_time">Stroke Color</label>
-              <input type="range" name="meal_time" id=bolus_time min="0" max="720" value="360"></input>
+              <input type="range" name="meal_time" id="meal_time" min="0" max="720" value="300"></input>
             </div>
           </form>
         </div>
@@ -257,7 +260,7 @@
     console.log("insuloin")
   });
   $('#insulin').on('click', function () {
-    let bolus_time=d3.timeMinute.offset(mintime, $('#bolus_time').val());
+    let bolus_time = d3.timeMinute.offset(mintime, $('#bolus_time').val());
     let insulin_bolus = new Insulin(100, bolus_time, INSULIN_TYPE.RAPID, $('#imarkertext').val());
     insulin_bolus.displayoptions.startmarker = $('#imarker').prop('checked');
     insulin_bolus.displayoptions.name = $('#imarkerlabel').prop('checked');
@@ -271,7 +274,7 @@
   });
 
   $('#simple').on('click', function () {
-    let meal_time=d3.timeMinute.offset(mintime, $('#meal_time').val());
+    let meal_time = d3.timeMinute.offset(mintime, $('#meal_time').val());
     let meal = new Meal(30, meal_time, MEAL_COMPONENTS.SIMPLE_CARB, $('#cmarkertext').val());
     meal.displayoptions.startmarker = $('#cmarker').prop('checked');
     meal.displayoptions.name = $('#cmarkerlabel').prop('checked');
