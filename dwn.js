@@ -189,6 +189,7 @@ class Factor {
             yhandle: true,
             xhandle: true
         }
+        this.base = [];
     }
     getName() {
         return this.name;
@@ -207,11 +208,20 @@ class Factor {
             return this.getActivity(minutes)
         }
     }
+    /**
+    * set the 
+    * @param {Array} base - An array describing the curve
+    * @return {Factor} - the current object to allow chaining of methods
+    **/
+    setBase(base) {
+        this.base = base;
+        return this;
+    }
 
     /**
-    * set the time of the bolus
-    * @param {Object} bolus_time - Time of the bolus d3 date object
-    * @return {Insulin} - the current object to allow chaining of methods
+    * set the time of the factor
+    * @param {Object} time - Time of the factor d3 date object
+    * @return {Factor} - the current object to allow chaining of methods
     **/
     setTime(time) {
         let old_time = this.time;
@@ -309,6 +319,7 @@ class Factor {
 class Insulin extends Factor {
     constructor(dose, bolus_time, type, name = "Bolus") {
         super(bolus_time, dose, type, name);
+        this.base = (new CurveFactory()).getOrefCurve(type.DURATION, type.PEAK);
     }
     /** 
     * Return insulin effect at a point in time
@@ -333,25 +344,8 @@ class Insulin extends Factor {
     * Code adapted from https://github.com/openaps/oref0/blob/master/lib/iob/calculate.js inspired by 
     * https://github.com/LoopKit/Loop/issues/388#issuecomment-317938473
     **/
-    getActivity(time) {
-        let end = this.type.DURATION - this.type.ONSET;
-        let peak = this.type.PEAK - this.type.ONSET;
-
-        if (time < this.type.ONSET) {
-            return 0; //ugly can we find a function with a nice slow start?
-        }
-        if (time > this.end) {
-            return 0;
-        }
-        let minsAgo = time - this.type.ONSET;
-        let insulin = this.amount;//*SETTINGS.zoom;
-
-        let tau = peak * (1 - peak / end) / (1 - 2 * peak / end);  // time constant of exponential decay
-        let a = 2 * tau / end;                                     // rise time factor
-        let S = 1 / (1 - a + (1 + a) * Math.exp(-end / tau));      // auxiliary scale factor
-
-        var activityContrib = insulin * (S / Math.pow(tau, 2)) * minsAgo * (1 - minsAgo / end) * Math.exp(-minsAgo / tau);
-        return activityContrib * SETTINGS.isf
+    getActivity(minute) {
+        return this.base[Math.round(minute)]*this.amount*SETTINGS.isf* SETTINGS.zoom;
     }
 
     updateGraph() {
@@ -373,10 +367,11 @@ class Insulin extends Factor {
 class Meal extends Factor {
     constructor(carbs, meal_time, type, name = 'Meal') {
         super(meal_time, carbs, type, name);
+        this.base = (new CurveFactory()).getOrefCurve(type.DURATION, type.PEAK);
     }
 
     /** 
-    * Return insulin effect at a point in time
+    * Return meal effect at a point in time
     *
     * @param {Object} time - Minutes since bolus
     * Code adapted from https://github.com/openaps/oref0/blob/master/lib/iob/calculate.js inspired by 
@@ -394,29 +389,12 @@ class Meal extends Factor {
     /** 
     * Return digested carbs at a point in time
     *
-    * @param {Number} time - Minutes since meal
+    * @param {Number} minute- Minutes since meal
     * Code adapted from https://github.com/openaps/oref0/blob/master/lib/iob/calculate.js inspired by 
     * https://github.com/LoopKit/Loop/issues/388#issuecomment-317938473
     **/
-    getActivity(time) {
-        let end = this.type.DURATION - this.type.ONSET;
-        let peak = this.type.PEAK - this.type.ONSET;
-
-        if (time < this.type.ONSET) {
-            return 0; //ugly can we find a function with a nice slow start?
-        }
-        if (time > this.end) {
-            return 0;
-        }
-        let minsAgo = time - this.type.ONSET;
-        let insulin = this.amount;//*SETTINGS.zoom;
-
-        let tau = peak * (1 - peak / end) / (1 - 2 * peak / end);  // time constant of exponential decay
-        let a = 2 * tau / end;                                     // rise time factor
-        let S = 1 / (1 - a + (1 + a) * Math.exp(-end / tau));      // auxiliary scale factor
-
-        var activityContrib = insulin * (S / Math.pow(tau, 2)) * minsAgo * (1 - minsAgo / end) * Math.exp(-minsAgo / tau);
-        return activityContrib * SETTINGS.isf
+    getActivity(minute) {
+        return this.base[Math.round(minute)]*this.amount*SETTINGS.carb_ratio*SETTINGS.zoom;
     }
     updateGraph() {
         if (this.chart) {
@@ -475,7 +453,7 @@ function wrap(text, width) {
 class Chart {
     margin = { top: 20, right: 20, bottom: 30, left: 50 };
 
-    constructor(svg, model, targetRange = [70, 180]) {
+    constructor(svg, model, max_glucose = 400, targetRange = [70, 180]) {
         this.svg = d3.select(svg); //select target
         this.svg.attr("height", 500).attr("width", 750);
         this.svg.attr("viewBox", `0 0 750 500`).attr("preserveAspectRatio", "xMinYMin meet")
@@ -485,13 +463,13 @@ class Chart {
         this.targetRange = model.getTimeRange();
 
         this.x = d3.scaleTime().range([0, this.width]).clamp(true);
-        this.y = d3.scaleLinear().domain([0, 400])
+        this.y = d3.scaleLinear().domain([0, max_glucose])
             .rangeRound([this.height, 0]).clamp(true);
-        this.y.domain([0, 400]);
+        this.y.domain([0, max_glucose]);
         this.x.domain(this.targetRange);
 
         this.drawBase(this.svg);
-       // this.drawToolTip(this.svg);
+        // this.drawToolTip(this.svg);
     }
 
     drawToolTip(svg, hoverObj) {
@@ -533,31 +511,13 @@ class Chart {
         };
         // shade time in range section
         targetRangeGroup.append('rect')
-            .style("fill", "#EFF6FE")
+            .style("fill", "#6FCF97")
+            .attr("fill-opacity", "0.1")
             .attr("x", rect.x1)
             .attr("y", rect.y2)
             .attr("width", rect.x2)
             .attr("height", rect.y1 - rect.y2);
 
-        //line lower threshold
-        targetRangeGroup.append('line')
-            .style("stroke", "#EB8690")
-            .style("stroke-dasharray", ("3, 5"))
-            .style("stroke-width", 2)
-            .attr("x1", rect.x1)
-            .attr("y1", rect.y1)
-            .attr("x2", rect.x2)
-            .attr("y2", rect.y1);
-
-        //line upper threshold
-        targetRangeGroup.append('line')
-            .style("stroke", "#EB8690")
-            .style("stroke-dasharray", ("3, 5"))
-            .style("stroke-width", 2)
-            .attr("x1", rect.x1)
-            .attr("y1", rect.y2)
-            .attr("x2", rect.x2)
-            .attr("y2", rect.y2);
     }
 
     drawBase(svg) {
@@ -598,7 +558,6 @@ class Chart {
             .enter()
             .append('circle')
             .attr('r', 3.0)
-            //.style('cursor', 'pointer')
             .style('fill', '#000000'); // glucose curve color
         this.updateBG(bg);
     }
@@ -653,7 +612,7 @@ class Chart {
                 .on("mouseover", function (d, i) {
                     d3.select("#tooltip-text")
                         .text(toolTipText)
-                        .call(wrap, 270);;
+                        .call(wrap, 270);
                 })
                 .call(d3.drag()
                     .on('drag',
@@ -776,6 +735,73 @@ class Chart {
     }
 }
 
+
+/**
+ * Class to hold some code code to create and change curves
+ * @constructor
+ */
+class CurveFactory {
+
+    constructor() {
+
+    }
+    /** 
+    * Return the full curve based on the provided curve function
+    *
+    * @param {Number} end - How long is this factor active
+    * @param {Function} curve - How should we calcuclate the curve
+    * @return {Array} the resulting curve as a 1-d array where the index represents the minute
+    * **/
+    getFullCurve(end, curve, params = {}) {
+        let result = [];
+        for (let min = 0; min <= end; min++) {
+            result.push(curve(min, end, params.peak));
+        }
+        
+        return result;
+    }
+    getOrefCurve(end, peak_time) {
+        let params = { peak: peak_time }
+        return this.getFullCurve(end, this.orefcurve, params);
+    }
+    /** 
+   * Return active insulin at a point in time
+   *
+   * @param {Number} time - Minutes since bolus
+   * Code adapted from https://github.com/openaps/oref0/blob/master/lib/iob/calculate.js inspired by 
+   * https://github.com/LoopKit/Loop/issues/388#issuecomment-317938473
+   **/
+    orefcurve(minsAgo, end, peak) {
+        let tau = peak * (1 - peak / end) / (1 - 2 * peak / end);  // time constant of exponential decay
+        let a = 2 * tau / end;                                     // rise time factor
+        let S = 1 / (1 - a + (1 + a) * Math.exp(-end / tau));      // auxiliary scale factor
+
+        var activityContrib = (S / Math.pow(tau, 2)) * minsAgo * (1 - minsAgo / end) * Math.exp(-minsAgo / tau);
+        return activityContrib;
+    }
+
+    //helper function from https://stackoverflow.com/questions/26941168/javascript-interpolate-an-array-of-numbers
+    interpolateArray(data, fitCount) {
+
+        var linearInterpolate = function (before, after, atPoint) {
+            return before + (after - before) * atPoint;
+        };
+
+        var newData = new Array();
+        var springFactor = new Number((data.length - 1) / (fitCount - 1));
+        newData[0] = data[0]; // for new allocation
+        for (var i = 1; i < fitCount - 1; i++) {
+            var tmp = i * springFactor;
+            var before = new Number(Math.floor(tmp)).toFixed();
+            var after = new Number(Math.ceil(tmp)).toFixed();
+            var atPoint = tmp - before;
+            newData[i] = linearInterpolate(data[before], data[after], atPoint);
+        }
+        newData[fitCount - 1] = data[data.length - 1]; // for new allocation
+        return newData;
+    };
+}
+
 //ugly way of copying an array
 function deep_copy(bg_orig) {
     return bg_orig.map(d => ({ ...d }));
@@ -787,4 +813,5 @@ function uuidv4() {
         return v.toString(16);
     });
 }
+
 

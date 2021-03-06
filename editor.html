@@ -229,16 +229,13 @@
   let timeParse = d3.timeParse("%H:%M:%S")
   let mintime = timeParse("12:00:00");
   let model = new Model(mintime, timeParse("24:00:00"));
-  let chart = new Chart("svg", model);
+  let chart = new Chart("svg", model, 250);
   chart.drawTargetRange([70, 180]);
   chart.drawBG(model);
 
-  $('#insulin2').on('click', function () {
-    console.log("insuloin")
-  });
   $('#insulin').on('click', function () {
     let bolus_time = d3.timeMinute.offset(mintime, $('#bolus_time').val());
-    let insulin_bolus = new Insulin(100, bolus_time, INSULIN_TYPE.RAPID, $('#imarkertext').val());
+    let insulin_bolus = new Insulin(12, bolus_time, INSULIN_TYPE.RAPID, $('#imarkertext').val());
     insulin_bolus.displayoptions.startmarker = $('#imarker').prop('checked');
     insulin_bolus.displayoptions.name = $('#imarkerlabel').prop('checked');
     insulin_bolus.displayoptions.line = $('#imarkerline').prop('checked');
