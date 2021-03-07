@@ -38,14 +38,14 @@ h5 {
 /* standard button */
 .btn-primary {
   color: white;
-  background-color: #41948E; /*emerald green*/
-  border-color: #41948E; /*emerald green*/
+  background-color: #070D59; /*navy blue*/
+  border-color: #070D59; /*navy blue*/
 }
 
 .btn-primary:hover {
   color: white;
-  background-color: #1f635f; /*dark green*/
-  border-color: #1f635f; /*dark green*/
+  background-color: #050941; /*dark blue*/
+  border-color: #050941; /*dark blue*/
 }
 
 .back {
