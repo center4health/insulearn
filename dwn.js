@@ -711,6 +711,7 @@ class CurveEditor {
     constructor(target, length, peak) {
         this.width = 300;
         this.height = 200;
+        this.length=length;
         this.points = [
             [0, this.height],
             [this.width/length *peak, 10],
@@ -744,7 +745,6 @@ class CurveEditor {
             .on("keydown", unused=>{this.keydown();});
 
     }
-
 
     update() {
         this.svg.select("path").attr("d", this.line);
@@ -788,7 +788,6 @@ class CurveEditor {
 
     dragstarted() {
         this.selected = d3.event.sourceEvent.target.__data__;
-        
         this.update();
     }
 
@@ -814,6 +813,40 @@ class CurveEditor {
             }
         }
     }
+    getCurve(){
+        let curve=[0]
+        let path=this.svg.select("path").node();
+
+        for (let i=1;i<this.length-1;i++){
+            curve.push((this.height-this.findYatXbyBisection(i, path, 0.5))/this.height)
+        }
+        curve.push(0);
+        return curve;
+    }
+    findYatXbyBisection(x, path, error){
+        var length_end = path.getTotalLength()
+          , length_start = 0
+          , point = path.getPointAtLength((length_end + length_start) / 2) // get the middle point
+          , bisection_iterations_max = 50
+          , bisection_iterations = 0
+      
+        error = error || 0.01
+      
+        while (x < point.x - error || x > point.x + error) {
+          // get the middle point
+          point = path.getPointAtLength((length_end + length_start) / 2)
+      
+          if (x < point.x) {
+            length_end = (length_start + length_end)/2
+          } else {
+            length_start = (length_start + length_end)/2
+          }
+          // Increase iteration
+          if(bisection_iterations_max < ++ bisection_iterations)
+            break;
+        }
+        return point.y
+      }
 
 }
 
