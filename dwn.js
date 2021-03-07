@@ -848,7 +848,8 @@ class CurveEditor {
         let path = this.svg.select("path").node();
 
         for (let i = 1; i < this.length - 1; i++) {
-            curve.push((this.height - this.findYatXbyBisection(i, path, 0.5)) / this.height)
+            let x=this.width/this.length*i;
+            curve.push((this.height - this.findYatXbyBisection(x, path, 0.5)) / this.height)
         }
         curve.push(0);
         return curve;
