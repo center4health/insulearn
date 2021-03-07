@@ -804,7 +804,7 @@ class CurveEditor {
             //let's create it
             subject = [d3.event.x - this.margin.left, d3.event.y];
             //find the right index
-            let place_before = this.points.findIndex(element => { return element[0] > d3.event.x; })
+            let place_before = this.points.findIndex(element => { return element[0] > subject[0]; })
             this.points.splice(place_before, 0, subject);
             this.update();
         }
