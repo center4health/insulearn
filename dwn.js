@@ -717,7 +717,7 @@ class CurveEditor {
             [this.width, this.height],
         ]
       
-        this.line=d3.line().curve(d3["curveCardinal"]);
+        this.line=d3.line().curve(d3["curveMonotoneX"]);
         this.selected = this.points[1];
         this.svg = d3.select(target).append("svg");
         this.svg.attr("height", this.height).attr("width", this.width);
@@ -738,9 +738,10 @@ class CurveEditor {
             .attr("fill", "none")
             .attr("stroke", "black")
             .attr("stroke-width", 1.5)
-            .call(x => this.update(x));
-        d3.select(target)
-            .on("keydown", this.keydown);
+            .call(unused => this.update());
+
+        d3.select(window)
+            .on("keydown", unused=>{this.keydown();});
 
     }
 
@@ -786,9 +787,6 @@ class CurveEditor {
     }
 
     dragstarted() {
-
-        console.log(d3.event);
-      
         this.selected = d3.event.sourceEvent.target.__data__;
         
         this.update();
@@ -800,7 +798,8 @@ class CurveEditor {
         this.update();
     }
 
-    keydown(event) {
+    keydown() {
+        let event=d3.event;
         if (!this.selected) return;
         switch (event.key) {
             case "Backspace":
@@ -810,7 +809,7 @@ class CurveEditor {
                 this.points.splice(i, 1);
                 this.points = this.points;
                 this.selected = this.points.length ? this.points[i > 0 ? i - 1 : 0] : null;
-                update();
+                this.update();
                 break;
             }
         }
