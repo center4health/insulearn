@@ -345,7 +345,7 @@ class Insulin extends Factor {
     * https://github.com/LoopKit/Loop/issues/388#issuecomment-317938473
     **/
     getActivity(minute) {
-        return this.base[Math.round(minute)]*this.amount*SETTINGS.isf* SETTINGS.zoom;
+        return this.base[Math.round(minute)] * this.amount * SETTINGS.isf * SETTINGS.zoom;
     }
 
     updateGraph() {
@@ -394,7 +394,7 @@ class Meal extends Factor {
     * https://github.com/LoopKit/Loop/issues/388#issuecomment-317938473
     **/
     getActivity(minute) {
-        return this.base[Math.round(minute)]*this.amount*SETTINGS.carb_ratio*SETTINGS.zoom;
+        return this.base[Math.round(minute)] * this.amount * SETTINGS.carb_ratio * SETTINGS.zoom;
     }
     updateGraph() {
         if (this.chart) {
@@ -403,44 +403,7 @@ class Meal extends Factor {
     }
 }
 
-/**
- * Helper Function for wrapping text
- * https://stackoverflow.com/questions/24784302/wrapping-text-in-d3
- * @param {} text 
- * @param {*} width 
- */
-function wrap(text, width) {
-    text.each(function () {
-        var text = d3.select(this),
-            words = text.text().split(/\s+/).reverse(),
-            word,
-            line = [],
-            lineNumber = 0,
-            lineHeight = 1.1, // ems
-            x = text.attr("x"),
-            y = text.attr("y"),
-            dy = 0, //parseFloat(text.attr("dy")),
-            tspan = text.text(null)
-                .append("tspan")
-                .attr("x", x)
-                .attr("y", y)
-                .attr("dy", dy + "em");
-        while (word = words.pop()) {
-            line.push(word);
-            tspan.text(line.join(" "));
-            if (tspan.node().getComputedTextLength() > width) {
-                line.pop();
-                tspan.text(line.join(" "));
-                line = [word];
-                tspan = text.append("tspan")
-                    .attr("x", x)
-                    .attr("y", y)
-                    .attr("dy", ++lineNumber * lineHeight + dy + "em")
-                    .text(word);
-            }
-        }
-    });
-}
+
 
 
 /**
@@ -453,8 +416,10 @@ function wrap(text, width) {
 class Chart {
     margin = { top: 20, right: 20, bottom: 30, left: 50 };
 
-    constructor(svg, model, max_glucose = 400, targetRange = [70, 180]) {
-        this.svg = d3.select(svg); //select target
+    constructor(chart_div, model, max_glucose = 400, targetRange = [70, 180]) {
+        let target = d3.select(chart_div);//select target
+        this.svg = target.append("svg");
+
         this.svg.attr("height", 500).attr("width", 750);
         this.svg.attr("viewBox", `0 0 750 500`).attr("preserveAspectRatio", "xMinYMin meet")
         this.model = model;
@@ -737,6 +702,123 @@ class Chart {
 
 
 /**
+ * Visual Editor to manipulate and design curves for factors
+ * based on https://observablehq.com/@d3/spline-editor
+ * @constructor
+ */
+class CurveEditor {
+
+    constructor(target, length, peak) {
+        this.width = 300;
+        this.height = 200;
+        this.points = [
+            [0, this.height],
+            [this.width/length *peak, 10],
+            [this.width, this.height],
+        ]
+      
+        this.line=d3.line().curve(d3["curveCardinal"]);
+        this.selected = this.points[1];
+        this.svg = d3.select(target).append("svg");
+        this.svg.attr("height", this.height).attr("width", this.width);
+        this.svg.attr("viewBox", [0, 0, this.width, this.height])
+            .attr("pointer-events", "all")
+            .call(d3.drag()
+                .subject(unused=> { return this.dragsubject(); })
+                .on("start", unused => { this.dragstarted(); })
+                .on("drag", unused => {this.dragged(); }));
+
+        this.svg.append("rect")
+            .attr("fill", "none")
+            .attr("width", this.width)
+            .attr("height", this.height);
+
+        this.svg.append("path")
+            .datum(this.points)
+            .attr("fill", "none")
+            .attr("stroke", "black")
+            .attr("stroke-width", 1.5)
+            .call(x => this.update(x));
+        d3.select(target)
+            .on("keydown", this.keydown);
+
+    }
+
+
+    update() {
+        this.svg.select("path").attr("d", this.line);
+
+        const circle = this.svg.selectAll("g")
+            .data(this.points, d => d)
+
+        circle.enter().append("g")
+            .call(g => g.append("circle")
+                .attr("r", 30)
+                .attr("fill", "none"))
+            .call(g => g.append("circle")
+                .attr("r", 0)
+                .attr("stroke", "black")
+                .attr("stroke-width", 1.5)
+                .transition()
+                .duration(750)
+                .ease(d3.easeElastic)
+                .attr("r", 5))
+            .merge(circle)
+            .attr("transform", d => `translate(${d})`)
+            .select("circle:last-child")
+            .attr("fill", d => d === this.selected ? "lightblue" : "black");
+
+        circle.exit().remove();
+    }
+
+    dragsubject() {
+        
+        let subject = d3.event.sourceEvent.target.__data__;
+        if (!subject || subject.length>2) {
+            //let's create it
+            subject=[d3.event.x, d3.event.y];
+            //find the right index
+            let place_before=this.points.findIndex(element=>{return element[0]>d3.event.x;})
+            this.points.splice(place_before, 0, subject);
+            this.update();
+        }
+        return subject;
+    }
+
+    dragstarted() {
+
+        console.log(d3.event);
+      
+        this.selected = d3.event.sourceEvent.target.__data__;
+        
+        this.update();
+    }
+
+    dragged() {
+        d3.event.subject[0] = Math.max(0, Math.min(this.width, d3.event.x));
+        d3.event.subject[1] = Math.max(0, Math.min(this.height, d3.event.y));
+        this.update();
+    }
+
+    keydown(event) {
+        if (!this.selected) return;
+        switch (event.key) {
+            case "Backspace":
+            case "Delete": {
+                event.preventDefault();
+                const i = this.points.indexOf(this.selected);
+                this.points.splice(i, 1);
+                this.points = this.points;
+                this.selected = this.points.length ? this.points[i > 0 ? i - 1 : 0] : null;
+                update();
+                break;
+            }
+        }
+    }
+
+}
+
+/**
  * Class to hold some code code to create and change curves
  * @constructor
  */
@@ -757,7 +839,7 @@ class CurveFactory {
         for (let min = 0; min <= end; min++) {
             result.push(curve(min, end, params.peak));
         }
-        
+
         return result;
     }
     getOrefCurve(end, peak_time) {
@@ -779,6 +861,7 @@ class CurveFactory {
         var activityContrib = (S / Math.pow(tau, 2)) * minsAgo * (1 - minsAgo / end) * Math.exp(-minsAgo / tau);
         return activityContrib;
     }
+
 
     //helper function from https://stackoverflow.com/questions/26941168/javascript-interpolate-an-array-of-numbers
     interpolateArray(data, fitCount) {
@@ -811,6 +894,45 @@ function uuidv4() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
         var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
         return v.toString(16);
+    });
+}
+
+/**
+ * Helper Function for wrapping text
+ * https://stackoverflow.com/questions/24784302/wrapping-text-in-d3
+ * @param {} text 
+ * @param {*} width 
+ */
+function wrap(text, width) {
+    text.each(function () {
+        var text = d3.select(this),
+            words = text.text().split(/\s+/).reverse(),
+            word,
+            line = [],
+            lineNumber = 0,
+            lineHeight = 1.1, // ems
+            x = text.attr("x"),
+            y = text.attr("y"),
+            dy = 0, //parseFloat(text.attr("dy")),
+            tspan = text.text(null)
+                .append("tspan")
+                .attr("x", x)
+                .attr("y", y)
+                .attr("dy", dy + "em");
+        while (word = words.pop()) {
+            line.push(word);
+            tspan.text(line.join(" "));
+            if (tspan.node().getComputedTextLength() > width) {
+                line.pop();
+                tspan.text(line.join(" "));
+                line = [word];
+                tspan = text.append("tspan")
+                    .attr("x", x)
+                    .attr("y", y)
+                    .attr("dy", ++lineNumber * lineHeight + dy + "em")
+                    .text(word);
+            }
+        }
     });
 }
 
