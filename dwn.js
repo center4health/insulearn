@@ -714,6 +714,7 @@ class CurveEditor {
         this.width = 300;
         this.height = 200;
         this.length = length;
+        this.mindistance=this.width/length*5; //don't allow points closer than 5 minutes to each other
         this.points = [
             [0, this.height],
             [this.width / length * peak, 10],
@@ -818,9 +819,10 @@ class CurveEditor {
 
     dragged() {
         let i=this.points.findIndex(s=> s===d3.event.subject);
-        // if(d3.event.x)
+        let newx=d3.event.x - this.margin.left;
+        
         console.log(i)
-        d3.event.subject[0] = Math.max(0, Math.min(this.width, d3.event.x - this.margin.left));
+        d3.event.subject[0] = Math.max(this.points[i-1][0]+this.mindistance, Math.min(this.points[i+1][0]-this.mindistance, newx));
         d3.event.subject[1] = Math.max(0, Math.min(this.height, d3.event.y));
         this.update();
     }
