@@ -77,8 +77,7 @@ class Model {
             for (let factor of this.factors) {
                 if (searching) {
                     if (curr_factor.constructor === factor.constructor) {
-
-                        //stop if we added this meal
+                        //stop if we added this factor
                         if (factor === curr_factor) {
                             result[i].y1 = result[i].y0 + factor.getActivityAt(result[i].x);
                             searching = false;
@@ -430,11 +429,9 @@ class Chart {
         this.x = d3.scaleTime().range([0, this.width]).clamp(true);
         this.y = d3.scaleLinear().domain([0, max_glucose])
             .rangeRound([this.height, 0]).clamp(true);
-        this.y.domain([0, max_glucose]);
         this.x.domain(this.targetRange);
 
         this.drawBase(this.svg);
-        // this.drawToolTip(this.svg);
     }
 
     drawToolTip(svg, hoverObj) {
@@ -707,50 +704,74 @@ class Chart {
  * @constructor
  */
 class CurveEditor {
-
+    margin = {
+        left: 20,
+        bottom: 30,
+        right: 20,
+        top: 0
+    }
     constructor(target, length, peak) {
         this.width = 300;
         this.height = 200;
-        this.length=length;
+        this.length = length;
         this.points = [
             [0, this.height],
-            [this.width/length *peak, 10],
+            [this.width / length * peak, 10],
             [this.width, this.height],
         ]
-      
-        this.line=d3.line().curve(d3["curveMonotoneX"]);
+
+        this.line = d3.line().curve(d3["curveMonotoneX"]);
         this.selected = this.points[1];
         this.svg = d3.select(target).append("svg");
-        this.svg.attr("height", this.height).attr("width", this.width);
-        this.svg.attr("viewBox", [0, 0, this.width, this.height])
+
+
+        this.svg
+            .attr("height", this.height + this.margin.bottom + this.margin.top)
+            .attr("width", this.width + this.margin.left + this.margin.right);
+
+        this.svg.attr("viewBox", [0, 0, this.width + this.margin.left + this.margin.right,
+            this.height + this.margin.bottom + this.margin.top])
             .attr("pointer-events", "all")
             .call(d3.drag()
-                .subject(unused=> { return this.dragsubject(); })
+                .subject(unused => { return this.dragsubject(); })
                 .on("start", unused => { this.dragstarted(); })
-                .on("drag", unused => {this.dragged(); }));
+                .on("drag", unused => { this.dragged(); }));
 
-        this.svg.append("rect")
+        this.graphArea = this.svg.append("g")
+            .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
+
+        this.graphArea.append("rect")
             .attr("fill", "none")
             .attr("width", this.width)
             .attr("height", this.height);
 
-        this.svg.append("path")
+        this.graphArea.append("path")
             .datum(this.points)
             .attr("fill", "none")
             .attr("stroke", "black")
             .attr("stroke-width", 1.5)
             .call(unused => this.update());
 
+        // let timeParse = d3.timeParse("%M:%S")
+        // let starttime = timeParse("00:00");
+        // let endtime=d3.timeMinute.offset(this.starttime, length);
+        this.x = d3.scaleLinear().range([0, this.width]).domain([0, length]);
+
+        this.svg.append('g')
+            .attr('class', 'axis axis--x')
+            .attr('transform', `translate(${this.margin.left},${this.height})`)
+            .call(d3.axisBottom(this.x));
+
         d3.select(window)
-            .on("keydown", unused=>{this.keydown();});
+            .on("keydown", unused => { this.keydown(); });
 
     }
 
     update() {
-        this.svg.select("path").attr("d", this.line);
+        this.graphArea.select("path").attr("d", this.line);
 
-        const circle = this.svg.selectAll("g")
-            .data(this.points, d => d)
+        const circle = this.graphArea.selectAll("g")
+            .data(this.points, d => d);
 
         circle.enter().append("g")
             .call(g => g.append("circle")
@@ -773,16 +794,20 @@ class CurveEditor {
     }
 
     dragsubject() {
-        
         let subject = d3.event.sourceEvent.target.__data__;
-        if (!subject || subject.length>2) {
+        //filter for first and last circle - they should not  be able to be dragged
+        if ( (subject ===this.points[0]) ||  (subject===this.points[this.points.length-1])) {
+            return;
+        }
+        if (!subject || subject.length > 2) {
             //let's create it
-            subject=[d3.event.x, d3.event.y];
+            subject = [d3.event.x - this.margin.left, d3.event.y];
             //find the right index
-            let place_before=this.points.findIndex(element=>{return element[0]>d3.event.x;})
+            let place_before = this.points.findIndex(element => { return element[0] > d3.event.x; })
             this.points.splice(place_before, 0, subject);
             this.update();
         }
+
         return subject;
     }
 
@@ -792,13 +817,16 @@ class CurveEditor {
     }
 
     dragged() {
-        d3.event.subject[0] = Math.max(0, Math.min(this.width, d3.event.x));
+        let i=this.points.findIndex(s=> s===d3.event.subject);
+        // if(d3.event.x)
+        console.log(i)
+        d3.event.subject[0] = Math.max(0, Math.min(this.width, d3.event.x - this.margin.left));
         d3.event.subject[1] = Math.max(0, Math.min(this.height, d3.event.y));
         this.update();
     }
 
     keydown() {
-        let event=d3.event;
+        let event = d3.event;
         if (!this.selected) return;
         switch (event.key) {
             case "Backspace":
@@ -813,40 +841,48 @@ class CurveEditor {
             }
         }
     }
-    getCurve(){
-        let curve=[0]
-        let path=this.svg.select("path").node();
+    exportCurve() {
+        let curve = [0]
+        let path = this.svg.select("path").node();
 
-        for (let i=1;i<this.length-1;i++){
-            curve.push((this.height-this.findYatXbyBisection(i, path, 0.5))/this.height)
+        for (let i = 1; i < this.length - 1; i++) {
+            curve.push((this.height - this.findYatXbyBisection(i, path, 0.5)) / this.height)
         }
         curve.push(0);
         return curve;
     }
-    findYatXbyBisection(x, path, error){
+    /**
+     * workaroud to get y value of interpolated path adopted from
+     * https://stackoverflow.com/questions/11503151/in-d3-how-to-get-the-interpolated-line-data-from-a-svg-line/39442651#39442651
+     * 
+     * @param {Number} x x coordinate
+     * @param {Object} path path element that interpolates the curve
+     * @param {Number} error acceptable error
+     */
+    findYatXbyBisection(x, path, error) {
         var length_end = path.getTotalLength()
-          , length_start = 0
-          , point = path.getPointAtLength((length_end + length_start) / 2) // get the middle point
-          , bisection_iterations_max = 50
-          , bisection_iterations = 0
-      
+            , length_start = 0
+            , point = path.getPointAtLength((length_end + length_start) / 2) // get the middle point
+            , bisection_iterations_max = 50
+            , bisection_iterations = 0
+
         error = error || 0.01
-      
+
         while (x < point.x - error || x > point.x + error) {
-          // get the middle point
-          point = path.getPointAtLength((length_end + length_start) / 2)
-      
-          if (x < point.x) {
-            length_end = (length_start + length_end)/2
-          } else {
-            length_start = (length_start + length_end)/2
-          }
-          // Increase iteration
-          if(bisection_iterations_max < ++ bisection_iterations)
-            break;
+            // get the middle point
+            point = path.getPointAtLength((length_end + length_start) / 2)
+
+            if (x < point.x) {
+                length_end = (length_start + length_end) / 2
+            } else {
+                length_start = (length_start + length_end) / 2
+            }
+            // Increase iteration
+            if (bisection_iterations_max < ++bisection_iterations)
+                break;
         }
         return point.y
-      }
+    }
 
 }
 
