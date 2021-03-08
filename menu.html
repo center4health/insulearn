@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Diabetes Educational Tool</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  </head>
+  <!-- https://stackoverflow.com/questions/42720488/d3-v4-drag-line-chart-with-x-and-y-axes -->
+  <!-- Thanks to Mark - https://stackoverflow.com/users/16363/mark -->
+  <style>
+
+    .popup {
+      display: none;
+      background-color: white;
+      position: absolute;
+      top: 320px;
+      z-index: 0.5;
+      width: 25%;
+      left: 37%;
+      border-style: solid;
+      border-width: 10px;
+      border-top: hidden;
+      border-right: hidden;
+      border-left: hidden;
+      -webkit-box-shadow: 2px 2px 10px 0px rgba(209,209,209,1);
+      -moz-box-shadow: 2px 2px 10px 0px rgba(209,209,209,1);
+      -o-box-shadow: 2px 2px 10px 0px rgba(209,209,209,1);
+      box-shadow: 2px 2px 10px 0px rgba(209,209,209,1);
+      border-radius: 5px;
+      padding: 20px;
+    }
+
+    .example-open .modal-backdrop {
+       background-color: black; /* adds overlay to beginning pop-up */
+    }
+
+    .modal-backdrop {
+       background-color: transparent; /* removes overlay from popup */
+    }
+
+    .modal-content{ /* shadow for the modal */
+      -webkit-box-shadow: 2px 2px 10px 0px rgba(209,209,209,1);
+      -moz-box-shadow: 2px 2px 10px 0px rgba(209,209,209,1);
+      -o-box-shadow: 2px 2px 10px 0px rgba(209,209,209,1);
+      box-shadow: 2px 2px 10px 0px rgba(209,209,209,1);
+      border: white 0px;
+    }
+
+    #target {
+      position: absolute;
+      width: 300px;
+      top: 615px;
+      left: 765px;
+      z-index: 10;
+      border-bottom: hidden;
+    }
+
+    #intro, #scenario {
+      position: absolute;
+      top: 25%
+    }
+
+    /* #reset {
+      position: absolute;
+      top: 250px;
+      right: 350px;
+    } */
+
+    .tooltip-inner {
+      background-color: white;
+      font-family: 'Montserrat', sans-serif;
+      color: black;
+      font-size: 16px;
+      padding: 20px;
+      -webkit-box-shadow: 2px 2px 10px 0px rgba(209,209,209,1);
+      -moz-box-shadow: 2px 2px 10px 0px rgba(209,209,209,1);
+      -o-box-shadow: 2px 2px 10px 0px rgba(209,209,209,1);
+      box-shadow: 2px 2px 10px 0px rgba(209,209,209,1);
+      border: white 0px;
+      max-width: 300px;
+      text-align: left;
+    }
+
+    .tooltip.in {
+        opacity: 1; /* solid background for tooltip */
+    }
+
+    #timeNum {
+      font-size: 24px;
+      color: #41948E;
+    }
+
+    #bolus_meal_time {
+      font-size: 12px;
+      margin-top: -15px;
+      margin-bottom: -5px;
+      padding-left: 125px;
+      margin-left: -100px;
+      margin-right: -100px;
+    }
+  </style>
+  <body>
+
+    <!--Fixed Navigation Bar-->
+    <nav class="navbar navbar-default navbar-fixed-top" id="header">
+      <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="index.html"><b>InsuLearn</b></a>
+        </div>
+
+        <!-- Links to home, interactive graphs, terminology, and about -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="index.html">Home</a></li>
+            <li class="active"><a href="#">Interactive Graphs</a></li>
+            <li><a href="terminology.html">Learn More</a></li>
+            <li><a href="about.html">About</a></li>
+          </ul>
+        </div><!-- /.navbar-collapse -->
+      </div><!-- /.container-fluid -->
+    </nav>
+
+    <div class="container">
+      <a href="graphs-menu.html" style="color: #9B9B9B"><img src="img/back_arrow.png" style= "width: 25px"> Back to Interactive Graphs Menu</a>
+      <center>
+        <div style="width: 750px">
+          <h3 style="text-align: left"><b>Insulin Timing & Dosing</b></h3>
+          <p style="text-align: left">Choose a starting graph</p>
+          <div style="text-align: left">
+            <img src="img/forgot_bolus_current.png" width="100" data-toggle="tooltip" data-placement="bottom" data-container="body" data-html="true" title="<b>Scenario</b>: You were busy at work, had a quick lunch and forgot to bolus before your next meeting.">
+            <!-- <img src="https://complianz.io/wp-content/uploads/2019/03/placeholder-300x202.jpg" width="100"> -->
+            <button type="button" class="btn btn-primary" id="reset" style="margin-top: -50px; margin-left: 680px">Reset</button>
+          </div>
+       
+          <svg width="750" height="525"></svg>
+         
+       
+       
+        </div>
+      </center>
+    </div>
+
+    <!-- Modal: Intro -->
+    <div class="modal fade" id="intro" tabindex="-1" role="dialog" aria-labelledby="movingdown" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header" style="padding: 25px">
+            <center><p style="font-size: 20px">Imagine that...</p></center>
+            <p style="font-size: 20px">You were busy at work, had a quick lunch and forgot to bolus before your next meeting. </p><br>
+            <p style="font-size: 20px">Use the sliders to adjust the <b>bolus time & dose</b> to increase
+               the time in range.<br>
+            <center>
+              <button type="button" id="back" class="btn back" style="margin-top: 10px">Back</button>
+              <button type="button" id="next" class="btn btn-primary" style="margin-top: 10px">Start</button>
+            </center>
+          </div>
+        </div>
+      </div>
+    </div>
+
+   
+
+
+  </body>
+
+<script src="https://d3js.org/d3.v5.min.js"></script>
+<script>
+  
+
+   
+
+
+    // function to add shadow to the navbar
+    $(window).scroll(function() {
+    var scroll = $(window).scrollTop();
+    if (scroll > 0) {
+      $("#header").addClass("active");
+    }
+    else {
+      $("#header").removeClass("active");
+    }
+    });
+
+    // tooltips
+    $(function () {$('[data-toggle="tooltip"]').tooltip()})
+
+    // open beginning modal
+    $(document).ready(function () {
+      $('#intro').modal({backdrop: 'static', keyboard: false})
+      $('#intro').modal('show');
+    });
+
+    $('#intro').on('show.bs.modal', function (e) {
+        $('body').addClass("example-open");
+    }).on('hide.bs.modal', function (e) {
+        $('body').removeClass("example-open");
+    })
+
+    $('#back').on('click', function() { window.location = 'graphs-menu.html'; });
+    $('#reset').on('click', function() { window.location = 'prebolus.html'; });
+    $('#next').on('click', function() { $('#intro').modal('hide'); });
+</script>
+</html>

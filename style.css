@@ -10,6 +10,7 @@ b {
 }
 
 h1 {
+  font-size: 20px;
 }
 
 h4 {
@@ -61,6 +62,89 @@ h5 {
 }
 
 
+.sidenav {
+  height: 60%;
+  width: 0;
+  top:20%;
+  position: fixed;
+  z-index: 5;
+  left: 0;
+  background-color: #050941;
+  overflow-x: hidden;
+  transition: 0.5s;
+  padding-top: 60px;
+  padding-bottom: 20px;
+  color: white;
+  border-radius: 0px 30px 30px 0px;
+}
+
+.sidenav a {
+  padding: 8px 8px 8px 32px;
+  text-decoration: none;
+  font-size: 25px;
+  color: white;
+  display: block;
+  transition: 0.3s;
+}
+
+.sidenav a:hover {
+  color: #f1f1f1;
+}
+
+#close {
+  position: absolute;
+  top: 0;
+  right: 25px;
+  margin-left: 50px;
+}
+#grid {
+  position: absolute;
+  top: 0;
+  right: 60px;
+  margin-left: 50px;
+}
+.sidenav .container {
+  text-align: center;
+  width: 100%;
+
+}
+
+.sidenav .row {
+  width: 100%;
+  background-color: #FFFFFF;
+  opacity:0.12;
+}
+.sidenav .scenario {
+  width:150px;
+  height:150px;
+  
+  outline-style: solid;
+  outline-color: coral;
+  background-color: white;
+  border-radius: 8px 8px 8px 8px;
+
+}
+
+
+
+
+@media screen and (max-height: 450px) {
+  .sidenav {padding-top: 15px;}
+  .sidenav a {font-size: 18px;}
+}
+
+#overlay {
+  position: fixed; /* Sit on top of the page content */
+  display: none; /* Hidden by default */
+  width: 100%; /* Full width (cover the whole page) */
+  height: 100%; /* Full height (cover the whole page) */
+  top: 0;
+  left: 0;
+  background-color: rgba(0,0,0,0.5); /* Black background with opacity */
+  z-index: 4; /* Specify a stack order in case you're using a different order for other elements */
+  cursor: pointer; /* Add a pointer on hover */
+}
+
 .terms li {
   padding-bottom: 5px;
 }
@@ -73,6 +157,7 @@ h5 {
 
 /* navbar background */
 .navbar-default {
+    z-index:2;
     background-color: white;
     border-color: white;
 }
@@ -109,21 +194,7 @@ h5 {
     color: #41948E; /*emerald green*/
   }
 
-/* navigation bar drop shadow 
-body > #header{position:fixed;}
 
-  #header {
-      width: 100%;
-      position: fixed;
-      z-index:100;
-      overflow: auto;
-      transition: all 0.15s linear;
-  }
-
-  #header.active {
-       box-shadow: 0 0 10px rgba(0,0,0,0.2);
-  }
-*/
 /*drop down menu*/
   .dropdown-item {
       color: #747474;
@@ -296,11 +367,6 @@ body > #header{position:fixed;}
     top: 25%
   }
 
-  /* #reset {
-      position: absolute;
-      top: 250px;
-      right: 350px;
-    } */
 
   .tooltip-inner {
     background-color: white;

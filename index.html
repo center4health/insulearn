@@ -1,109 +1,157 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <title>Visual Diabetes Learning</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-  </head>
-  <style>
-    #learn {
-      color: black;
-      background-color: white;
-      border-color: #c4c4c4;
-    }
-    #learn:hover {
-      color: black;
-      background-color: #ededed; /*dark green*/
-      border-color: #ededed; /*dark green*/
-    }
 
-    .footer {
-       position: fixed;
-       padding-top: 25px;
-       padding-bottom: 25px;
-       left: 0;
-       bottom: 0;
-       width: 100%;
-       background-color: #41948E; /*emerald green*/
-       color: white;
-       text-align: center;
-    }
-  </style>
-  <body>
+<head>
+  <title>Visual Diabetes Learning</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="style.css">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+    rel="stylesheet">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <script src="https://kit.fontawesome.com/008a24505e.js" crossorigin="anonymous"></script>
+</head>
+<style>
+  #learn {
+    color: black;
+    background-color: white;
+    border-color: #c4c4c4;
+  }
 
-    <!--Fixed Navigation Bar-->
-    <nav class="navbar navbar-default navbar-fixed-top" id="header">
-      <div class="container-fluid">
-        <!-- Brand and toggle get grouped for better mobile display -->
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="#"><b>Diabetes Learning</b></a>
-        </div>
+  #learn:hover {
+    color: black;
+    background-color: #ededed;
+    /*dark green*/
+    border-color: #ededed;
+    /*dark green*/
+  }
 
-        <!-- Links to home, interactive graphs, terminology, and about -->
-        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-          <ul class="nav navbar-nav navbar-right">
-            <li class="active"><a href="#">Home</a></li>
-            <li><a href="graphs-menu.html">Learning Tools</a></li>
-            <li><a href="terminology.html">Glosssary</a></li>
-            <li><a href="about.html">About</a></li>
-          </ul>
-        </div><!-- /.navbar-collapse -->
-      </div><!-- /.container-fluid -->
-    </nav>
+  .footer {
+    position: fixed;
+    padding-top: 25px;
+    padding-bottom: 25px;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background-color: #41948E;
+    /*emerald green*/
+    color: white;
+    text-align: center;
+  }
+</style>
+
+<body>
+  <div id="overlay"></div>
+
+  <!--Fixed Navigation Bar-->
+  <nav class="navbar navbar-default navbar-fixed-top" id="header">
+    <div class="container-fluid">
+      <!-- Brand and toggle get grouped for better mobile display -->
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+          data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="#"><b>Diabetes Learning</b></a>
+      </div>
+
+      <!-- Links to home, interactive graphs, terminology, and about -->
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <ul class="nav navbar-nav navbar-right">
+          <li class="active"><a href="#">Home</a></li>
+          <li><a href="graphs-menu.html">Learning Tools</a></li>
+          <li><a href="terminology.html">Glosssary</a></li>
+          <li><a href="about.html">About</a></li>
+        </ul>
+      </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+  </nav>
+
+  <div class="container">
+    <div class="row" style="padding-top: 50px">
+      <div class="col-sm-6">
+        <h1 style="padding-bottom: 20px;"><b>Diabetes</b> is manageable</h1>
+        <p style="padding-bottom: 15px;">Understanding how insulin, meals and other factors influence blood glucose the
+          concepts helps people
+          with diabetes, their healthcare providers and support network behind diabetes.
+        </p>
+        <p>
+          We hope that the interactive visualizations will <b>empower</b> you to learn and educate about diabetes.
+        <p><br>
+          <button type="button" class="btn btn-primary" style="margin-bottom: 50px" id="seeworks">Let's Start!
+            »</button>
+          <button type="button" class="btn btn-primary" style="margin-bottom: 50px; margin-right: 20px" id="learn">Learn
+            More »</button>
+
+      </div>
+      <div class="col-sm-6">
+        <img src="img/glucose.gif" width=100%>
+      </div>
+    </div>
+    <div style="padding-bottom: 250px">
+    </div>
+  </div>
+
+  <!-- The side menu that is invisible at first-->
+  <div id="mySidenav" class="sidenav">
+    <a href="javascript:void(0)" id="close" onclick="closeNav()"><i class="fas fa-times"></i></a>
+    <a href="javascript:void(0)" id="grid"><i class="fas fa-th-large"></i></a>
 
     <div class="container">
-      <div class="row" style="padding-top: 50px">
-        <div class="col-sm-6">
-          <h1 style="padding-bottom: 20px;"><b>Diabetes</b> is manageable</h1>
-          <p style="padding-bottom: 15px;">Learning diabetes helps people 
-            with diabetes, their healthcare providers and support network to understand concepts of diabetes.
-          </p>
-          <p>
-            We hope that the interactive visualizations will <b>empower</b> you to learn and educate about diabetes.
-          <p><br>
-          <button type="button" class="btn btn-primary" style="margin-bottom: 50px" id="seeworks">Let's Start! »</button>
-          <button type="button" class="btn btn-primary" style="margin-bottom: 50px; margin-right: 20px" id="learn">Learn More »</button>
-          
+
+      <h1>
+        Welcome to Learn Diabetes!
+      </h1>
+      <p>Here, you will learn the basics of diabetes.</br> Select a topic below.</p>
+      <div class="row">
+        <div class="col-md-3">
+          <div class="scenario">
+            <p>Test</p>
+          </div>
+
         </div>
-        <div class="col-sm-6">
-          <img src="img/glucose.gif" width=100%>
+        <div class="col-md-3">
+          <div class="scenario">
+            <p>Test</p>
+          </div>
+
         </div>
-      </div>
-      <div style="padding-bottom: 250px">
       </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="footer">
-      <div class="row">
-        <div class="col-sm-6" style="padding-top: 5px; margin-bottom: 10px">
-          <a href="http://ddi.ucsd.edu" target="_blank"><img src="img/ddi-logo.png" style="max-width: 150px; margin-right: 50px"></a>
-          <a href="https://designlab.ucsd.edu" target="_blank"><img src="img/dlab-logo.png" style="max-width: 150px"></a>
-        </div>
-        <div class="col-sm-6" style="font-size: 12px; color: black; margin-top: 5px;padding-right: 100px; text-align: left; padding-left: 100px">
-          <b>Note</b>: The information on this site is not intended or implied to be a
-             substitute for professional medical advice, diagnosis or treatment.
-             All content, including text, graphics, images and information,
-             contained on or available through this website is for general
-             information purposes only.</p>
-        </div>
+
+  </div>
+
+
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="row">
+      <div class="col-sm-6" style="padding-top: 5px; margin-bottom: 10px">
+        <a href="http://ddi.ucsd.edu" target="_blank"><img src="img/ddi-logo.png"
+            style="max-width: 150px; margin-right: 50px"></a>
+        <a href="https://designlab.ucsd.edu" target="_blank"><img src="img/dlab-logo.png" style="max-width: 150px"></a>
       </div>
-    </footer>
-  </body>
-  <script>
-    // function to add shadow to the navbar
-    $(window).scroll(function() {
+      <div class="col-sm-6"
+        style="font-size: 12px; color: black; margin-top: 5px;padding-right: 100px; text-align: left; padding-left: 100px">
+        <b>Note</b>: The information on this site is not intended or implied to be a
+        substitute for professional medical advice, diagnosis or treatment.
+        All content, including text, graphics, images and information,
+        contained on or available through this website is for general
+        information purposes only.</p>
+      </div>
+    </div>
+  </footer>
+</body>
+<script>
+  // function to add shadow to the navbar
+  $(window).scroll(function () {
     var scroll = $(window).scrollTop();
     if (scroll > 0) {
       $("#header").addClass("active");
@@ -111,9 +159,20 @@
     else {
       $("#header").removeClass("active");
     }
-    });
+  });
 
-    $('#learn').on('click', function() { window.location = 'terminology.html'; });
-    $('#seeworks').on('click', function() { window.location = 'graphs-menu.html'; });
-  </script>
+  function openNav() {
+    document.getElementById("overlay").style.display = "block";
+    document.getElementById("mySidenav").style.width = "80%";
+  }
+
+  function closeNav() {
+    document.getElementById("overlay").style.display = "none";
+    document.getElementById("mySidenav").style.width = "0";
+  }
+
+  $('#learn').on('click', function () { window.location = 'terminology.html'; });
+  $('#seeworks').on('click', function () { openNav(); });
+</script>
+
 </html>
