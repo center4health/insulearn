@@ -21,7 +21,8 @@ const INSULIN_TYPE = {
 }
 
 const MEAL_COMPONENTS = {
-    "SIMPLE_CARB": { PEAK: 30, DURATION: 200, ONSET: 0, NAME: "SIMPLE CARB" },  // e.g. sugar
+    "FAST_CARB": { PEAK: 25, DURATION: 90, ONSET: 0, NAME: "FAST CARB" }, // e.g. sugar
+    "SIMPLE_CARB": { PEAK: 30, DURATION: 200, ONSET: 0, NAME: "SIMPLE CARB" },  
     "COMPLEX_CARB": { PEAK: 60, DURATION: 300, ONSET: 0, NAME: "COMPLEX CARB" }
 }
 
@@ -630,7 +631,7 @@ class Chart {
         let graph = g.append("path")
             .datum(this.model.getShapeOf(factor))
             .attr("fill", fill_color)
-            .attr("fill-opacity", "0.5")
+            .attr("fill-opacity", "0.2")
             .attr("stroke", stroke_color) // insulin curve color
             .attr("stroke-width", 1) // size(stroke) of the insulin curve
         if (factor.displayoptions.xhandle) {
@@ -642,7 +643,7 @@ class Chart {
     }
 
     drawMeal(meal) {
-        this.drawFactor(meal, "#41948E", "#41FF8E");
+        this.drawFactor(meal, "#050941", "#050941");
     }
 
     drawInsulin(insulin, stroke_color = "#944141", fill_color = "#944141") {

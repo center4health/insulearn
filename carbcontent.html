@@ -87,14 +87,16 @@
     </div>
     <div class="container-fluid" id="topics">
       <div id="carbs">
-        <div class="col-md-12"><h1>Topic 1: Simple Carbohydrates (carbs)</h1></div>
-       
+        <div class="col-md-12">
+          <h1>Topic 1: Simple Carbohydrates (carbs)</h1>
+        </div>
+
 
         <div class="row">
           <div class="col-md-1">
             <img src="/img/left.png" class="hidden" id="previous">
           </div>
-          
+
           <div class="col-md-4">
             <button class="scenario"><img src="/img/carbcontent.png">
               <p>Simple Carbs</p>
@@ -113,8 +115,10 @@
       </div>
       <div id="insulin" class="hidden">
         <div class="row">
-          <div class="col-md-12"><h1>Topic 2: Bolus</h1></div>
-  
+          <div class="col-md-12">
+            <h1>Topic 2: Bolus</h1>
+          </div>
+
           <div class="col-md-1">
             <img src="/img/left.png" id="previous2">
           </div>
@@ -139,31 +143,53 @@
         </div>
       </div>
     </div>
-    
+
   </div>
 
+  <div class="handle">
+
+  </div>
 
   <div class="container">
-    <div class="row" style="padding-top: 50px">
-      <div class="col-sm-6">
-        <h1 style="padding-bottom: 20px;"><b>Diabetes</b> is manageable</h1>
-        <p style="padding-bottom: 15px;">Understanding how insulin, meals and other factors influence blood glucose the
-          concepts helps people
-          with diabetes, their healthcare providers and support network behind diabetes.
-        </p>
-        <p>
-          We hope that the interactive visualizations will <b>empower</b> you to learn and educate about diabetes.
-        <p><br>
-          <button type="button" class="btn btn-primary" style="margin-bottom: 50px" id="seeworks">Let's Start!
-            »</button>
-          <button type="button" class="btn btn-primary" style="margin-bottom: 50px; margin-right: 20px" id="learn">Learn
-            More »</button>
+    <div class="row">
+      <div class="col-md-9">
+        <div id="chart">
+
+        </div>
+        <div class="row" id="foods">
+          <div class="col-xs-2 padding-0" id="juice">
+            <button><img src="/img/Applejuice.png"  class="img-responsive">
+          </div>
+          <div class="col-xs-2 padding-0" id="chocolate">
+            <button><img src="/img/Chocolate.png" class="img-responsive">
+          </div>
+          <div class="col-xs-2 padding-0" id="candy">
+            <button><img src="/img/Candy.png"  class="img-responsive">
+          </div>
+          <div class="col-xs-2 padding-0" id="croissant">
+            <button><img src="/img/Croissant.png"  class="img-responsive">
+          </div>
+          <!-- <div class="col-md-1 padding-0">
+            <button><img src="/img/Grapes.png" class="img-responsive">
+          </div> -->
+          <div class="col-xs-2 padding-0" id="lettuce">
+            <button><img src="/img/Lettuce.png"  class="img-responsive">
+          </div>
+          <div class="col-xs-2 padding-0" id="cheese">
+            <button><img src="/img/Cheese.png"  class="img-responsive">
+          </div>
+        </div>
       </div>
-      <div class="col-sm-6">
-        <img src="img/glucose.gif" width=100%>
+
+      <div class="col-md-3">
+        <div id="info">
+          <h1>Simple Carbohydrates</h1>
+          <p>It’s lunch time and your blood sugar is trending low.</P>
+          <p>You decide to eat something to treat the low.</p>
+          <p><b>Select</b> different foods to see how they affect the CGM graph.</p>
+        </div>
       </div>
-    </div>
-    <div style="padding-bottom: 250px">
+
     </div>
   </div>
 
@@ -172,7 +198,7 @@
 
 
   <!-- Footer -->
-  <footer class="footer">
+  <!-- <footer class="footer">
     <div class="row">
       <div class="col-sm-6" style="padding-top: 5px; margin-bottom: 10px">
         <a href="http://ddi.ucsd.edu" target="_blank"><img src="img/ddi-logo.png"
@@ -188,8 +214,10 @@
         information purposes only.</p>
       </div>
     </div>
-  </footer>
+  </footer> -->
 </body>
+<script src="https://d3js.org/d3.v5.min.js"></script>
+<script src="dwn.js"></script>
 <script>
   // function to add shadow to the navbar
   $(window).scroll(function () {
@@ -222,6 +250,110 @@
       $("#carbs").removeClass("hidden");
       $("#insulin").addClass("hidden");
     });
+
+
+  });
+
+
+  let timeParse = d3.timeParse("%H:%M:%S")
+  let mintime = timeParse("11:00:00");
+  let model = new Model(mintime, timeParse("14:30:00"));
+  let chart = new Chart("#chart", model, 250);
+  chart.drawTargetRange([70, 180]);
+
+  let hiddeninsulin = new Insulin(14, timeParse("10:00:00"), INSULIN_TYPE.RAPID, "secret");
+  model.addFactor(hiddeninsulin);
+
+  chart.drawBG(model);
+
+  let meal_time = d3.timeMinute.offset(mintime, 30);
+  let meal = new Meal(50, meal_time, MEAL_COMPONENTS.FAST_CARB, "Juice");
+  meal.displayoptions.yhandle = false;
+  meal.displayoptions.xhandle = false;
+  model.addFactor(meal);
+  chart.drawMeal(meal)
+  chart.drawBG(model);
+
+  let meals = {
+    "Juice": {
+      button: "#juice",
+      amount: 50,
+      type:MEAL_COMPONENTS.FAST_CARB,
+      icon:"/img/Applejuice.png",
+    },
+    "Chocolate": {
+      button:"#chocolate",
+      amount: 40,
+      type:MEAL_COMPONENTS.SIMPLE_CARB,
+      icon:"/img/Chocoalte.png",
+    },
+    "Candy": {
+      button:"#candy",
+      amount: 50,
+      type:MEAL_COMPONENTS.FAST_CARB,
+      icon:"/img/Candy.png",
+    },
+    "Croissant": {
+      button:"#croissant",
+      amount: 30,
+      type:MEAL_COMPONENTS.SIMPLE_CARB,
+      icon:"/img/Croissant.png",
+    },
+    "Cheese": {
+      button:"#cheese",
+      amount: 15,
+      type:MEAL_COMPONENTS.COMPLEX_CARB,
+      icon:"/img/Cheese.png",
+    },
+    "Lettuce": {
+      button:"#lettuce",
+      amount: 5,
+      type:MEAL_COMPONENTS.COMPLEX_CARB,
+      icon:"/img/Lettuce.png",
+    },
+  }
+  let cur_meal="Juice";
+  function pick_meal(name) {
+    
+    chart.removeFactor(meal);
+    model.removeFactor(meal);
+    cur_meal=name;
+  
+
+    meal = new Meal(meals[name].amount, meal_time, meals[name].type, name);
+    
+    meal.displayoptions.yhandle = false;
+    meal.displayoptions.xhandle = false;
+    meal.displayoptions.icon=meals[name].icon;
+    model.addFactor(meal);
+    chart.drawMeal(meal);
+    chart.drawBG(model);
+  }
+  $(document).ready(function () {
+    for (const [ name, food ] of Object.entries(meals)) {
+      
+      $(food.button).click(
+          function () { pick_meal(name);
+          });
+      }
+    // $("#juice").click(function () {
+    //   pick_meal("Juice");
+    // });
+    // $("#chocolate").click(function () {
+    //   pick_meal("Chocolate");
+    // });
+    // $("#candy").click(function () {
+    //   pick_meal("Candy");
+    // });
+    // $("#croissant").click(function () {
+    //   pick_meal("Croissant");
+    // });
+    // $("#lettuce").click(function () {
+    //   pick_meal("Lettuce");
+    // });
+    // $("#cheese").click(function () {
+    //   pick_meal("Cheese");
+    // });
   });
 
 

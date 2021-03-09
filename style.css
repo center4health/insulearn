@@ -166,6 +166,19 @@ h5 {
   /* Add a pointer on hover */
 }
 
+.padding-0{
+  padding-right:0;
+  padding-left:0;
+}
+
+button:disabled,
+button[disabled]{
+  border: 1px solid #999999;
+  background-color: #cccccc;
+  color: #666666;
+  /* background-color: #050941; */
+}
+
 .terms li {
   padding-bottom: 5px;
 }
