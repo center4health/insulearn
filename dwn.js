@@ -436,7 +436,9 @@ class Chart {
     }
 
     drawToolTip(text, color, text2, text3) {
-        let tooltip = this.svg.append("g");
+        this.svg.selectAll("#calloutbox").remove();
+        let tooltip = this.svg.append("g")
+            .attr("id", "calloutbox");
         let rect = {
             height: 50,
             width: 270,
@@ -476,7 +478,7 @@ class Chart {
             .call(wrap, 250);
 
         let cbox = {
-            height: 80,
+            height: 90,
             width: rect.width + 10,
             x: rect.x,
             y: rect.y + 30
@@ -505,7 +507,7 @@ class Chart {
 
         // Text2
         tooltip.append("text").text(text2)
-            .attr("x", cbox.x + 35)
+            .attr("x", cbox.x + 10)
             .attr("y", cbox.y + 25)
             .attr("visibility", "visible")
             .attr("id", "tooltip-text")
@@ -513,16 +515,16 @@ class Chart {
 
 
         tooltip.append("line")
-            .attr("x1", cbox.x + 35)
+            .attr("x1", cbox.x + 10)
             .attr("y1", cbox.y + cbox.height / 2)
-            .attr("x2", cbox.x + cbox.width - 35)
+            .attr("x2", cbox.x + cbox.width - 10)
             .attr("y2", cbox.y + cbox.height / 2)
             .style("stroke", "#CFCFCF")
 
 
         // Text2
         tooltip.append("text").text(text3)
-            .attr("x", cbox.x + 35)
+            .attr("x", cbox.x + 10)
             .attr("y", cbox.y + 65)
             .attr("visibility", "visible")
             .attr("id", "tooltip-text")

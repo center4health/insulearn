@@ -274,36 +274,60 @@
       amount: 40,
       type:MEAL_COMPONENTS.FAST_CARB,
       icon:"/img/Applejuice.png",
+      impact:"Fast Acting, Simple Carb",
+      color: "#9CD9B5", 
+      sugar:"High Sugar", 
+      spike:"Quick spike 15 -30 mins"
     },
     "Chocolate": {
       button:"#chocolate",
       amount: 40,
       type:MEAL_COMPONENTS.SIMPLE_CARB,
       icon:"/img/Chocolate.png",
+      impact:"Carb Type May Vary",
+      color: "#FFF386", 
+      sugar:"High fat, sometimes high fiber", 
+      spike:"Very slow rise with a delayed drop"
     },
     "Candy": {
       button:"#candy",
       amount: 36,
       type:MEAL_COMPONENTS.FAST_CARB,
       icon:"/img/Candy.png",
+      impact:"Fast Acting, Simple Carb",
+      color: "#9CD9B5", 
+      sugar:"High Sugar", 
+      spike:"Quick spike 15 -30 mins"
     },
     "Croissant": {
       button:"#croissant",
       amount: 30,
       type:MEAL_COMPONENTS.SIMPLE_CARB,
       icon:"/img/Croissant.png",
+      impact:"Not Fast Acting, Simple Carb",
+      color: "#E49C9D", 
+      sugar:"High Fat", 
+      spike:"Very slow rise: 30+ mins"
     },
     "Cheese": {
       button:"#cheese",
       amount: 30,
       type:MEAL_COMPONENTS.COMPLEX_CARB,
       icon:"/img/Cheese.png",
+      impact:"Not Fast Acting, Simple Carb",
+      color: "#E49C9D", 
+      sugar:"High Fat and protein", 
+      spike:"Slight rise with delayed effects in a couple hours"
     },
     "Lettuce": {
       button:"#lettuce",
       amount: 5,
       type:MEAL_COMPONENTS.COMPLEX_CARB,
-      icon:"/img/Lettuce.png",
+      icon:"/img/Lettuce.png", 
+      impact:"Not Fast Acting, Simple Carb",
+      color: "#E49C9D", 
+      sugar:"Low carbs", 
+      spike:"Blood sugar will continue to drop"
     },
   }
   
@@ -320,7 +344,7 @@
     model.addFactor(meal);
     chart.drawMeal(meal);
     chart.drawBG(model);
-    chart.drawToolTip("NOT Fast Acting, Simple Carb", "#9CD9B5", "High Sugar", "Quick spike 15 -30 mins");
+    chart.drawToolTip(meals[name].impact, meals[name].color, meals[name].sugar, meals[name].spike);
   }
 
   let meal_time = d3.timeMinute.offset(mintime, 30);
