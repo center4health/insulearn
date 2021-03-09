@@ -22,7 +22,7 @@ const INSULIN_TYPE = {
 
 const MEAL_COMPONENTS = {
     "FAST_CARB": { PEAK: 20, DURATION: 60, ONSET: 0, NAME: "FAST CARB" }, // e.g. sugar
-    "SIMPLE_CARB": { PEAK: 30, DURATION: 200, ONSET: 0, NAME: "SIMPLE CARB" },  
+    "SIMPLE_CARB": { PEAK: 30, DURATION: 200, ONSET: 0, NAME: "SIMPLE CARB" },
     "COMPLEX_CARB": { PEAK: 60, DURATION: 300, ONSET: 0, NAME: "COMPLEX CARB" }
 }
 
@@ -435,30 +435,95 @@ class Chart {
         this.drawBase(this.svg);
     }
 
-    drawToolTip(svg, hoverObj) {
-        let tooltip = svg.append("g");
-        let rectData = {
-            height: 100,
-            width: 300,
-            x: 380,
-            y: 10,
-            rx: 30
+    drawToolTip(text, color, text2, text3) {
+        let tooltip = this.svg.append("g");
+        let rect = {
+            height: 50,
+            width: 270,
+            x: 160,
+            y: 40,
+            rx: 15
         };
+
+        //shadow first rect
+        tooltip.append("rect")
+            .style("fill", "black")
+            .style("stroke", "none")
+            .attr("fill-opacity", "0.1")
+            .attr("x", rect.x - 1)
+            .attr("y", rect.y - 1)
+            .attr("width", rect.width + 2)
+            .attr("height", rect.height + 2)
+            .attr("rx", rect.rx);
+
+        // Background 1st row
+        tooltip.append("rect")
+            .style("fill", color)
+            .style("stroke", "none")
+            .attr("x", rect.x)
+            .attr("y", rect.y)
+            .attr("width", rect.width)
+            .attr("height", rect.height)
+            .attr("rx", rect.rx);
+
+        // Text 1st row
+        tooltip.append("text").text(text)
+            .attr("x", rect.x + 10)
+            .attr("y", rect.y + 22)
+            .attr("visibility", "visible")
+            .attr("font-weight", "bold")
+            .attr("id", "tooltip-text")
+            .call(wrap, 250);
+
+        let cbox = {
+            height: 80,
+            width: rect.width + 10,
+            x: rect.x,
+            y: rect.y + 30
+        }
+
+        // Shadow second box
+        tooltip.append("rect")
+            .style("fill", "black")
+            .style("stroke", "none")
+            .attr("fill-opacity", "0.1")
+            .attr("x", cbox.x - 1)
+            .attr("y", cbox.y - 1)
+            .attr("width", cbox.width + 2)
+            .attr("height", cbox.height + 3)
+            .attr("rx", rect.rx);
 
         // Background
         tooltip.append("rect")
             .style("fill", "white")
-            .style("stroke", "black")
-            .attr("x", rectData.x)
-            .attr("y", rectData.y)
-            .attr("width", rectData.width)
-            .attr("height", rectData.height)
-            .attr("rx", rectData.rx);
+            .style("stroke", "none")
+            .attr("x", cbox.x)
+            .attr("y", cbox.y)
+            .attr("width", cbox.width)
+            .attr("height", cbox.height)
+            .attr("rx", rect.rx);
 
-        // Text
-        tooltip.append("text").text("You can display information here")
-            .attr("x", rectData.x + 30)
-            .attr("y", rectData.y + 30)
+        // Text2
+        tooltip.append("text").text(text2)
+            .attr("x", cbox.x + 35)
+            .attr("y", cbox.y + 25)
+            .attr("visibility", "visible")
+            .attr("id", "tooltip-text")
+            .call(wrap, 250);
+
+
+        tooltip.append("line")
+            .attr("x1", cbox.x + 35)
+            .attr("y1", cbox.y + cbox.height / 2)
+            .attr("x2", cbox.x + cbox.width - 35)
+            .attr("y2", cbox.y + cbox.height / 2)
+            .style("stroke", "#CFCFCF")
+
+
+        // Text2
+        tooltip.append("text").text(text3)
+            .attr("x", cbox.x + 35)
+            .attr("y", cbox.y + 65)
             .attr("visibility", "visible")
             .attr("id", "tooltip-text")
             .call(wrap, 250);
@@ -531,7 +596,7 @@ class Chart {
             .attr('cx', (d) => { return this.x(d.x); })
             .attr('cy', (d) => { return this.y(d.y); });
 
-        
+
     }
     removeBG() {
         this.graphArea.selectAll(".bg_curve").remove();
@@ -560,14 +625,14 @@ class Chart {
             }
         }
         if (factor.displayoptions.icon) {
-            let icon_frame=g.append("g");
-            
+            let icon_frame = g.append("g");
+
             g.append("rect")
                 .attr("fill", "url(#icon)")
                 .attr("width", 80)
                 .attr("height", 80)
-                .attr("x", this.x(factor.getTime())-25)
-                .attr("y", this.height-80)
+                .attr("x", this.x(factor.getTime()) - 25)
+                .attr("y", this.height - 80)
 
             g.append("pattern")
                 .attr("id", "icon")
@@ -724,6 +789,15 @@ class Chart {
             this.updateBG(this.bg);
         }
     }
+    highlightEvent(event) {
+        //find location of the marker
+
+
+        //add circle or icon if provided
+
+
+        //add explanation
+    }
 }
 
 
@@ -743,7 +817,7 @@ class CurveEditor {
         this.width = 300;
         this.height = 200;
         this.length = length;
-        this.mindistance=this.width/length*5; //don't allow points closer than 5 minutes to each other
+        this.mindistance = this.width / length * 5; //don't allow points closer than 5 minutes to each other
         this.points = [
             [0, this.height],
             [this.width / length * peak, 10],
@@ -826,7 +900,7 @@ class CurveEditor {
     dragsubject() {
         let subject = d3.event.sourceEvent.target.__data__;
         //filter for first and last circle - they should not  be able to be dragged
-        if ( (subject ===this.points[0]) ||  (subject===this.points[this.points.length-1])) {
+        if ((subject === this.points[0]) || (subject === this.points[this.points.length - 1])) {
             return;
         }
         if (!subject || subject.length > 2) {
@@ -847,11 +921,11 @@ class CurveEditor {
     }
 
     dragged() {
-        let i=this.points.findIndex(s=> s===d3.event.subject);
-        let newx=d3.event.x - this.margin.left;
-        
+        let i = this.points.findIndex(s => s === d3.event.subject);
+        let newx = d3.event.x - this.margin.left;
+
         console.log(i)
-        d3.event.subject[0] = Math.max(this.points[i-1][0]+this.mindistance, Math.min(this.points[i+1][0]-this.mindistance, newx));
+        d3.event.subject[0] = Math.max(this.points[i - 1][0] + this.mindistance, Math.min(this.points[i + 1][0] - this.mindistance, newx));
         d3.event.subject[1] = Math.max(0, Math.min(this.height, d3.event.y));
         this.update();
     }
@@ -877,7 +951,7 @@ class CurveEditor {
         let path = this.svg.select("path").node();
 
         for (let i = 1; i < this.length - 1; i++) {
-            let x=this.width/this.length*i;
+            let x = this.width / this.length * i;
             curve.push((this.height - this.findYatXbyBisection(x, path, 0.5)) / this.height)
         }
         curve.push(0);

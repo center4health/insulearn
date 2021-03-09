@@ -309,19 +309,18 @@
   
   function pick_meal(name) {
     if(meal){
-      console.log("trying")
-      chart.removeFactor(meal);
       model.removeFactor(meal);
+      chart.removeFactor(meal);
     }
     cur_meal=name;
     meal = new Meal(meals[name].amount, meal_time, meals[name].type, name);
-    
     meal.displayoptions.yhandle = false;
     meal.displayoptions.xhandle = false;
     meal.displayoptions.icon=meals[name].icon;
     model.addFactor(meal);
     chart.drawMeal(meal);
     chart.drawBG(model);
+    chart.drawToolTip("NOT Fast Acting, Simple Carb", "#9CD9B5", "High Sugar", "Quick spike 15 -30 mins");
   }
 
   let meal_time = d3.timeMinute.offset(mintime, 30);
