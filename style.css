@@ -72,6 +72,25 @@ h5 {
   /*light gray*/
 }
 
+#handle {
+  height: 62px;
+  width: 84px;
+  position: fixed;
+  left: 0;
+  top: 20%;
+  font-size: 32px;
+  background-color: #050941;
+  color: white;
+  border-radius: 0px 30px 30px 0px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-left: 15px;
+}
+
+#handle :hover {
+  color: #f1f1f1;
+}
+
 .sidenav {
   height: 60%;
   width: 0;
@@ -119,7 +138,6 @@ h5 {
   text-align: center;
 }
 
-
 #topics {
   text-align: center;
   width: 100%;
@@ -137,7 +155,6 @@ h5 {
   border-radius: 8px 8px 8px 8px;
 }
 
-
 @media screen and (max-height: 450px) {
   .sidenav {
     padding-top: 15px;
@@ -146,6 +163,31 @@ h5 {
     font-size: 18px;
   }
 }
+
+#info {
+  background-color: #050941;
+  color: white;
+  padding-top: 20px;
+  padding-left: 15px;
+  padding-right: 15px;
+  padding-bottom: 15px;
+  border-radius: 10px 10px 10px 10px;
+}
+
+#infodetails {
+  background-color: white;
+  color: black;
+  padding-top: 15px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.foodBtn{
+  width: 90px;
+  height: 90px;
+  border-radius: 5px 5px 5px 5px;
+}
+
 
 #overlay {
   position: fixed;
@@ -166,13 +208,12 @@ h5 {
   /* Add a pointer on hover */
 }
 
-.padding-0{
-  padding-right:0;
-  padding-left:0;
+.padding-0 {
+  padding-right: 0;
+  padding-left: 0;
 }
 
-button:disabled,
-button[disabled]{
+button:disabled, button[disabled] {
   border: 1px solid #999999;
   background-color: #cccccc;
   color: #666666;

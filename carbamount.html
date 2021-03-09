@@ -157,27 +157,26 @@
 
         </div>
         <div class="row" id="foods">
-          <div class="col-xs-2 padding-0">
-            <button id="juice" class="foodBtn"></button>
+          <div class="col-xs-2 padding-0" id="juice">
+            <button><img src="/img/Applejuice.png" class="img-responsive">
           </div>
-          <div class="col-xs-2 padding-0">
-            <button id="chocolate" class="foodBtn"></button>
+          <div class="col-xs-2 padding-0" id="chocolate">
+            <button><img src="/img/Chocolate.png" class="img-responsive">
           </div>
-          <div class="col-xs-2 padding-0">
-            <button id="candy" class="foodBtn"></button>
+          <div class="col-xs-2 padding-0" id="candy">
+            <button><img src="/img/Candy.png" class="img-responsive">
           </div>
-          <div class="col-xs-2 padding-0">
-            <button id="croissant" class="foodBtn"></button>
+          <div class="col-xs-2 padding-0" id="croissant">
+            <button><img src="/img/Croissant.png" class="img-responsive">
           </div>
           <!-- <div class="col-md-1 padding-0">
             <button><img src="/img/Grapes.png" class="img-responsive">
           </div> -->
-          <div class="col-xs-2 padding-0">
-            <button id="lettuce" class="foodBtn"></button>
+          <div class="col-xs-2 padding-0" id="lettuce">
+            <button><img src="/img/Lettuce.png" class="img-responsive">
           </div>
-          <div class="col-xs-2 padding-0">
-            <button id="cheese" class="foodBtn"></button>
-
+          <div class="col-xs-2 padding-0" id="cheese">
+            <button><img src="/img/Cheese.png" class="img-responsive">
           </div>
         </div>
       </div>
@@ -333,26 +332,14 @@
       spike: "Blood sugar will continue to drop"
     },
   }
-  COLOR_ACTIVE="#050941";
-  COLOR_PASSIVE="white";
-  function setBackground(button, color, icon) {
-    $(button).css("background", `url(${icon}`);
-    $(button).css("background-repeat", "no-repeat");
-    $(button).css("background-position", "center");
-    $(button).css("background-color", color);
-
-  }
 
   function pick_meal(name) {
     if (meal) {
       model.removeFactor(meal);
       chart.removeFactor(meal);
     }
-    setBackground(meals[cur_meal].button, COLOR_PASSIVE, meals[cur_meal].icon);
     cur_meal = name;
-    setBackground(meals[name].button, COLOR_ACTIVE, meals[name].icon);
     meal = new Meal(meals[name].amount, meal_time, meals[name].type, name);
-    meal.displayoptions.yhandle = false;
     meal.displayoptions.xhandle = false;
     meal.displayoptions.icon = meals[name].icon;
     model.addFactor(meal);
@@ -373,12 +360,6 @@
         function () {
           pick_meal(name);
         });
-      if (name==cur_meal){
-        setBackground(food.button, COLOR_ACTIVE, food.icon);
-      }else{
-        setBackground(food.button, COLOR_PASSIVE, food.icon);
-      }
-
     }
   });
 
