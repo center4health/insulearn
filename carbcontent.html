@@ -98,13 +98,14 @@
           </div>
 
           <div class="col-md-4">
-            <button class="scenario"><img src="/img/carbcontent.png">
+            <button class="scenario" onclick="{ window.location = 'carbcontent.html'; }"><img
+                src="/img/carbcontent.png">
               <p>Simple Carbs</p>
             </button>
           </div>
 
           <div class="col-md-4">
-            <button class="scenario"><img src="/img/carbamount.png">
+            <button class="scenario" onclick="{ window.location = 'carbamount.html'; }"><img src="/img/carbamount.png">
               <p>Carb Counting</p>
             </button>
           </div>
@@ -123,17 +124,20 @@
             <img src="/img/left.png" id="previous2">
           </div>
           <div class="col-md-3">
-            <button class="scenario"><img src="/img/bolustime.png">
+            <button class="scenario" onclick="{ window.location = 'bolus_too_early.html'; }"><img
+                src="/img/bolustime.png">
               <p>Insulin Timing</p>
             </button>
           </div>
           <div class="col-md-3">
-            <button class="scenario"><img src="/img/bolusdose.png">
+            <button class="scenario" onclick="{ window.location = '/bolus_too_little.html'; }"><img
+                src="/img/bolusdose.png">
               <p>Insulin Dosing</p>
             </button>
           </div>
           <div class="col-md-3">
-            <button class="scenario"><img src="/img/bolustime&dose.png">
+            <button class="scenario" onclick="{ window.location = '/bolus_too_much.html'; }"><img
+                src="/img/bolustime&dose.png">
               <p>Insulin Timing and Dosing</p>
             </button>
           </div>
@@ -333,8 +337,8 @@
       spike: "Blood sugar will continue to drop"
     },
   }
-  COLOR_ACTIVE="#050941";
-  COLOR_PASSIVE="white";
+  COLOR_ACTIVE = "#050941";
+  COLOR_PASSIVE = "white";
   function setBackground(button, color, icon) {
     $(button).css("background", `url(${icon}`);
     $(button).css("background-repeat", "no-repeat");
@@ -373,9 +377,9 @@
         function () {
           pick_meal(name);
         });
-      if (name==cur_meal){
+      if (name == cur_meal) {
         setBackground(food.button, COLOR_ACTIVE, food.icon);
-      }else{
+      } else {
         setBackground(food.button, COLOR_PASSIVE, food.icon);
       }
 
