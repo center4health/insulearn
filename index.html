@@ -73,6 +73,76 @@
     </div><!-- /.container-fluid -->
   </nav>
 
+  <!-- The side menu that is invisible at first-->
+  <div id="mySidenav" class="sidenav">
+    <a href="javascript:void(0)" id="close" onclick="closeNav()"><i class="fas fa-times"></i></a>
+    <a href="javascript:void(0)" id="grid"><i class="fas fa-th-large"></i></a>
+
+    <!-- The text at the top of the sidebar -->
+    <div class="container">
+      <h1>
+        Welcome to Learn Diabetes!
+      </h1>
+      <p>Here, you will learn the basics of diabetes.</br> Select a topic below.</p>
+    </div>
+    <div class="container-fluid" id="topics">
+      <div id="carbs">
+        <h1>Topic 1: Simple Carbohydrates (carbs)</h1>
+
+        <div class="row">
+          <div class="col-md-1">
+            <img src="/img/left.png" class="hidden" id="previous">
+          </div>
+          <div class="col-md-3">
+
+          </div>
+          <div class="col-md-3">
+            <button class="scenario"><img src="/img/carbcontent.png">
+              <p>Simple Carbs</p>
+            </button>
+          </div>
+
+          <div class="col-md-3">
+            <button class="scenario"><img src="/img/carbamount.png">
+              <p>Carb Counting</p>
+            </button>
+          </div>
+          <div class="col-md-1">
+            <img src="/img/right.png" class="align-middle" id="next">
+          </div>
+        </div>
+      </div>
+      <div id="insulin" class="hidden">
+        <div class="row">
+          <h1>Topic 2: Bolus</h1>
+          <div class="col-md-1">
+            <img src="/img/left.png" id="previous2">
+          </div>
+          <div class="col-md-3">
+            <button class="scenario"><img src="/img/bolustime.png">
+              <p>Insulin Timing</p>
+            </button>
+          </div>
+          <div class="col-md-3">
+            <button class="scenario"><img src="/img/bolusdose.png">
+              <p>Insulin Dosing</p>
+            </button>
+          </div>
+          <div class="col-md-3">
+            <button class="scenario"><img src="/img/bolustime&dose.png">
+              <p>Insulin Timing and Dosing</p>
+            </button>
+          </div>
+          <div class="col-md-2">
+            <img src="/img/right.png" class="hidden" id="next2">
+          </div>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+
+
   <div class="container">
     <div class="row" style="padding-top: 50px">
       <div class="col-sm-6">
@@ -98,35 +168,7 @@
     </div>
   </div>
 
-  <!-- The side menu that is invisible at first-->
-  <div id="mySidenav" class="sidenav">
-    <a href="javascript:void(0)" id="close" onclick="closeNav()"><i class="fas fa-times"></i></a>
-    <a href="javascript:void(0)" id="grid"><i class="fas fa-th-large"></i></a>
 
-    <div class="container">
-
-      <h1>
-        Welcome to Learn Diabetes!
-      </h1>
-      <p>Here, you will learn the basics of diabetes.</br> Select a topic below.</p>
-      <div class="row">
-        <div class="col-md-3">
-          <div class="scenario">
-            <p>Test</p>
-          </div>
-
-        </div>
-        <div class="col-md-3">
-          <div class="scenario">
-            <p>Test</p>
-          </div>
-
-        </div>
-      </div>
-    </div>
-
-
-  </div>
 
 
 
@@ -161,6 +203,7 @@
     }
   });
 
+  //function for side bar
   function openNav() {
     document.getElementById("overlay").style.display = "block";
     document.getElementById("mySidenav").style.width = "80%";
@@ -170,6 +213,18 @@
     document.getElementById("overlay").style.display = "none";
     document.getElementById("mySidenav").style.width = "0";
   }
+
+  $(document).ready(function () {
+    $("#next").click(function () {
+      $("#carbs").addClass("hidden");
+      $("#insulin").removeClass("hidden");
+    });
+    $("#previous2").click(function () {
+      $("#carbs").removeClass("hidden");
+      $("#insulin").addClass("hidden");
+    });
+  });
+
 
   $('#learn').on('click', function () { window.location = 'terminology.html'; });
   $('#seeworks').on('click', function () { openNav(); });
