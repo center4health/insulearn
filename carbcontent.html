@@ -266,18 +266,12 @@
 
   chart.drawBG(model);
 
-  let meal_time = d3.timeMinute.offset(mintime, 30);
-  let meal = new Meal(50, meal_time, MEAL_COMPONENTS.FAST_CARB, "Juice");
-  meal.displayoptions.yhandle = false;
-  meal.displayoptions.xhandle = false;
-  model.addFactor(meal);
-  chart.drawMeal(meal)
-  chart.drawBG(model);
+  
 
   let meals = {
     "Juice": {
       button: "#juice",
-      amount: 50,
+      amount: 40,
       type:MEAL_COMPONENTS.FAST_CARB,
       icon:"/img/Applejuice.png",
     },
@@ -285,11 +279,11 @@
       button:"#chocolate",
       amount: 40,
       type:MEAL_COMPONENTS.SIMPLE_CARB,
-      icon:"/img/Chocoalte.png",
+      icon:"/img/Chocolate.png",
     },
     "Candy": {
       button:"#candy",
-      amount: 50,
+      amount: 36,
       type:MEAL_COMPONENTS.FAST_CARB,
       icon:"/img/Candy.png",
     },
@@ -301,7 +295,7 @@
     },
     "Cheese": {
       button:"#cheese",
-      amount: 15,
+      amount: 30,
       type:MEAL_COMPONENTS.COMPLEX_CARB,
       icon:"/img/Cheese.png",
     },
@@ -312,14 +306,14 @@
       icon:"/img/Lettuce.png",
     },
   }
-  let cur_meal="Juice";
-  function pick_meal(name) {
-    
-    chart.removeFactor(meal);
-    model.removeFactor(meal);
-    cur_meal=name;
   
-
+  function pick_meal(name) {
+    if(meal){
+      console.log("trying")
+      chart.removeFactor(meal);
+      model.removeFactor(meal);
+    }
+    cur_meal=name;
     meal = new Meal(meals[name].amount, meal_time, meals[name].type, name);
     
     meal.displayoptions.yhandle = false;
@@ -329,31 +323,19 @@
     chart.drawMeal(meal);
     chart.drawBG(model);
   }
+
+  let meal_time = d3.timeMinute.offset(mintime, 30);
+  var meal;
+  let cur_meal="Juice";
+  pick_meal(cur_meal);
+
+
   $(document).ready(function () {
     for (const [ name, food ] of Object.entries(meals)) {
-      
       $(food.button).click(
           function () { pick_meal(name);
           });
       }
-    // $("#juice").click(function () {
-    //   pick_meal("Juice");
-    // });
-    // $("#chocolate").click(function () {
-    //   pick_meal("Chocolate");
-    // });
-    // $("#candy").click(function () {
-    //   pick_meal("Candy");
-    // });
-    // $("#croissant").click(function () {
-    //   pick_meal("Croissant");
-    // });
-    // $("#lettuce").click(function () {
-    //   pick_meal("Lettuce");
-    // });
-    // $("#cheese").click(function () {
-    //   pick_meal("Cheese");
-    // });
   });
 
 

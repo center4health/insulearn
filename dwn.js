@@ -21,7 +21,7 @@ const INSULIN_TYPE = {
 }
 
 const MEAL_COMPONENTS = {
-    "FAST_CARB": { PEAK: 25, DURATION: 90, ONSET: 0, NAME: "FAST CARB" }, // e.g. sugar
+    "FAST_CARB": { PEAK: 20, DURATION: 60, ONSET: 0, NAME: "FAST CARB" }, // e.g. sugar
     "SIMPLE_CARB": { PEAK: 30, DURATION: 200, ONSET: 0, NAME: "SIMPLE CARB" },  
     "COMPLEX_CARB": { PEAK: 60, DURATION: 300, ONSET: 0, NAME: "COMPLEX CARB" }
 }
@@ -530,6 +530,8 @@ class Chart {
             .data(bg.getBG())
             .attr('cx', (d) => { return this.x(d.x); })
             .attr('cy', (d) => { return this.y(d.y); });
+
+        
     }
     removeBG() {
         this.graphArea.selectAll(".bg_curve").remove();
@@ -557,12 +559,38 @@ class Chart {
                     .text(factor.name);
             }
         }
+        if (factor.displayoptions.icon) {
+            let icon_frame=g.append("g");
+            
+            g.append("rect")
+                .attr("fill", "url(#icon)")
+                .attr("width", 80)
+                .attr("height", 80)
+                .attr("x", this.x(factor.getTime())-25)
+                .attr("y", this.height-80)
+
+            g.append("pattern")
+                .attr("id", "icon")
+                .attr("class", "svg-image")
+                .attr("x", "0")
+                .attr("y", "20")
+                .attr("height", "1")
+                .attr("width", "1")
+                .append("svg:image")
+                .attr("x", "0")
+                .attr("y", "0")
+                .attr('width', 80)
+                .attr('height', 80)
+                .attr("xlink:href", factor.displayoptions.icon)
+
+        }
+
+
         //yhandle
         if (factor.displayoptions.yhandle) {
             let handle = this.model.getYHandleOf(factor);
 
-            let draggable_eclipse = g.append("svg")
-
+            let draggable_eclipse = g.append("g")
 
             draggable_eclipse.append("ellipse")
                 .style("fill", "#285C58")
