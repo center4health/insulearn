@@ -21,9 +21,10 @@ const INSULIN_TYPE = {
 }
 
 const MEAL_COMPONENTS = {
-    "FAST_CARB": { PEAK: 20, DURATION: 60, ONSET: 0, NAME: "FAST CARB" }, // e.g. sugar
+    "FAST_CARB": { PEAK: 15, DURATION: 50, ONSET: 0, NAME: "FAST CARB" }, // e.g. sugar
     "SIMPLE_CARB": { PEAK: 30, DURATION: 200, ONSET: 0, NAME: "SIMPLE CARB" },
-    "COMPLEX_CARB": { PEAK: 60, DURATION: 300, ONSET: 0, NAME: "COMPLEX CARB" }
+    "COMPLEX_CARB": { PEAK: 60, DURATION: 300, ONSET: 0, NAME: "COMPLEX CARB" },
+    "FATTY_CARB": { PEAK: 90, DURATION: 300, ONSET: 0, NAME: "COMPLEX CARB" }
 }
 
 /**
@@ -442,7 +443,7 @@ class Chart {
         let rect = {
             height: 50,
             width: 270,
-            x: 160,
+            x: 150,
             y: 40,
             rx: 15
         };
