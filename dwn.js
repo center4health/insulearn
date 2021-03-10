@@ -216,6 +216,11 @@ class Factor {
     **/
     setBase(base) {
         this.base = base;
+        this.type={
+            DURATION:base.length-1,
+            PEAK: this.base.indexOf(Math.max(...this.base)),
+            NAME: "Custom"
+        }
         return this;
     }
 
@@ -418,7 +423,9 @@ class Chart {
     margin = { top: 20, right: 20, bottom: 30, left: 50 };
 
     constructor(chart_div, model, max_glucose = 400, targetRange = [70, 180]) {
+        $(chart_div).empty(); //clean up
         let target = d3.select(chart_div);//select target
+        
         this.svg = target.append("svg");
 
         this.svg.attr("height", 500).attr("width", 750);
@@ -950,7 +957,7 @@ class CurveEditor {
 
         for (let i = 1; i < this.length - 1; i++) {
             let x = this.width / this.length * i;
-            curve.push((this.height - this.findYatXbyBisection(x, path, 0.5)) / this.height)
+            curve.push((this.height - this.findYatXbyBisection(x, path, 0.5)) / this.height/100)
         }
         curve.push(0);
         return curve;
