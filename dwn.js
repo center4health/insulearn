@@ -217,9 +217,9 @@ class Factor {
     setBase(base) {
         this.base = base;
         this.type={
+            NAME: "Custom",
             DURATION:base.length-1,
             PEAK: this.base.indexOf(Math.max(...this.base)),
-            NAME: "Custom"
         }
         return this;
     }
@@ -831,6 +831,7 @@ class CurveEditor {
 
         this.line = d3.line().curve(d3["curveMonotoneX"]);
         this.selected = this.points[1];
+        $(target).empty() //cleanup
         this.svg = d3.select(target).append("svg");
 
 
@@ -928,8 +929,6 @@ class CurveEditor {
     dragged() {
         let i = this.points.findIndex(s => s === d3.event.subject);
         let newx = d3.event.x - this.margin.left;
-
-        console.log(i)
         d3.event.subject[0] = Math.max(this.points[i - 1][0] + this.mindistance, Math.min(this.points[i + 1][0] - this.mindistance, newx));
         d3.event.subject[1] = Math.max(0, Math.min(this.height, d3.event.y));
         this.update();
