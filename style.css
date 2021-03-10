@@ -182,12 +182,11 @@ h5 {
   padding-right: 10px;
 }
 
-.foodBtn{
+.foodBtn {
   width: 90px;
   height: 90px;
   border-radius: 5px 5px 5px 5px;
 }
-
 
 #overlay {
   position: fixed;

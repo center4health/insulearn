@@ -605,7 +605,7 @@ class Chart {
         this.graphArea.selectAll(".bg_curve").remove();
     }
 
-    drawMarker(g, factor, toolTipText = "fix me") {
+    drawMarker(g, factor) {
         if (factor.displayoptions.startmarker) {
             if (factor.displayoptions.line) {
                 //  vertical line
@@ -667,12 +667,7 @@ class Chart {
                 .attr("rx", 13)
                 .attr("ry", 15)
                 .style("fill", "url(#arrow)")
-                // .style('cursor', 'pointer')
-                .on("mouseover", function (d, i) {
-                    d3.select("#tooltip-text")
-                        .text(toolTipText)
-                        .call(wrap, 270);
-                })
+                .style('cursor', 'pointer')
                 .call(d3.drag()
                     .on('drag',
                         (d, a, b, factor_param = factor) => {
