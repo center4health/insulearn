@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Learn Diabetes</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+    rel="stylesheet">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+</head>
+
+
+<body>
+
+
+
+
+
+
+  <div class="container">
+    <h2 style="text-align: left"><b>Graph Editor</b></h2>
+    <h3 style="text-align: left"><b>Create your own visual diabetes explanation</b></h3>
+
+
+    <div class="row">
+      <div class="col-sm-6 col-md-4">
+        <div class="accordion" id="accordionExample">
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="headingOne">
+              <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne"
+                aria-expanded="true" aria-controls="collapseOne">
+                Graph Basics
+              </button>
+            </h2>
+            <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne"
+              data-bs-parent="#accordionExample">
+              <div class="accordion-body">
+                <form>
+                  <div class="mb-3">
+                    <label for="charttitle" class="form-label">Name</label>
+                    <input id="charttitle" type="text" class="form-control" placeholder="A good title">
+                  </div>
+                  <div class="mb-3 form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="showTargetRange" checked>
+                    <label class="form-check-label" for="showTargetRange">
+                      Show the blood glucose target range
+                    </label>
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="#starttime">Time chart starts</label>
+                    <input id="starttime" type="time" class="form-control" value="16:00">
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="#endtime">Time chart ends</label>
+                    <input id="endtime" type="time" class="form-control" value="22:00">
+                  </div>
+                  <div class="mb-3">
+                    <label for="cgmRange" class="form-label">Maximum Glucose Value (250-400)</label>
+                    <input type="range" class="form-range" min="250" max="400" step="5" id="cgmRange">
+                  </div>
+
+
+                </form>
+                <button id="createChart" class="btn btn-primary">Create Empty Chart</button>
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="headingTwo">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                Add Meal
+              </button>
+            </h2>
+            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo"
+              data-bs-parent="#accordionExample">
+              <div class="accordion-body">
+
+                <form>
+                  <div class="form-group">
+                    <label for="#cmarkertext">Label</label>
+                    <input id="cmarkertext" type="text" value="Meal">
+                  </div>
+                  <div class="form-group">
+                    <input id="cmarker" type="checkbox" value="" checked>
+                    <label for="#cmarker">Draw Marker</label>
+                  </div>
+                  <div class="form-group">
+                    <input id="cmarkerlabel" type="checkbox" value="" checked>
+                    <label for="#cmarkerlabel">Show text</label>
+                  </div>
+                  <div class="form-group">
+                    <input id="cmarkerline" type="checkbox" value="" checked>
+                    <label for="#cmarkerline">Show vertical line</label>
+                  </div>
+                  <div class="form-group">
+                    <input id="cyhandle" type="checkbox" value="" checked>
+                    <label for="#cyhandle">Show Handle to change amount</label>
+                  </div>
+                  <div class="form-group">
+                    <input id="cxhandle" type="checkbox" value="" checked>
+                    <label for="#cxhandle">Allow horizontal dragging </label>
+                  </div>
+      
+                  <div class="form-group">
+                    <label for="cstrokeColor">Stroke Color</label>
+                    <input id="cstrokeColor" type="color" value="#41948E">
+                  </div>
+      
+                  <div class="form-group">
+                    <label for="cfillColor">Fill Color</label>
+                    <input id="cfillColor" type="color" value="#41FF8E">
+                  </div>
+                  <div class="form-group">
+                    <label for="meal_time">Stroke Color</label>
+                    <input type="range" name="meal_time" id="meal_time" min="0" max="400" value="50"></input>
+                  </div>
+                </form>
+                
+                <div id="curve"></div>
+
+
+                <button id="add_meal" type="button" class="btn btn-primary">Add
+                  Meal</button>
+
+               
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="headingThree">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                Add Meals
+              </button>
+            </h2>
+            <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree"
+              data-bs-parent="#accordionExample">
+              <div class="accordion-body">
+                <button data-bs-toggle="modal" data-bs-target="#simple_add" type="button" class="btn btn-primary">Add
+                  Simple
+                  Carb</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+
+      </div>
+      <div class="col-sm-12 col-md-8" id="chart">
+        <!-- svg code generated by d3 content will go here -->
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Modal pop-ups -->
+  <div class="modal fade" id="insulin_add" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Add Insulin</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>Customize</p>
+          <form>
+            <div class="form-group">
+              <label for="#imarkertext">Label</label>
+              <input id="imarkertext" type="text" value="Bolus">
+            </div>
+            <div class="form-group">
+              <input id="imarker" type="checkbox" value="" checked>
+              <label for="#imarker">Draw Marker</label>
+            </div>
+            <div class="form-group">
+              <input id="imarkerlabel" type="checkbox" value="" checked>
+              <label for="#imarkerlabel">Show text</label>
+            </div>
+            <div class="form-group">
+              <input id="imarkerline" type="checkbox" value="" checked>
+              <label for="#imarkerline">Show vertical line</label>
+            </div>
+            <div class="form-group">
+              <input id="iyhandle" type="checkbox" value="" checked>
+              <label for="#iyhandle">Show Handle to change amount</label>
+            </div>
+            <div class="form-group">
+              <input id="ixhandle" type="checkbox" value="" checked>
+              <label for="#ixhandle">Allow horizontal dragging </label>
+            </div>
+
+            <div class="form-group">
+              <label for="strokeColor">Stroke Color</label>
+              <input id="strokeColor" type="color" value="#944141">
+            </div>
+
+            <div class="form-group">
+              <label for="fillColor">Fill Color</label>
+              <input id="fillColor" type="color" value="#944141">
+            </div>
+            <div class="form-group">
+              <label for="bolus_time">Bolus time</label>
+              <input type="range" name="bolus_time" id=bolus_time min="0" max="200" value="100"></input>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button id="insulin" type="button" class="btn btn-primary" data-bs-dismiss="modal">Add Insulin</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+  
+
+
+</body>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js"
+  integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
+<script src="https://d3js.org/d3.v5.min.js"></script>
+<script src="dwn.js"></script>
+<script>
+  "use strict";
+
+  let model, chart;
+  let mintime, timeParse;
+
+  function createChart() {
+    timeParse = d3.timeParse("%H:%M")
+    mintime = timeParse($("#starttime").val());
+    model = new Model(mintime, timeParse($("#endtime").val()));
+    chart = new Chart("#chart", model, $('#cgmRange').val());
+    chart.drawTargetRange([70, 180]);
+    chart.drawBG(model);
+
+  }
+
+  $('#createChart').on('click', function () { createChart(); });
+
+  let meal_curve = new CurveEditor("#curve", 300, 100);
+
+
+
+  $('#insulin').on('click', function () {
+    let bolus_time = d3.timeMinute.offset(mintime, $('#bolus_time').val());
+    let insulin_bolus = new Insulin(12, bolus_time, INSULIN_TYPE.RAPID, $('#imarkertext').val());
+    insulin_bolus.displayoptions.startmarker = $('#imarker').prop('checked');
+    insulin_bolus.displayoptions.name = $('#imarkerlabel').prop('checked');
+    insulin_bolus.displayoptions.line = $('#imarkerline').prop('checked');
+    insulin_bolus.displayoptions.yhandle = $('#iyhandle').prop('checked');
+    insulin_bolus.displayoptions.xhandle = $('#ixhandle').prop('checked');
+    model.addFactor(insulin_bolus);
+    chart.drawInsulin(insulin_bolus, $('#strokeColor').val(), $('#fillColor').val())
+    chart.drawBG(model);
+  });
+
+  $('#add_meal').on('click', function () {
+    console.log("meal time")
+    let meal_time = d3.timeMinute.offset(mintime, $('#meal_time').val());
+    let meal = new Meal(30, meal_time, MEAL_COMPONENTS.SIMPLE_CARB, $('#cmarkertext').val());
+    console.log(meal_curve.exportCurve())
+    meal.setBase(meal_curve.exportCurve())
+    meal.displayoptions.startmarker = $('#cmarker').prop('checked');
+    meal.displayoptions.name = $('#cmarkerlabel').prop('checked');
+    meal.displayoptions.line = $('#cmarkerline').prop('checked');
+    meal.displayoptions.yhandle = $('#cyhandle').prop('checked');
+    meal.displayoptions.xhandle = $('#cxhandle').prop('checked');
+    model.addFactor(meal);
+    chart.drawMeal(meal)
+    chart.drawBG(model);
+  });
+
+
+
+</script>
+
+</html>
