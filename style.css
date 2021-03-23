@@ -91,6 +91,47 @@ h5 {
   color: #f1f1f1;
 }
 
+#next_topic {
+  height: 62px;
+  width: 150px;
+  position: fixed;
+  right: 0;
+  bottom: 20%;
+  font-size: 16px;
+  background-color: #050941;
+  color: white;
+  border-radius: 10px 0px 0px 10px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-left: 20px;
+}
+
+#next_topic :hover {
+  color: #f1f1f1;
+}
+
+#previous_topic {
+  height: 62px;
+  width: 150px;
+  position: fixed;
+  right: 0;
+  bottom: 10%;
+  font-size: 16px;
+  background-color:  white;
+  color:#050941;
+  border-style: solid;
+  border-color: #050941;
+  border-radius: 10px 0px 0px 10px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-left: 20px;
+}
+
+#previous_topic :hover {
+  color:#01042e;
+}
+
+
 .sidenav {
   height: 60%;
   width: 0;
