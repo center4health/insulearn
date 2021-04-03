@@ -183,6 +183,7 @@ class Factor {
         this.uuid = uuidv4();
         this.type = type;
         this.name = name;
+        this.amount_range = [0, amount * 3]; //some default values
         this.displayoptions = {
             startmarker: true,
             line: true,
@@ -216,9 +217,9 @@ class Factor {
     **/
     setBase(base) {
         this.base = base;
-        this.type={
+        this.type = {
             NAME: "Custom",
-            DURATION:base.length-1,
+            DURATION: base.length - 1,
             PEAK: this.base.indexOf(Math.max(...this.base)),
         }
         return this;
@@ -285,6 +286,9 @@ class Factor {
     * @return {Insulin} - the current object to allow chaining of methods
     **/
     setAmount(amount) {
+        (amount < this.amount_range[0]) ? amount = this.amount_range[0] : "";
+        (amount > this.amount_range[1]) ? amount = this.amount_range[1] : "";
+
         let change = amount - this.amount;
         this.amount = amount;
         if (this.notifyAmount) {
@@ -425,7 +429,7 @@ class Chart {
     constructor(chart_div, model, max_glucose = 400, targetRange = [70, 180]) {
         $(chart_div).empty(); //clean up
         let target = d3.select(chart_div);//select target
-        
+
         this.svg = target.append("svg");
 
         this.svg.attr("height", 500).attr("width", 750);
@@ -956,7 +960,7 @@ class CurveEditor {
 
         for (let i = 1; i < this.length - 1; i++) {
             let x = this.width / this.length * i;
-            curve.push((this.height - this.findYatXbyBisection(x, path, 0.5)) / this.height/100)
+            curve.push((this.height - this.findYatXbyBisection(x, path, 0.5)) / this.height / 100)
         }
         curve.push(0);
         return curve;
