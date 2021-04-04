@@ -153,7 +153,7 @@ class Model {
         if (after == undefined) {
             after = bg_data[0].x;
         }
-        var peak = {x:0, y:0};
+        var peak = { x: 0, y: 0 };
         for (let i = 0; i < bg_data.length; i++) {
             if ((bg_data[i].y > peak.y) & (bg_data[i].x > after)) {
                 console.log("found")
@@ -178,9 +178,9 @@ class Model {
                 }
             }
         }
-        let result= (t==0) ? 0 : Math.round(tbr / t*100)
+        let result = (t == 0) ? 0 : Math.round(tbr / t * 100)
         return result;
-  
+
     }
     getTimeAboveRange(after) {
         let bg_data = this.getBG();
@@ -197,12 +197,12 @@ class Model {
                 }
             }
         }
-        let result= (t==0) ? 0 : Math.round(tar / t*100)
+        let result = (t == 0) ? 0 : Math.round(tar / t * 100)
         return result;
     }
 
     getPercentTimeInRange(after) {
-        return 100-this.getTimeAboveRange(after)-this.getTimeBelowRange(after);
+        return 100 - this.getTimeAboveRange(after) - this.getTimeBelowRange(after);
     }
     getTimeRange() {
         return d3.extent(this.bgbase, function (d) { return d.x; });
@@ -491,6 +491,17 @@ class Chart {
 
         this.drawBase(this.svg);
     }
+    updateToolTip(text, color, text2, text3) {
+        if (this.svg.selectAll("#calloutbox").nodes().length==0) {
+            this.drawToolTip(text, color, text2, text3)
+        }
+        else {   
+            this.svg.select("#ttbackground").style("fill", color);
+            this.svg.select("#tooltip-text").text(text);
+            this.svg.select("#tooltip-text2").text(text2);
+            this.svg.select("#tooltip-text3").text(text3);
+        }
+    }
 
     drawToolTip(text, color, text2, text3) {
         this.svg.selectAll("#calloutbox").remove();
@@ -519,6 +530,7 @@ class Chart {
         tooltip.append("rect")
             .style("fill", color)
             .style("stroke", "none")
+            .attr("id", "ttbackground")
             .attr("x", rect.x)
             .attr("y", rect.y)
             .attr("width", rect.width)
@@ -567,7 +579,7 @@ class Chart {
             .attr("x", cbox.x + 10)
             .attr("y", cbox.y + 25)
             .attr("visibility", "visible")
-            .attr("id", "tooltip-text")
+            .attr("id", "tooltip-text2")
             .call(wrap, 250);
 
 
@@ -584,7 +596,7 @@ class Chart {
                 .attr("x", cbox.x + 10)
                 .attr("y", cbox.y + 65)
                 .attr("visibility", "visible")
-                .attr("id", "tooltip-text")
+                .attr("id", "tooltip-text3")
                 .call(wrap, 250);
         }
 

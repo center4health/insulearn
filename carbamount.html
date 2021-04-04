@@ -98,8 +98,7 @@
           </div>
 
           <div class="col-md-4">
-            <button class="scenario" onclick="{ window.location = 'carbcontent.html'; }"><img
-                src="img/carbcontent.png">
+            <button class="scenario" onclick="{ window.location = 'carbcontent.html'; }"><img src="img/carbcontent.png">
               <p>Simple Carbs</p>
             </button>
           </div>
@@ -354,15 +353,35 @@
     $(button).css("background-color", color);
 
   }
-  function updateToolTip(base_meal, meal){
-    tir=model.getPercentTimeInRange();
-    console.log(tir)
-    if(tir<100){
-      chart.drawToolTip("Out Of Range", base_meal.color, base_meal.sugar);
-    }else{
-      chart.drawToolTip("In Range", base_meal.color, base_meal.sugar);
+
+
+  function qualtitative_mealsize(base_meal, meal) {
+    let ratio = meal.getAmount() / base_meal.amount;
+    let mealsize = "Unknown";
+    if (ratio <= 0.5) {
+      mealsize = "Small Portion";
     }
-     
+    if ((ratio > 0.5) & (ratio <= 1)) {
+      mealsize = "Medium Portion";
+    }
+    if ((ratio > 1) & (ratio <= 2)) {
+      mealsize = "Large Portion";
+    }
+    if (ratio > 2) {
+      mealsize = "Very Large Portion";
+    }
+    return mealsize;
+
+  }
+  function updateToolTip() {
+    let base_meal=meals[cur_meal];
+    tir = model.getPercentTimeInRange();
+    mealsize=qualtitative_mealsize(base_meal, meal);
+    if (tir < 100) {
+      chart.updateToolTip("Out Of Range", "#E49C9D", mealsize, base_meal.impact);
+    } else {
+      chart.updateToolTip("In Range", "#9CD9B5", mealsize, base_meal.impact);
+    }
   }
 
   function pick_meal(name) {
@@ -379,8 +398,9 @@
     model.addFactor(meal);
     chart.drawMeal(meal);
     chart.drawBG(model);
-    updateToolTip(meals[name], meal);
-    
+    updateToolTip();
+    meal.onAmountChange(updateToolTip)
+
   }
 
   let meal_time = d3.timeMinute.offset(mintime, 30);
