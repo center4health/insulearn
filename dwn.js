@@ -149,23 +149,25 @@ class Model {
         return result;
     }
     getBGPeak(after) {
-        if (after == undefined) {
-            after = 0;
-        }
         let bg_data = this.getBG();
-        var peak = [0, 0];
+        if (after == undefined) {
+            after = bg_data[0].x;
+        }
+        var peak = {x:0, y:0};
         for (let i = 0; i < bg_data.length; i++) {
             if ((bg_data[i].y > peak.y) & (bg_data[i].x > after)) {
+                console.log("found")
                 peak = bg_data[i];
             }
         }
+        console.log(peak)
         return peak
     }
     getTimeBelowRange(after) {
-        if (after == undefined) {
-            after = 0;
-        }
         let bg_data = this.getBG();
+        if (after == undefined) {
+            after = bg_data[0].x;
+        }
         var tbr = 0;
         var t = 0
         for (let i = 0; i < bg_data.length; i++) {
@@ -176,13 +178,15 @@ class Model {
                 }
             }
         }
-        return Math.round(tbr / t*100)
+        let result= (t==0) ? 0 : Math.round(tbr / t*100)
+        return result;
+  
     }
     getTimeAboveRange(after) {
-        if (after == undefined) {
-            after = 0;
-        }
         let bg_data = this.getBG();
+        if (after == undefined) {
+            after = bg_data[0].x;
+        }
         var tar = 0;
         var t = 0
         for (let i = 0; i < bg_data.length; i++) {
@@ -193,19 +197,12 @@ class Model {
                 }
             }
         }
-        return Math.round(tar / t*100)
+        let result= (t==0) ? 0 : Math.round(tar / t*100)
+        return result;
     }
 
     getPercentTimeInRange(after) {
         return 100-this.getTimeAboveRange(after)-this.getTimeBelowRange(after);
-        // let bg_data = this.getBG();
-        // var inrange = 0;
-        // for (let i = 0; i < bg_data.length; i++) {
-        //     if (bg_data[i].y > 69 && bg_data[i].y < 181) {
-        //         inrange++;
-        //     }
-        // }
-        // return Math.round(inrange / bg_data.length * 100);
     }
     getTimeRange() {
         return d3.extent(this.bgbase, function (d) { return d.x; });

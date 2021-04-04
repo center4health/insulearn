@@ -358,7 +358,7 @@
     tir=model.getPercentTimeInRange();
     console.log(tir)
     if(tir<100){
-      chart.drawToolTip("Too high", base_meal.color, base_meal.sugar);
+      chart.drawToolTip("Out Of Range", base_meal.color, base_meal.sugar);
     }else{
       chart.drawToolTip("In Range", base_meal.color, base_meal.sugar);
     }
