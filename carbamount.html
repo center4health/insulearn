@@ -359,16 +359,16 @@
     let ratio = meal.getAmount() / base_meal.amount;
     let mealsize = "Unknown";
     if (ratio <= 0.5) {
-      mealsize = "Small Portion";
+      mealsize = "Small Serving Size";
     }
     if ((ratio > 0.5) & (ratio <= 1)) {
-      mealsize = "Medium Portion";
+      mealsize = "Medium Serving Size";
     }
     if ((ratio > 1) & (ratio <= 2)) {
-      mealsize = "Large Portion";
+      mealsize = "Large Serving Size";
     }
     if (ratio > 2) {
-      mealsize = "Very Large Portion";
+      mealsize = "Very Large Serving Size";
     }
     return mealsize;
 
