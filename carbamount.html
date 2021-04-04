@@ -354,6 +354,16 @@
     $(button).css("background-color", color);
 
   }
+  function updateToolTip(base_meal, meal){
+    tir=model.getPercentTimeInRange();
+    console.log(tir)
+    if(tir<100){
+      chart.drawToolTip("Too high", base_meal.color, base_meal.sugar);
+    }else{
+      chart.drawToolTip("In Range", base_meal.color, base_meal.sugar);
+    }
+     
+  }
 
   function pick_meal(name) {
     if (meal) {
@@ -364,13 +374,13 @@
     cur_meal = name;
     setBackground(meals[name].button, COLOR_ACTIVE, meals[name].icon);
     meal = new Meal(meals[name].amount, meal_time, meals[name].type, name);
-    // meal.displayoptions.yhandle = false;
     meal.displayoptions.xhandle = false;
     meal.displayoptions.icon = meals[name].icon;
     model.addFactor(meal);
     chart.drawMeal(meal);
     chart.drawBG(model);
-    chart.drawToolTip(meals[name].impact, meals[name].color, meals[name].sugar, meals[name].spike);
+    updateToolTip(meals[name], meal);
+    
   }
 
   let meal_time = d3.timeMinute.offset(mintime, 30);

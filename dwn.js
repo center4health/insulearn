@@ -148,16 +148,64 @@ class Model {
         }
         return result;
     }
-
-    timeInRange() {
-        let bg_data = this.getShape();
-        var inrange = 0;
-        for (i = 0; i < bg_data.length; i++) {
-            if (bg_data[i].y > 69 && bg_data[i].y < 181) {
-                inrange++;
+    getBGPeak(after) {
+        if (after == undefined) {
+            after = 0;
+        }
+        let bg_data = this.getBG();
+        var peak = [0, 0];
+        for (let i = 0; i < bg_data.length; i++) {
+            if ((bg_data[i].y > peak.y) & (bg_data[i].x > after)) {
+                peak = bg_data[i];
             }
         }
-        return Math.round(inrange / bg_data.length * 100);
+        return peak
+    }
+    getTimeBelowRange(after) {
+        if (after == undefined) {
+            after = 0;
+        }
+        let bg_data = this.getBG();
+        var tbr = 0;
+        var t = 0
+        for (let i = 0; i < bg_data.length; i++) {
+            if (bg_data[i].x > after) {
+                t++;
+                if (bg_data[i].y < 70) {
+                    tbr++;
+                }
+            }
+        }
+        return Math.round(tbr / t*100)
+    }
+    getTimeAboveRange(after) {
+        if (after == undefined) {
+            after = 0;
+        }
+        let bg_data = this.getBG();
+        var tar = 0;
+        var t = 0
+        for (let i = 0; i < bg_data.length; i++) {
+            if (bg_data[i].x > after) {
+                t++;
+                if (bg_data[i].y > 180) {
+                    tar++;
+                }
+            }
+        }
+        return Math.round(tar / t*100)
+    }
+
+    getPercentTimeInRange(after) {
+        return 100-this.getTimeAboveRange(after)-this.getTimeBelowRange(after);
+        // let bg_data = this.getBG();
+        // var inrange = 0;
+        // for (let i = 0; i < bg_data.length; i++) {
+        //     if (bg_data[i].y > 69 && bg_data[i].y < 181) {
+        //         inrange++;
+        //     }
+        // }
+        // return Math.round(inrange / bg_data.length * 100);
     }
     getTimeRange() {
         return d3.extent(this.bgbase, function (d) { return d.x; });
@@ -533,14 +581,17 @@ class Chart {
             .attr("y2", cbox.y + cbox.height / 2)
             .style("stroke", "#CFCFCF")
 
+        if (text3) {
+            // Text2
+            tooltip.append("text").text(text3)
+                .attr("x", cbox.x + 10)
+                .attr("y", cbox.y + 65)
+                .attr("visibility", "visible")
+                .attr("id", "tooltip-text")
+                .call(wrap, 250);
+        }
 
-        // Text2
-        tooltip.append("text").text(text3)
-            .attr("x", cbox.x + 10)
-            .attr("y", cbox.y + 65)
-            .attr("visibility", "visible")
-            .attr("id", "tooltip-text")
-            .call(wrap, 250);
+
     }
 
     drawTargetRange(range = this.targetRange) {
