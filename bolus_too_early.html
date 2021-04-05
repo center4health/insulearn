@@ -58,14 +58,14 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="#"><b>Diabetes Learning</b></a>
+        <a class="navbar-brand" href="index.html"><b>Diabetes Learning</b></a>
       </div>
 
       <!-- Links to home, interactive graphs, terminology, and about -->
       <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
         <ul class="nav navbar-nav navbar-right">
-          <li class="active"><a href="index.html">Home</a></li>
-          <li><a href="javascript:openNav();">Learning Tools</a></li>
+          <li><a href="index.html">Home</a></li>
+          <li class="active"><a href="javascript:openNav();">Learning Tools</a></li>
           <li><a href="terminology.html">Read More</a></li>
           <li><a href="about.html">About</a></li>
         </ul>
@@ -247,10 +247,10 @@
     tar = model.getTimeAboveRange();
     tir = model.getPercentTimeInRange();
     if (tar > 0) {
-      chart.updateToolTip(`Warning ${tar}% above Range`, "#E49C9D", "Try to adjust the bolus timing", "Use the slider below");
+      chart.updateToolTip(`Warning ${tar}% above Range`, "#FFF386", "Try to adjust the bolus timing", "Use the slider below");
     } else {
       if (tbr > 0) {
-        chart.updateToolTip(`Danger ${tbr}% Time below Range`, "#9CD9B5", "Try to adjust the bolus timing", "Use the slider below");
+        chart.updateToolTip(`Danger ${tbr}% Time below Range`, "#E49C9D", "Try to adjust the bolus timing", "Use the slider below");
       } else {
         chart.updateToolTip("Good Job! 100% Time in Range", "#9CD9B5", "Can you get even better?", "Or go on to the next topic");
       }
