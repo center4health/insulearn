@@ -282,21 +282,21 @@ button:disabled, button[disabled] {
 }
 
 .navbar-default .navbar-brand:hover {
-  color: #41948E;
+  color: #050941;
   /*emerald green*/
 }
 
 /* active — the page you're currently on */
 
 .navbar-default .navbar-nav>.active>a {
-  color: #41948E;
+  color: #050941;
   /*emerald green*/
   font-weight: 700;
   background: none;
 }
 
 .navbar-default .navbar-nav>.active>a:hover {
-  color: #41948E;
+  color: #050941;
   /*emerald green*/
   font-weight: 700;
   background: none;
@@ -311,7 +311,7 @@ button:disabled, button[disabled] {
 }
 
 .navbar-default .navbar-nav>li>a:hover {
-  color: #41948E;
+  color: #050941;
   /*emerald green*/
 }
 
