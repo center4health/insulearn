@@ -2,7 +2,7 @@
  * Library to bundle all calculations around blood glucose, insulin and meals 
  * for type 1 diabetes. This code is designed to explain concepts not to make
  * dosing decsions. There are several decsions to make concepts more visible
- * that make the tool unsuitabl to guide dosing decisions.
+ * that make the tool unsuitable to guide dosing decisions.
  * 
  * Currently written in ECMA6 may have to transpile for older browsers
  * @Author Lars Mueller <lamueller@ucsd.edu>
@@ -174,11 +174,13 @@ class Model {
             if (bg_data[i].x > after) {
                 t++;
                 if (bg_data[i].y < 70) {
+                    
                     tbr++;
                 }
             }
         }
         let result = (t == 0) ? 0 : Math.round(tbr / t * 100)
+        
         return result;
 
     }
@@ -234,7 +236,8 @@ class Factor {
             line: true,
             text: true,
             yhandle: true,
-            xhandle: true
+            xhandle: true,
+            hidden: false,
         }
         this.base = [];
     }
@@ -280,7 +283,6 @@ class Factor {
         let minute_change = (time - old_time) / 10000 //(60 - 1000)
         //notify listeners?
         if (this.notifyTime) {
-            console.log("trying")
             this.notifyTime(time, minute_change);
         }
         this.time = time;
@@ -695,7 +697,8 @@ class Chart {
                 // text
                 g.append("text")
                     .attr("class", "range") // use to style in stylesheet
-                    .text(factor.name);
+                    .text(factor.name)
+                    .attr("transform", "translate(0,25)");
             }
         }
         if (factor.displayoptions.icon) {
@@ -788,17 +791,18 @@ class Chart {
         factor.setChart(this);
         this.removeFactor(factor);
         let g = this.graphArea.append("g").attr("class", "curve" + factor.getUUID());
-
-        // factor curve
-        let graph = g.append("path")
-            .datum(this.model.getShapeOf(factor))
-            .attr("fill", fill_color)
-            .attr("fill-opacity", "0.2")
-            .attr("stroke", stroke_color) // insulin curve color
-            .attr("stroke-width", 1) // size(stroke) of the insulin curve
-        if (factor.displayoptions.xhandle) {
-            graph.call(d3.drag()
-                .on('drag', (d, a, b, xfactor = factor) => { this.dragX(d, xfactor); }));
+        if(!factor.displayoptions.hidden){
+            // factor curve
+            let graph = g.append("path")
+                .datum(this.model.getShapeOf(factor))
+                .attr("fill", fill_color)
+                .attr("fill-opacity", "0.2")
+                .attr("stroke", stroke_color) // insulin curve color
+                .attr("stroke-width", 1) // size(stroke) of the insulin curve
+            if (factor.displayoptions.xhandle) {
+                graph.call(d3.drag()
+                    .on('drag', (d, a, b, xfactor = factor) => { this.dragX(d, xfactor); }));
+            }
         }
         this.drawMarker(g, factor, "I am insulin");
         this.updateFactor(factor);
@@ -832,8 +836,10 @@ class Chart {
         this.model.getDependentFactors(factor).forEach(dep => {
             this.updateFactor(dep);
         });
-
-
+        //finally update bg
+        if (this.bg) {
+            this.updateBG(this.bg);
+        }
     }
     removeFactor(factor) {
         this.graphArea.selectAll(".curve" + factor.getUUID()).remove();
@@ -842,9 +848,6 @@ class Chart {
         let old_time = factor.getTime();
         let new_time = this.x.invert(this.x(old_time) + d3.event.dx);
         factor.setTime(new_time);
-        if (this.bg) {
-            this.updateBG(this.bg);
-        }
     }
     dragY(d, factor) {
         let old_amount = factor.getAmount();
@@ -854,9 +857,6 @@ class Chart {
             new_amount = 0.001;
         }
         factor.setAmount(new_amount);
-        if (this.bg) {
-            this.updateBG(this.bg);
-        }
     }
     highlightEvent(event) {
         //find location of the marker
