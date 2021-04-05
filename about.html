@@ -1,81 +1,251 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <title>Diabetes Educational Tool</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="style-meal.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-  </head>
-  <body>
 
-    <!--Fixed Navigation Bar-->
-    <nav class="navbar navbar-default navbar-fixed-top" id="header">
-      <div class="container-fluid">
-        <!-- Brand and toggle get grouped for better mobile display -->
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="index.html"><b>InsuLearn</b></a>
+<head>
+  <title>Visual Diabetes Learning</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="style.css">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+    rel="stylesheet">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <script src="https://kit.fontawesome.com/008a24505e.js" crossorigin="anonymous"></script>
+</head>
+<style>
+  #learn {
+    color: black;
+    background-color: white;
+    border-color: #c4c4c4;
+  }
+
+  #learn:hover {
+    color: black;
+    background-color: #ededed;
+    /*dark green*/
+    border-color: #ededed;
+    /*dark green*/
+  }
+
+  .footer {
+    position: fixed;
+    padding-top: 25px;
+    padding-bottom: 25px;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background-color: #41948E;
+    /*emerald green*/
+    color: white;
+    text-align: center;
+  }
+</style>
+
+<body>
+  <div id="overlay"></div>
+
+  <!--Fixed Navigation Bar-->
+  <nav class="navbar navbar-default navbar-fixed-top" id="header">
+    <div class="container-fluid">
+      <!-- Brand and toggle get grouped for better mobile display -->
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+          data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="#"><b>Diabetes Learning</b></a>
+      </div>
+
+      <!-- Links to home, interactive graphs, terminology, and about -->
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <ul class="nav navbar-nav navbar-right">
+          <li class="active"><a href="index.html">Home</a></li>
+          <li><a href="javascript:openNav();">Learning Tools</a></li>
+          <li><a href="terminology.html">Read More</a></li>
+          <li><a href="about.html">About</a></li>
+        </ul>
+      </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+  </nav>
+
+  <!-- The side menu that is invisible at first-->
+  <div id="mySidenav" class="sidenav">
+    <a href="javascript:void(0)" id="close" onclick="closeNav()"><i class="fas fa-times"></i></a>
+    <a href="javascript:void(0)" id="grid"><i class="fas fa-th-large"></i></a>
+
+    <!-- The text at the top of the sidebar -->
+    <div class="container">
+      <h1>
+        Welcome to Learn Diabetes!
+      </h1>
+      <p>Here, you will learn the basics of diabetes.</br> Select a topic below.</p>
+    </div>
+    <div class="container-fluid" id="topics">
+      <div id="carbs">
+        <div class="col-md-12">
+          <h1>Topic 1: Simple Carbohydrates (carbs)</h1>
         </div>
 
-        <!-- Links to home, interactive graphs, terminology, and about -->
-      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-          <ul class="nav navbar-nav navbar-right">
-            <li class="active"><a href="index-meals.html">Home</a></li>
-            <li class="nav-item dropdown">
-            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Learn More <span class="caret"></span></a>
-                    <div class="dropdown-menu dropdown-menu-right">
-                        <a href="terminology.html" class="dropdown-item">Insulin Timing</a>
-                        <div class="dropdown-divider"></div>
-                       <a href="terminology-meal"class="dropdown-item">Nutrition</a>
-            <li><a href="about.html">About</a></li>
-          </ul>
-        </div><!-- /.navbar-collapse -->
-      </div><!-- /.container-fluid -->
-    </nav>
-    <div class="container">
 
-      <h1><b>About</b></h1>
-      <p>This educational tool is intended to help people with diabetes and
-         healthcare professionals. The first part of this tool is used to help people understand the relationship between insulin
-         timing and blood glucose levels through interactive visualizations.
-         It was created by a team of four students in collaboration with the
-         Diabetes Design Initiative at UCSD's Design Lab: Stephanie Kim, Allison
-         Patacsil, Stefanie Mendoza, and Vidya Raghvendra. <br><br> The second half of this tool was created to help people understand how meals affect glucose levels through interactive visualizations. It was created by a team of four students in collaboration with the
-         Diabetes Design Initiative at UCSD's Design Lab: Stefanie Mendoza, 
-         Nick Lin, Tiffany Chokry, and Anika Sharma.</p>
-      <br>
-        We would like to thank our mentors, Gayle Lorenzi (RN, CDCES), Arizona Milotich, Lars Mueller, Heidi Rataj, along with healthcare providers, Andrea Stallings (PA) and Laura Barba (NP, CDE), for your support and guidance. </p>
-      <br>
-      <p> </p>
-      <b style="color: red">Disclaimer</b>
-      <p>The information on this site is <b style="color: red">not</b> intended or implied to be a
-         substitute for professional medical advice, diagnosis or treatment. All
-         content, including text, graphics, images and information, contained on
-         or available through this website is for general information purposes only.</p>
-      <br>
-      <p>Please consult your physician for personalized medical advice. Always seek the advice of a physician or other qualified healthcare provider with any questions regarding a medical condition.</p>
+        <div class="row">
+          <div class="col-md-1">
+            <img src="img/left.png" class="hidden" id="previous">
+          </div>
 
+          <div class="col-md-4">
+            <button class="scenario" onclick="{ window.location = 'carbcontent.html'; }"><img src="img/carbcontent.png">
+              <p>Simple Carbs</p>
+            </button>
+          </div>
+
+          <div class="col-md-4">
+            <button class="scenario" onclick="{ window.location = 'carbamount.html'; }"><img src="img/carbamount.png">
+              <p>Carb Counting</p>
+            </button>
+          </div>
+          <div class="col-md-1">
+            <img src="img/right.png" class="align-middle" id="next">
+          </div>
+        </div>
+      </div>
+      <div id="insulin" class="hidden">
+        <div class="row">
+          <div class="col-md-12">
+            <h1>Topic 2: Bolus</h1>
+          </div>
+
+          <div class="col-md-1">
+            <img src="img/left.png" id="previous2">
+          </div>
+          <div class="col-md-3">
+            <button class="scenario" onclick="{ window.location = 'bolus_too_early.html'; }"><img
+                src="img/bolustime.png">
+              <p>Insulin Timing</p>
+            </button>
+          </div>
+          <div class="col-md-3">
+            <button class="scenario" onclick="{ window.location = 'bolus_too_little.html'; }"><img
+                src="img/bolusdose.png">
+              <p>Insulin Dosing</p>
+            </button>
+          </div>
+          <div class="col-md-3">
+            <button class="scenario" onclick="{ window.location = 'prebolus.html'; }"><img src="img/bolustime&dose.png">
+              <p>Insulin Timing and Dosing</p>
+            </button>
+          </div>
+          <div class="col-md-1">
+            <img src="img/right.png" class="hidden" id="next2">
+          </div>
+        </div>
+      </div>
     </div>
-  </body>
-  <script>
+
+  </div>
+
+
+
+
+  <div class="container">
+
+    <h1><b>About</b></h1>
+    <p>This educational tool is intended to help people with diabetes and
+      healthcare professionals. The first part of this tool is used to help people understand the relationship between
+      insulin timing and blood glucose levels through interactive visualizations.
+      It was created by three teams of students under mentorship by Dr. Lars Mueller and Heidi Rataj as a project in
+      the <a href="http://ddi.ucsd.edu">Diabetes Design Initiative</a>
+    </p> 
+    <p>Stephanie Kim, Allison Patacsil, Stefanie Mendoza, and Vidya Raghvendra created the first version that can be found
+      <a href="http://ddi.ucsd.edu/insulearn">here</a>. The focus was insulin timing.</p>
+
+    <p>The second half of this tool was created to help people understand how meals affect glucose levels through
+      interactive visualizations. It was created by Stefanie Mendoza,
+      Nick Lin, Tiffany Chokry, and Anika Sharma.</p>
+    <p>This current version was designed by (Ali) Yingxi Long, Ed Angara, Jhea Espares and Meghan Yiu. The design was implemented 
+      by Lars Mueller.
+    </p>
+
+
+    <p>
+    We would like to thank our mentors, Gayle Lorenzi (RN, CDCES), Arizona Milotich, Lars Mueller, Heidi Rataj, along
+    with healthcare providers, Andrea Stallings (PA) and Laura Barba (NP, CDE), for your support and guidance. </p>
+    <p> </p>
+    <b style="color: red">Disclaimer</b>
+    <p>The information on this site is <b style="color: red">not</b> intended or implied to be a
+      substitute for professional medical advice, diagnosis or treatment. All
+      content, including text, graphics, images and information, contained on
+      or available through this website is for general information purposes only.</p>
+    <br>
+    <p>Please consult your physician for personalized medical advice. Always seek the advice of a physician or other
+      qualified healthcare provider with any questions regarding a medical condition.</p>
+
+  </div>
+
+
+
+
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="row">
+      <div class="col-sm-6" style="padding-top: 5px; margin-bottom: 10px">
+        <a href="http://ddi.ucsd.edu" target="_blank"><img src="img/ddi-logo.png"
+            style="max-width: 150px; margin-right: 50px"></a>
+        <a href="https://designlab.ucsd.edu" target="_blank"><img src="img/dlab-logo.png" style="max-width: 150px"></a>
+      </div>
+      <div class="col-sm-6"
+        style="font-size: 12px; color: black; margin-top: 5px;padding-right: 100px; text-align: left; padding-left: 100px">
+        <b>Note</b>: The information on this site is not intended or implied to be a
+        substitute for professional medical advice, diagnosis or treatment.
+        All content, including text, graphics, images and information,
+        contained on or available through this website is for general
+        information purposes only.</p>
+      </div>
+    </div>
+  </footer>
+</body>
+<script>
   // function to add shadow to the navbar
-  $(window).scroll(function() {
-  var scroll = $(window).scrollTop();
-  if (scroll > 0) {
-    $("#header").addClass("active");
-  }
-  else {
-    $("#header").removeClass("active");
-  }
+  $(window).scroll(function () {
+    var scroll = $(window).scrollTop();
+    if (scroll > 0) {
+      $("#header").addClass("active");
+    }
+    else {
+      $("#header").removeClass("active");
+    }
   });
+
+  //function for side bar
+  function openNav() {
+    document.getElementById("overlay").style.display = "block";
+    document.getElementById("mySidenav").style.width = "80%";
+  }
+
+  function closeNav() {
+    document.getElementById("overlay").style.display = "none";
+    document.getElementById("mySidenav").style.width = "0";
+  }
+
+  $(document).ready(function () {
+    $("#next").click(function () {
+      $("#carbs").addClass("hidden");
+      $("#insulin").removeClass("hidden");
+    });
+    $("#previous2").click(function () {
+      $("#carbs").removeClass("hidden");
+      $("#insulin").addClass("hidden");
+    });
+  });
+
+
+  $('#learn').on('click', function () { window.location = 'terminology.html'; });
+  $('#seeworks').on('click', function () { openNav(); });
 </script>
+
 </html>
